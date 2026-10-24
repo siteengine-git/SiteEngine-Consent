@@ -6,7 +6,8 @@ Canonical checkout: `D:\SiteEngine\Plugins\.PLUGIN — SiteEngine Consent\source
 Existing project/archive home: `D:\SiteEngine\Plugins\.PLUGIN — SiteEngine Consent` (actual attached folder; obsolete recorded spellings were not recreated).
 Origin: https://github.com/siteengine-git/SiteEngine-Consent.git, branch `main`.
 Preserved initial remote commit: `5c6042fc79c53a2ae48d0c8c00231974a75f1326`, containing only README.md.
-Baseline checkpoint: `baseline-0.6.0-retained-2026-10-24` (source identity only; not installed acceptance). Exact baseline commit is recorded after checkpoint creation below.
+Baseline checkpoint: `baseline-0.6.0-retained-2026-10-24` (source identity only; not installed acceptance).
+Verified source baseline commit: `368c0affe8fe3bb6929222a23164429f3538512e`. Later documentation-only commits retain these exact plugin blobs. Resolve the current documentation tip with `git rev-parse HEAD`; public push/remote-byte verification is recorded in parent STATUS.md after completion.
 
 Retained installable archive remains in the parent project: `siteengine-consent-0.6.0.zip`, 26,211 bytes.
 SHA-256: `86ef1d90173d48a4379c18f1e67f10c576c753fddae3d4ad0da3ca0a5c127284`.
