@@ -1,0 +1,44 @@
+# Proposed Consent repair — review required
+
+This is a proposal, not implementation or deployment authorization. Retain original 0.6.0 source, policy and all receipt/history records.
+
+## Verified source boundary
+
+Consent line 449 registers before_insert_submission as a filter with three arguments. stamp_submission_consent (581–649) expects a full insert record containing response JSON and returns a changed record. It copies cookie claims without receipt lookup. Without a valid cookie it writes a negative stamp but leaves submitted flat consent fields intact.
+
+Installed Fluent Forms 6.2.16 SubmissionHandlerService prepares response data at lines 181–191 with `apply_filters('fluentform/insert_response_data', $formData, $formId, $inputConfigs)`: an associative response array, integer form ID and field-configuration array. It encodes the result into response JSON at 214. At 235 it returns `apply_filters('fluentform/filter_insert_data', $response)`, a full insert record with ONE argument. At 611 it calls `do_action('fluentform/before_insert_submission', $insertData, $formDataRaw, $this->form)` and then inserts the original record at 633. The active SubmissionHandlerController calls this service at line 22. The older FormHandler path has the same action at 127 and mutation filters at 915/958. The Consent return is discarded. The Pro inventory action found does not turn that action into a mutation filter. Payment/Pro and alternate routes still need real lifecycle acceptance.
+
+[Official action documentation](https://developers.fluentforms.com/hooks/actions/submission/#fluentform-before-insert-submission), [filter documentation](https://developers.fluentforms.com/hooks/filters/submission/), and [submission lifecycle](https://developers.fluentforms.com/submission-lifecycle/) confirm these contracts. The filter documentation's example accepted-argument count is inconsistent with its three-argument callback; use installed invocation and register 3 when consuming all three values.
+
+Consent getReceiptId (811) reuses localStorage/cookie ID. buildPayload (826) uses it for changed choices. storeConsent and dispatch happen before asynchronous saveAuditReceipt. AJAX (533–579) accepts submitted category/Google JSON and appends a row; receipt_id is non-unique. A slow older success can call storeConsent after a newer choice. Audit acknowledgement is neither authentication of cookie claims nor an immutable event contract.
+
+Installed Ads 0.6.3 class-siteengine-ads-bridge-cli.php resolve_consent_provenance (7600 onward) uses canonical submission nested stamp, flat receipt field, then entry-details fallback. At 7732 it selects `WHERE receipt_id = %s ORDER BY id DESC LIMIT 1`. It gates on configured required policy and ad_user_data; DNC and deterministic submission gates remain separate. **Inference from these verified paths:** a prior binding to reused ID can resolve later rejection or later grant; immutable inquiry identity alone cannot freeze choice history. No live receipt histories were exported or tested.
+
+## Bounded implementation proposal
+
+1. Replace the action registration with a response-array adapter on insert_response_data, explicitly taking `(array $response, $formId, $inputConfigs)` and returning the response array. Extract normalization from the full-record callback; preserve unrelated fields and cover priority/order with installed ComponentInitTrait filters. Do not merely rename the hook or attach a three-required-argument callback to the one-argument full-record filter.
+2. Treat browser cookie/hidden fields as claims. Resolve a durably acknowledged receipt under an explicit integrity contract; derive stored consent/policy/Google values from that record. Remove forged nested stamps and conflicting flat authority. Missing, malformed, stale, contradictory, unresolved or ambiguous identity produces a negative state without inventing grants. Recompute Google flags from validated strict category booleans at capture. A public nonce and an existing UUID alone do not prove ownership/authenticity; specify an opaque/signed receipt acknowledgement and replay boundary before coding.
+3. Separate current preference from immutable consent interaction. Issue a new event ID for each actual interaction; retries retain that event ID. Server acknowledgement must be durable and replay-safe; identical retry resolves the same event, conflicting reuse must not append contradictory authority. Preserve legacy rows/IDs as history. No unique-index migration, deduplication, historical rewrite or grant backfill in this repair.
+4. Guard asynchronous responses with an interaction generation/token so older acknowledgements cannot restore stale preference. Apply rejection locally immediately; audit failures must not manufacture acknowledged authority. Define pending/failure UI and recovery without blocking the underlying business form indefinitely or silently granting advertising permission. A form racing the write stays unresolved until the specified safe capture point; do not retroactively upgrade its history as a side effect.
+5. Require policy/banner validity and explicit re-consent on mismatch/expiry. Keep release/policy identities separate; do not choose a new live policy value in this task. Test storage denial and legacy browser state upgrade without promoting old consent.
+
+## Compatibility decision required before coding
+
+Keep existing flat fields and `_se_consent_server.receipt_id` for acknowledged new events so Ads can resolve its established contract. Add event/row/status metadata only with defined semantics. New event IDs prevent cross-choice lookup drift only if server replay handling also prevents contradictory reuse.
+
+Ads currently ignores a negative stamp when it has no receipt_id, then falls back to flat data and entry details. Clearing flat response data alone is insufficient if stale details still contain an ID. Prove both persistence locations safe in the real lifecycle. Define and fixture-test a fail-closed representation compatible with the unchanged consumer, or stop the integration portion and request a separate Ads-owner assignment. Do not introduce a fabricated receipt or silently change Ads. Historical ambiguous IDs may still resolve newest rows; a Consent-only future-event change cannot repair that legacy consumer behavior. Existing blocked historical records must stay blocked, and no global claim of immutable legacy resolution is permitted.
+
+Retain required-policy, missing/unresolvable/denied consent, deterministic canonical submission and DNC gates. ad_personalization remains independent. Call Bridge changes/linkage, Ads changes/exports, cleanup, uninstall, policy changes and historical receipt repair are excluded.
+
+## Meaningful acceptance tests for the later assignment
+
+| Case | Required evidence |
+| --- | --- |
+| Actual Fluent Forms/Pro paths | Controlled isolated submissions prove stored response JSON, entry details and consumer source selection; unrelated fields and downstream integrations survive. Cover ordinary and payment paths that are available. |
+| Cookie/hidden conflicts | Valid receipt wins over forged flat/nested fields; absent/malformed/tampered/missing/ambiguous receipt cannot gain authority through any Ads fallback. Strict booleans and contradictory Google flags are tested. |
+| Audit failures and races | Network/DB failure, rate limit, expired nonce, immediate submit, duplicate retry, contradictory replay, two tabs and reversed ACK order; no stale restoration, duplicate contradictory event or invented grant. |
+| Accept to reject / reject to accept | Two distinct persisted event IDs; old binding remains its original event; current preference follows latest interaction; current revocation eligibility is explicitly distinguished from historical evidence. Test both timestamp and row-order inversions. |
+| Policy/banner changes | Old policy stays historical; required-policy gate stays blocked; no automatic grant on load or migration. Test cookie/localStorage expiry and storage refusal. |
+| Consumer compatibility | Unchanged Ads nested/flat/details precedence, legacy ambiguous/missing IDs, policy mismatch, DNC, denied ad_user_data and independent ad_personalization; fixture-only resolution, no external export. Preserve known historical blocked cases. |
+
+Use synthetic fixtures and isolated test storage first, then separately authorized controlled Alma acceptance. Baseline lint and historical 18 presence checks do not satisfy this matrix. No new implementation/tests were introduced under the baseline assignment.

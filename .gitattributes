@@ -1,0 +1,4 @@
+siteengine-consent.php -text
+readme.txt -text
+uninstall.php -text
+*.md text eol=lf
