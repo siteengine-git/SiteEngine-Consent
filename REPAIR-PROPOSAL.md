@@ -1,6 +1,6 @@
 # Proposed Consent repair — review required
 
-This is a proposal, not implementation or deployment authorization. Retain original 0.6.0 source, policy and all receipt/history records.
+Historical proposal retained for provenance. The 2026-10-28 user assignment authorizes the bounded candidate implementation and isolated tests. CONSUMER-CONTRACT.md records the finalized prospective contract and the continuing Ads integration block. No deployment or live acceptance writes are authorized. Retain original 0.6.0 source, policy and all receipt/history records.
 
 ## Verified source boundary
 

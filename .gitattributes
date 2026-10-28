@@ -1,3 +1,7 @@
+*.php text eol=lf
+*.cjs text eol=lf
+*.json text eol=lf
+.gitattributes text eol=lf
 siteengine-consent.php -text
 readme.txt -text
 uninstall.php -text

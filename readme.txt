@@ -3,7 +3,7 @@ Contributors: siteengine
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 0.6.0
+Stable tag: 0.6.1-rc.1
 License: Proprietary
 
 First-party consent management for WordPress. Google Consent Mode v2, Fluent Forms integration, local audit log, exports.
@@ -16,7 +16,7 @@ Key capabilities:
 
 * Renders a consent banner with Accept All / Manage Preferences / Reject Non-Essential
 * Fires Google Consent Mode v2 default and update signals in the correct order
-* Stamps every Fluent Forms submission with server-side authoritative consent state
+* Captures signed receipt-backed Fluent Forms consent evidence or an explicit negative state
 * Maintains a searchable audit log of every consent interaction
 * Provides admin UI, WP-CLI, and REST endpoints for exports and monitoring
 * Auto-scheduled retention cleanup (default 730 days, configurable)
@@ -37,6 +37,15 @@ When SiteEngine Base 2.2+ is active, Business Name and Privacy Policy URL are re
 5. Check SiteEngine → Consent (with Base) or Tools → SiteEngine Consent (standalone) to see the audit log
 
 == Changelog ==
+
+= 0.6.1-rc.1 (candidate; not deployed or accepted) =
+* Corrects Fluent Forms response-array stamping and sanitizes details/integration data.
+* Adds signed immutable event acknowledgements, form-bound stored stamps and strict category mapping.
+* Serializes idempotent event retries; conflicting replay and ambiguous records fail closed.
+* Separates pending/failed browser choices from acknowledged receipt identity and guards late responses.
+* Requires explicit choice for legacy, expired or mismatched policy/banner state; policy value unchanged.
+* Integration acceptance is BLOCKED on Ads Bridge's negative-stamp/signature/exact-row contract.
+* No historical receipt migration, grant backfill, policy change or deployment is included.
 
 = 0.6.0 =
 * Registers with the SiteEngine Base module dashboard when Base is active

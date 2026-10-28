@@ -1,0 +1,29 @@
+{
+  "files": [
+    {
+      "path": "siteengine-consent.php",
+      "bytes": 94296,
+      "sha256": "5fad4f0afb200a94648f93577c8f68972d43d9d07f77030da79eeecb080f6d4f"
+    },
+    {
+      "path": "readme.txt",
+      "bytes": 3534,
+      "sha256": "2ad107ad75cbc61a0d8cd7b4f8a9300359af581e6e2a5ac3321f9b384dea6bb7"
+    },
+    {
+      "path": "uninstall.php",
+      "bytes": 2514,
+      "sha256": "5ac04f29a8841637c340a3c630d76903bb458a4534d508fd933208914885a08b"
+    },
+    {
+      "path": "includes/class-siteengine-consent-authority.php",
+      "bytes": 13177,
+      "sha256": "7c3b419fcc2b33563dc0fde9f917ac44ad620b905bb7cd3a9ec4cfb35586fc54"
+    }
+  ],
+  "bytes": 30469,
+  "sha256": "c20ecb87b134c411e4f12fc01c9b22c9f105b43e1ac67af4cca1287505633a5a",
+  "version": "0.6.1-rc.1",
+  "archive": "siteengine-consent-0.6.1-rc.1.zip",
+  "acceptance": "unaccepted candidate; Ads integration blocked; no deployment"
+}

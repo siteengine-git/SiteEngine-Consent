@@ -3,7 +3,7 @@
  * Plugin Name: SiteEngine Consent
  * Plugin URI:  https://siteengine.io/
  * Description: First-party consent management for WordPress. GTM Consent Mode v2, Fluent Forms server-side consent stamping, local audit log with retention, admin viewer, exports, rate limiting, privacy-policy fallback, public health endpoint. Integrates with SiteEngine Base when available and remains standalone-safe.
- * Version:     0.6.0
+ * Version:     0.6.1-rc.1
  * Author:      SiteEngine
  * Author URI:  https://siteengine.io/
  * License:     Proprietary
@@ -18,6 +18,10 @@
  *
  * Deployment: /wp-content/plugins/siteengine-consent/siteengine-consent.php
  * Activate via WP Admin → Plugins.
+ *
+ * Changelog 0.6.1-rc.1:
+ *  - Candidate: immutable acknowledged events and response-array stamping.
+ *  - Integration blocked on coordinated Ads contract; no live acceptance.
  *
  * Changelog 0.6.0:
  *  - SiteEngine Base integration: registers as a SiteEngine module when Base is active.
@@ -188,7 +192,7 @@ define('SE_CONSENT_BOOTSTRAPPED', __FILE__);
 
 if (!defined('SE_CONSENT_COMPANY_NAME_EXPLICIT')) { define('SE_CONSENT_COMPANY_NAME_EXPLICIT', defined('SE_CONSENT_COMPANY_NAME')); }
 if (!defined('SE_CONSENT_PRIVACY_URL_EXPLICIT'))  { define('SE_CONSENT_PRIVACY_URL_EXPLICIT', defined('SE_CONSENT_PRIVACY_URL')); }
-if (!defined('SE_CONSENT_VERSION'))               { define('SE_CONSENT_VERSION', '0.6.0'); }
+if (!defined('SE_CONSENT_VERSION'))               { define('SE_CONSENT_VERSION', '0.6.1-rc.1'); }
 if (!defined('SE_CONSENT_COOKIE_NAME'))           { define('SE_CONSENT_COOKIE_NAME', 'se_consent'); }
 if (!defined('SE_CONSENT_COOKIE_DAYS'))           { define('SE_CONSENT_COOKIE_DAYS', 390); }
 if (!defined('SE_CONSENT_POLICY_VERSION'))        { define('SE_CONSENT_POLICY_VERSION', '2026-05-08-v1'); }
@@ -275,9 +279,12 @@ function siteengine_consent_deactivate() {
 }
 register_deactivation_hook(__FILE__, 'siteengine_consent_deactivate');
 
+require_once __DIR__ . '/includes/class-siteengine-consent-authority.php';
+
 final class SiteEngine_Consent {
     private static $instance = null;
     private $config = [];
+    private $submission_stamps = [];
 
     public static function instance(): SiteEngine_Consent {
         if (self::$instance === null) self::$instance = new self();
@@ -446,7 +453,8 @@ final class SiteEngine_Consent {
         add_action('wp_footer', [$this, 'debug_marker'], 9999);
         add_action('wp_ajax_se_consent_save_receipt', [$this, 'ajax_save_receipt']);
         add_action('wp_ajax_nopriv_se_consent_save_receipt', [$this, 'ajax_save_receipt']);
-        add_filter('fluentform/before_insert_submission', [$this, 'stamp_submission_consent'], 10, 3);
+        add_filter('fluentform/insert_response_data', [$this, 'stamp_submission_consent'], PHP_INT_MAX, 3);
+        add_filter('fluentform/submission_form_data', [$this, 'stamp_submission_details'], PHP_INT_MAX, 3);
 
         // Retention cleanup cron.
         add_action('init', [$this, 'maybe_schedule_cleanup']);
@@ -544,108 +552,49 @@ final class SiteEngine_Consent {
         }
         set_transient($rl_key, $count + 1, MINUTE_IN_SECONDS);
 
-        $raw_payload = isset($_POST['payload']) ? wp_unslash($_POST['payload']) : '';
+        $raw_payload = isset($_POST['payload']) && is_string($_POST['payload']) ? wp_unslash($_POST['payload']) : '';
+        if (strlen($raw_payload) > 65536) wp_send_json_error(['message' => 'Consent payload too large.'], 400);
         $payload = json_decode((string) $raw_payload, true);
         if (!is_array($payload)) wp_send_json_error(['message' => 'Invalid consent payload.'], 400);
-        $receipt_id = isset($payload['receipt_id']) ? sanitize_text_field((string) $payload['receipt_id']) : '';
-        if ($receipt_id === '') wp_send_json_error(['message' => 'Missing receipt ID.'], 400);
-
-        global $wpdb;
-        $table_name = $wpdb->prefix . 'se_consent_receipts';
-        $consent = isset($payload['consent']) && is_array($payload['consent']) ? $payload['consent'] : [];
-        $google_consent = isset($payload['google_consent']) && is_array($payload['google_consent']) ? $payload['google_consent'] : [];
-        $created_at_raw = isset($payload['created_at']) ? sanitize_text_field((string) $payload['created_at']) : '';
-        $created_at_ts = $created_at_raw ? strtotime($created_at_raw) : false;
-        $created_at = $created_at_ts ? gmdate('Y-m-d H:i:s', $created_at_ts) : current_time('mysql', true);
-        $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field(wp_unslash((string) $_SERVER['HTTP_USER_AGENT'])) : '';
-
-        $inserted = $wpdb->insert($table_name, [
-            'receipt_id'          => $receipt_id,
-            'method'              => isset($payload['method']) ? sanitize_text_field((string) $payload['method']) : '',
-            'policy_version'      => isset($payload['policy_version']) ? sanitize_text_field((string) $payload['policy_version']) : '',
-            'banner_version'      => isset($payload['banner_version']) ? sanitize_text_field((string) $payload['banner_version']) : '',
-            'consent_json'        => wp_json_encode($consent),
-            'google_consent_json' => wp_json_encode($google_consent),
-            'page_url'            => isset($payload['page_url']) ? esc_url_raw((string) $payload['page_url']) : '',
-            'referrer_url'        => isset($payload['referrer_url']) ? esc_url_raw((string) $payload['referrer_url']) : '',
-            'ip_hash'             => $ip ? hash('sha256', $ip . wp_salt('nonce')) : null,
-            'user_agent_hash'     => $user_agent ? hash('sha256', $user_agent . wp_salt('nonce')) : null,
-            'created_at'          => $created_at,
-            'server_created_at'   => current_time('mysql', true),
-        ], ['%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s']);
-
-        if (!$inserted) wp_send_json_error(['message' => 'Consent receipt could not be saved.'], 500);
-        wp_send_json_success(['receipt_id' => $receipt_id, 'row_id' => (int) $wpdb->insert_id]);
+        $authority = new SiteEngine_Consent_Authority($this->config);
+        $user_agent = isset($_SERVER['HTTP_USER_AGENT']) && is_string($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])) : '';
+        $result = $authority->save($payload, $ip, $user_agent);
+        if (is_wp_error($result)) {
+            $data = $result->get_error_data();
+            wp_send_json_error(['code' => $result->get_error_code(), 'message' => $result->get_error_message()], $data['status'] ?? 503);
+        }
+        wp_send_json_success($result);
     }
 
-    public function stamp_submission_consent($insertData, $data, $form) {
+    /** Fluent Forms supplies the response ARRAY, form ID and input configs. */
+    public function stamp_submission_consent($response, $form_id, $input_configs) {
+        $authority = new SiteEngine_Consent_Authority($this->config);
         try {
-            $response_raw = isset($insertData['response']) ? $insertData['response'] : '';
-            $response = $response_raw ? json_decode((string) $response_raw, true) : [];
-            if (!is_array($response)) $response = [];
-
-            $cookie_raw = isset($_COOKIE[SE_CONSENT_COOKIE_NAME]) ? wp_unslash($_COOKIE[SE_CONSENT_COOKIE_NAME]) : '';
-            $cookie = $cookie_raw ? json_decode((string) $cookie_raw, true) : null;
-
-            $ip = $this->get_request_ip();
-            $ip_hash = $ip ? hash('sha256', $ip . wp_salt('nonce')) : null;
-
-            if (is_array($cookie) && !empty($cookie['receipt_id']) && !empty($cookie['consent'])) {
-                $consent = is_array($cookie['consent']) ? $cookie['consent'] : [];
-                $analytics       = !empty($consent['analytics'])       ? 'granted' : 'denied';
-                $advertising     = !empty($consent['advertising'])     ? 'granted' : 'denied';
-                $personalization = !empty($consent['personalization']) ? 'granted' : 'denied';
-
-                $overrides = [
-                    'se_consent_receipt_id'        => sanitize_text_field((string) $cookie['receipt_id']),
-                    'se_consent_method'            => isset($cookie['method']) ? sanitize_text_field((string) $cookie['method']) : '',
-                    'se_consent_policy_version'    => isset($cookie['policy_version']) ? sanitize_text_field((string) $cookie['policy_version']) : '',
-                    'se_consent_banner_version'    => isset($cookie['banner_version']) ? sanitize_text_field((string) $cookie['banner_version']) : '',
-                    'se_consent_timestamp'         => isset($cookie['created_at']) ? sanitize_text_field((string) $cookie['created_at']) : '',
-                    'se_consent_analytics'         => $analytics,
-                    'se_consent_advertising'       => $advertising,
-                    'se_consent_personalization'   => $personalization,
-                    'se_google_ad_storage'         => $advertising,
-                    'se_google_analytics_storage'  => $analytics,
-                    'se_google_ad_user_data'       => $advertising,
-                    'se_google_ad_personalization' => $personalization,
-                ];
-                foreach ($overrides as $k => $v) { $response[$k] = $v; }
-
-                $stamp = [
-                    'state'          => 'consent_stamped',
-                    'receipt_id'     => $overrides['se_consent_receipt_id'],
-                    'method'         => $overrides['se_consent_method'],
-                    'policy_version' => $overrides['se_consent_policy_version'],
-                    'banner_version' => $overrides['se_consent_banner_version'],
-                    'consent'        => [
-                        'analytics'       => !empty($consent['analytics']),
-                        'advertising'     => !empty($consent['advertising']),
-                        'personalization' => !empty($consent['personalization']),
-                    ],
-                    'google_consent' => [
-                        'ad_storage'         => $advertising,
-                        'analytics_storage'  => $analytics,
-                        'ad_user_data'       => $advertising,
-                        'ad_personalization' => $personalization,
-                    ],
-                    'captured_at'    => current_time('mysql', true),
-                    'ip_hash'        => $ip_hash,
-                ];
-            } else {
-                $stamp = [
-                    'state'       => 'no_consent_cookie',
-                    'captured_at' => current_time('mysql', true),
-                    'ip_hash'     => $ip_hash,
-                ];
+            $raw = $_COOKIE[SE_CONSENT_COOKIE_NAME] ?? '';
+            $cookie = is_string($raw) ? json_decode(wp_unslash($raw), true) : null;
+            $stamp = $authority->resolve($cookie);
+            // A pending/local rejection must not fall back to a previous cookie ACK
+            // when cookie writes are refused. Require the form's current ID echo.
+            if ($stamp['state'] === 'verified' && (!is_array($response)
+                || !isset($response['se_consent_receipt_id']) || !is_string($response['se_consent_receipt_id'])
+                || $response['se_consent_receipt_id'] !== $stamp['receipt_id'])) {
+                $stamp = $authority->negative('conflicting_claim');
             }
-
-            $response['_se_consent_server'] = $stamp;
-            $insertData['response'] = wp_json_encode($response);
         } catch (\Throwable $e) {
-            error_log('SiteEngine_Consent::stamp_submission_consent error: ' . $e->getMessage());
+            // Do not log cookie/proof/client data or return untrusted original authority.
+            $stamp = $authority->negative('unavailable');
         }
-        return $insertData;
+        $stamp = SiteEngine_Consent_Authority::seal_stamp($stamp, (int) $form_id);
+        $this->submission_stamps[(string) $form_id] = $stamp;
+        return $authority->stamp(is_array($response) ? $response : [], $stamp);
+    }
+
+    /** Reapply the frozen request decision before entry-details append/integrations. */
+    public function stamp_submission_details($response, $submission_id, $form) {
+        $authority = new SiteEngine_Consent_Authority($this->config);
+        $form_id = is_object($form) ? ($form->id ?? 0) : 0;
+        $stamp = $this->submission_stamps[(string) $form_id] ?? SiteEngine_Consent_Authority::seal_stamp($authority->negative('not_captured'), (int) $form_id);
+        return $authority->stamp(is_array($response) ? $response : [], $stamp);
     }
 
     private function get_request_ip(): string {
@@ -802,17 +751,24 @@ final class SiteEngine_Consent {
                 function getCookie(name) { var match = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([.$?*|{}()\[\]\\/+^])/g, '\\$1') + '=([^;]*)')); return match ? decodeURIComponent(match[1]) : null; }
                 function setCookie(name, value, days) { var d = new Date(); d.setTime(d.getTime() + (days*24*60*60*1000)); document.cookie = name + '=' + encodeURIComponent(value) + '; expires=' + d.toUTCString() + '; path=/; SameSite=Lax; Secure'; }
                 function safeParse(value) { try { return JSON.parse(value); } catch (e) { return null; } }
-                function getStoredConsent() {
+                var memoryState = null;
+                var memoryOnly = false;
+                var activeEventId = null;
+                function readStoredConsent() {
+                    if (memoryOnly && memoryState) return memoryState;
                     var v = null; try { v = window.localStorage.getItem(storageKey); } catch (e) {}
                     if (v) return safeParse(v);
-                    var c = getCookie(cookieName); if (c) return safeParse(c);
-                    return null;
+                    try { var c = getCookie(cookieName); if (c) return safeParse(c); } catch (e) {}
+                    return memoryState;
                 }
-                function getReceiptId() {
-                    var e = null; try { e = window.localStorage.getItem(receiptKey); } catch (x) {}
-                    if (e) return e;
-                    e = getCookie(receiptKey); if (e) return e;
-                    return uuid();
+                function getStoredConsent() {
+                    var state = readStoredConsent();
+                    if (!state || state.contract_version !== 1 || !state.event_id || !state.consent) return null;
+                    if (state.policy_version !== config.policyVersion || state.banner_version !== config.bannerVersion) return null;
+                    var created = Date.parse(state.created_at);
+                    if (!isFinite(created) || created > Date.now() + 300000 || created + cookieDays * 86400000 <= Date.now()) return null;
+                    if (state.audit_status === 'saved' && (!state.audit_token || !state.receipt_id || state.expires_at * 1000 <= Date.now())) return null;
+                    return state;
                 }
                 function normalizeConsent(input) { return { necessary: true, analytics: !!input.analytics, advertising: !!input.advertising, personalization: !!input.personalization }; }
                 function googleConsentFromCategories(c) { return { ad_storage: c.advertising?'granted':'denied', analytics_storage: c.analytics?'granted':'denied', ad_user_data: c.advertising?'granted':'denied', ad_personalization: c.personalization?'granted':'denied', personalization_storage: c.personalization?'granted':'denied', functionality_storage: 'granted', security_storage: 'granted' }; }
@@ -825,12 +781,15 @@ final class SiteEngine_Consent {
                 }
                 function buildPayload(input, method) {
                     var consent = normalizeConsent(input || {});
-                    return { receipt_id: getReceiptId(), method: method || 'unknown', policy_version: config.policyVersion || '', banner_version: config.bannerVersion || '', created_at: new Date().toISOString(), page_url: window.location.href, referrer_url: document.referrer || '', consent: consent, google_consent: googleConsentFromCategories(consent) };
+                    return { contract_version: 1, event_id: uuid(), receipt_id: '', audit_token: '', audit_saved: false, audit_status: 'pending', method: method || 'unknown', policy_version: config.policyVersion || '', banner_version: config.bannerVersion || '', created_at: new Date().toISOString(), page_url: window.location.href, referrer_url: document.referrer || '', consent: consent, google_consent: googleConsentFromCategories(consent) };
                 }
                 function storeConsent(payload) {
                     var encoded = JSON.stringify(payload);
-                    setCookie(cookieName, encoded, cookieDays); setCookie(receiptKey, payload.receipt_id, cookieDays);
-                    try { window.localStorage.setItem(storageKey, encoded); window.localStorage.setItem(receiptKey, payload.receipt_id); } catch (e) {}
+                    memoryState = payload;
+                    // Keep long page/referrer URLs outside the cookie size budget.
+                    var cookieState = Object.assign({}, payload); delete cookieState.page_url; delete cookieState.referrer_url;
+                    try { setCookie(cookieName, JSON.stringify(cookieState), cookieDays); setCookie(receiptKey, payload.receipt_id || '', cookieDays); } catch (e) {}
+                    try { window.localStorage.setItem(storageKey, encoded); window.localStorage.setItem(receiptKey, payload.receipt_id || ''); memoryOnly = window.localStorage.getItem(storageKey) !== encoded; } catch (e) { memoryOnly = true; }
                     window.SiteEngineConsent.state = payload;
                     return payload;
                 }
@@ -848,7 +807,10 @@ final class SiteEngine_Consent {
                 }
                 function populateConsentFields(form) {
                     var payload = getStoredConsent();
-                    if (!payload || !payload.consent) return false;
+                    if (!payload || !payload.consent) {
+                        Object.keys(config.formFields || {}).forEach(function (key) { var field = form.querySelector('[name="' + cssEscape(config.formFields[key]) + '"]'); if (field) { field.value = ''; field.defaultValue = ''; field.setAttribute('value', ''); } });
+                        return false;
+                    }
                     if (!payload.google_consent) payload.google_consent = googleConsentFromCategories(payload.consent);
                     var fields = config.formFields || {};
                     var values = getFieldValueMap(payload);
@@ -897,22 +859,49 @@ final class SiteEngine_Consent {
                     window.setTimeout(populateAllConsentForms, 3000);
                 }
                 function cssEscape(value) { if (window.CSS && typeof window.CSS.escape === 'function') return window.CSS.escape(value); return String(value).replace(/[^a-zA-Z0-9_-]/g, '\\$&'); }
+                function auditStatus(status) {
+                    var element = document.getElementById('se-consent-confirmation');
+                    if (!element && document.body) {
+                        element = document.createElement('div'); element.id = 'se-consent-confirmation';
+                        element.setAttribute('role', 'status'); element.setAttribute('aria-live', 'polite');
+                        document.body.appendChild(element);
+                    }
+                    if (element) element.textContent = status === 'saved' ? '' : (status === 'pending' ? 'Saving your preferences…' : 'Your preferences are saved here, but confirmation failed. Save them again to retry.');
+                }
+                function isCurrentInteraction(payload) {
+                    var stored = readStoredConsent();
+                    return activeEventId === payload.event_id && stored && stored.event_id === payload.event_id;
+                }
                 function saveAuditReceipt(payload) {
-                    if (!config.ajaxUrl || !config.nonce || !payload) return;
+                    if (!payload || !config.ajaxUrl || !config.nonce || typeof window.fetch !== 'function') {
+                        if (payload && isCurrentInteraction(payload)) {
+                            payload.audit_status = 'failed'; storeConsent(payload); auditStatus('failed');
+                        }
+                        return Promise.resolve(false);
+                    }
                     var body = new URLSearchParams();
                     body.append('action', 'se_consent_save_receipt'); body.append('nonce', config.nonce); body.append('payload', JSON.stringify(payload));
-                    window.fetch(config.ajaxUrl, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' }, body: body.toString() })
+                    auditStatus('pending');
+                    return window.fetch(config.ajaxUrl, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' }, body: body.toString() })
                         .then(function (r) { return r.json(); })
                         .then(function (result) {
-                            if (result && result.success) {
-                                payload.audit_saved = true;
-                                payload.audit_row_id = result.data && result.data.row_id ? result.data.row_id : null;
-                                storeConsent(payload);
-                                document.dispatchEvent(new CustomEvent('siteengineConsentAuditSaved', { detail: payload }));
-                                log('audit saved', result.data || {});
-                            } else { payload.audit_saved = false; log('audit save failed', result); }
+                            if (!isCurrentInteraction(payload)) return false;
+                            var receipt = result && result.success && result.data;
+                            if (!receipt || receipt.contract_version !== 1 || receipt.event_id !== payload.event_id || !receipt.event_acknowledged || !receipt.audit_token || !receipt.receipt_id || !receipt.row_id
+                                || receipt.policy_version !== config.policyVersion || receipt.banner_version !== config.bannerVersion) throw new Error('Confirmation failed');
+                            Object.assign(payload, receipt);
+                            payload.audit_saved = true; payload.audit_status = 'saved'; payload.audit_row_id = receipt.row_id;
+                            storeConsent(payload); auditStatus('saved'); populateAllConsentForms();
+                            document.dispatchEvent(new CustomEvent('siteengineConsentAuditSaved', { detail: payload }));
+                            return true;
                         })
-                        .catch(function (error) { payload.audit_saved = false; log('audit save error', error); });
+                        .catch(function () {
+                            if (!isCurrentInteraction(payload)) return false;
+                            payload.audit_saved = false; payload.audit_status = 'failed'; payload.receipt_id = ''; payload.audit_token = '';
+                            storeConsent(payload); auditStatus('failed'); populateAllConsentForms();
+                            document.dispatchEvent(new CustomEvent('siteengineConsentAuditFailed', { detail: payload }));
+                            return false;
+                        });
                 }
                 function dispatchConsent(payload) {
                     applyGoogleConsent(payload, 'update');
@@ -933,7 +922,7 @@ final class SiteEngine_Consent {
                     saveAuditReceipt(payload);
                     log('saved', payload);
                 }
-                function saveConsent(input, method) { var payload = storeConsent(buildPayload(input, method)); dispatchConsent(payload); hideBanner(); closeModal(); return payload; }
+                function saveConsent(input, method) { var payload = buildPayload(input, method); activeEventId = payload.event_id; storeConsent(payload); dispatchConsent(payload); hideBanner(); closeModal(); return payload; }
                 function acceptAll() { return saveConsent({ analytics: true, advertising: true, personalization: true }, 'accept_all'); }
                 function rejectNonEssential() { return saveConsent({ analytics: false, advertising: false, personalization: false }, 'reject_non_essential'); }
                 function savePreferences() { return saveConsent({ analytics: getToggleValue('analytics'), advertising: getToggleValue('advertising'), personalization: getToggleValue('personalization') }, 'save_preferences'); }
@@ -1021,7 +1010,7 @@ final class SiteEngine_Consent {
                     bindEvents(); bindFormPopulation();
                     var stored = getStoredConsent();
                     if (!stored) { showBanner(); }
-                    else { if (!stored.google_consent && stored.consent) stored.google_consent = googleConsentFromCategories(stored.consent); window.SiteEngineConsent.state = stored; applyGoogleConsent(stored, 'update'); }
+                    else { activeEventId = stored.event_id; stored.google_consent = googleConsentFromCategories(stored.consent); window.SiteEngineConsent.state = stored; applyGoogleConsent(stored, 'update'); if (stored.audit_status !== 'saved') showBanner(); }
                 }
                 function categoryHtml(title, description, key, checked, locked) {
                     return '<div class="se-consent-category"><div class="se-consent-category-row">' +
@@ -1084,6 +1073,14 @@ final class SiteEngine_Consent {
                 window.SiteEngineConsent.saveConsent = saveConsent;
                 window.SiteEngineConsent.openPreferences = openModal;
                 window.SiteEngineConsent.getConsent = getStoredConsent;
+                window.SiteEngineConsent.retryAudit = function () { var payload = getStoredConsent(); if (!payload || payload.audit_status === 'saved') return Promise.resolve(false); activeEventId = payload.event_id; return saveAuditReceipt(payload); };
+                window.addEventListener('storage', function (event) {
+                    if (event.key !== storageKey) return;
+                    var state = getStoredConsent(); activeEventId = state ? state.event_id : null;
+                    window.SiteEngineConsent.state = state;
+                    applyGoogleConsent({ google_consent: googleConsentFromCategories(state ? normalizeConsent(state.consent) : normalizeConsent({})) }, 'update');
+                    populateAllConsentForms(); if (!state) showBanner();
+                });
 
                 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', render);
                 else render();
