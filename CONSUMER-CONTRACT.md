@@ -1,6 +1,6 @@
 # Consent stored authority contract v1 — 2026-10-28
 
-Status: Consent candidate implementation authorized. **Integration acceptance and deployment blocked on the Ads consumer contract below.** The request ended mid-sentence; independent work follows the already reviewed REPAIR-PROPOSAL.md scope. No application writes are part of this assignment.
+Status: Consent candidate implementation authorized under the full 2026-10-28 prompt. **Integration acceptance and deployment blocked on the Ads consumer contract below.** Full-prompt reconciliation added genuine parallel isolated-storage evidence, preserved-contract checks and ALMA-ACCEPTANCE.md. No application writes are part of this assignment.
 
 ## Stored stamp
 
@@ -8,7 +8,7 @@ Status: Consent candidate implementation authorized. **Integration acceptance an
 
 Untrusted nested stamps and every trimmed top-level se_consent_*/se_google_* field are removed, then canonical flat diagnostic fields and the owned nested stamp are regenerated. Unrelated form fields survive. A successful capture also requires the form's current `se_consent_receipt_id` to exactly echo the signed cookie receipt; absent/blank/mismatched echo yields conflicting_claim. This prevents a pending choice or failed cookie write from silently reusing an earlier granting cookie. Contradictory cookie state also fails closed; it is not repaired from the signed record. The response-array filter runs after normal component transforms; a separate submission_form_data filter reapplies the same captured decision before entry details/integrations. Entry details receive canonical flat values (blank receipt omitted by Fluent Forms); the nested stamp is expanded by Fluent Forms' existing detail serializer. No direct vendor-table writes or deletions occur. The response decision is frozen within a submission request; a later audit acknowledgement cannot upgrade that stored form. Sites that do not retain the receipt hidden field through Fluent Forms sanitization will fail closed and require controlled lifecycle acceptance; no broader cookie-only fallback is provided.
 
-Missing, pending, failed, stale, malformed, tampered, unsigned legacy, ambiguous or unavailable authority never acquires a receipt ID from hidden fields. Legacy receipt rows and unsigned browser state remain untouched and cannot become new v1 authority. New explicit interactions create new event IDs. An acknowledged rejection remains a verified negative choice. Cookies are bearer evidence, not authenticated identity; signed acknowledgements prove server storage/integrity, not the truth of a visitor's assertion or legal permission.
+Missing, pending, failed, stale, malformed, tampered, unsigned legacy, ambiguous or unavailable authority never acquires a receipt ID from hidden fields. Legacy receipt rows and unsigned browser state remain untouched and cannot become new v1 authority. New explicit interactions create new event IDs. An acknowledged rejection remains a verified negative choice. Cookies are bearer evidence, not authenticated identity; signed acknowledgements prove server storage/integrity, not the subject's ownership of the event, actual intent, the truth of a visitor's assertion or legal permission. A public nonce, UUID or signature alone proves none of those things.
 
 ## Capture and browser state
 
@@ -25,3 +25,5 @@ Required Ads-owner assignment (prepared in ADS-CODEX-ASSIGNMENT.md): if a v1 sta
 ## Acceptance boundary
 
 Local fixtures test actual Consent functions, hook callbacks, signed storage/replay failure paths and browser transport races. The unchanged consumer runs read-only against synthetic data. No WP installation, actual Fluent Forms submission, payment path, web/cache, database-engine lock/durability or external export is accepted by these tests. Controlled installation/lifecycle acceptance requires later explicit authorization and the coordinated consumer fix.
+
+The separate-process concurrency suite uses actual parallel PHP workers and OS-locked temporary file storage behind the named-lock adapter; it proves idempotence/conflict handling under real process overlap without a database connection. MySQL GET_LOCK, primary/read routing and autocommit/durability still require the isolated engine gate in ALMA-ACCEPTANCE.md. New immutable event binding preserves historical choices; it does not establish current revocation eligibility or repair old ambiguous IDs.

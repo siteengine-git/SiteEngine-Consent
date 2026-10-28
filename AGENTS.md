@@ -14,4 +14,6 @@ WordPress bootstrap can update schema/options, privacy transients and cron. Insp
 
 The 2026-10-28 task authorizes bounded Consent implementation, isolated tests, documentation, reviewed commit/push and candidate ZIP only. No deployment or live WordPress writes. Read CONSUMER-CONTRACT.md: integration acceptance is blocked on a separately authorized Ads consumer repair. Do not change Ads, Call Bridge, Base, vendor plugins or their tables. Preserve blocked historical records and Ads policy, deterministic-source, DNC and ad_user_data gates. No historical grant backfill. ADS-CODEX-ASSIGNMENT.md is prepared for Aubrey; do not send it without explicit authorization.
 
+The full prompt has been received and reconciled. Parallel file-storage tests are isolated algorithm evidence, not MySQL or live acceptance. ALMA-ACCEPTANCE.md is a proposed later task requiring its own explicit authorization and coordinated Ads/engine prerequisites; it does not expand today's write scope.
+
 After authorized changes, run meaningful tests, label evidence accurately, review staged publication contents, save a named checkpoint, push when authorized, and retain an exact installable ZIP/hash. Maintain STATUS.md with source/repository/commit, tested scope, remaining limitations and one next task. Historical presence checks are not fresh integration tests.

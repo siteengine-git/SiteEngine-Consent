@@ -11,3 +11,4 @@ exports/
 logs/
 node_modules/
 vendor/
+/tests/.concurrency-*/
