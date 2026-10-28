@@ -1,5 +1,7 @@
 # SiteEngine Consent current status — 2026-10-28
 
+Candidate source commit: `d5322067e661adfa088fc249358a9a689b48d020` ([review snapshot](https://github.com/siteengine-git/SiteEngine-Consent/commit/d5322067e661adfa088fc249358a9a689b48d020)). Subsequent documentation-only commit retains exactly the packaged runtime blobs.
+
 **0.6.1-rc.1 — unaccepted candidate; Ads integration acceptance BLOCKED; no deployment.**
 Canonical checkout remains `D:\SiteEngine\Plugins\.PLUGIN — SiteEngine Consent\source`, origin https://github.com/siteengine-git/SiteEngine-Consent.git, branch main. Work started from clean local/remote `42149bcd3427d3ef202eeb944c074e334ae7ce0c`; retained source baseline `368c0affe8fe3bb6929222a23164429f3538512e` and original archive/history are preserved. Current checkpoint name: `candidate-0.6.1-rc.1-isolated-2026-10-28`. Exact resulting commit/push evidence is recorded in the parent local STATUS.md after creation; use `git rev-parse HEAD` for the current documentation tip.
 
