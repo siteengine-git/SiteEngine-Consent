@@ -42,23 +42,7 @@ class WP_Error {
     public function get_error_data() { return $this->data; }
 }
 function is_wp_error($x) { return $x instanceof WP_Error; }
-class Receipt_Fixture_DB {
-    public $prefix = 'fixture_'; public $last_error = ''; public $insert_id = 0;
-    public $rows = []; public $lock = true; public $fail_select = false; public $fail_insert = false; public $fail_readback = false;
-    public $releases = 0;
-    public function prepare($sql, ...$args) { return [$sql, $args]; }
-    public function get_var($q) { if (strpos($q[0], 'RELEASE_LOCK') !== false) { $this->releases++; return '1'; } return $this->lock ? '1' : null; }
-    public function get_results($q, $format) {
-        $this->last_error = $this->fail_select ? 'fixture unavailable' : '';
-        if ($this->fail_select) return null;
-        return array_slice(array_values(array_filter($this->rows, function ($r) use ($q) { return $r['receipt_id'] === $q[1][0]; })), 0, 2);
-    }
-    public function get_row($q, $format) { return $this->fail_readback ? null : ($this->rows[$q[1][0]] ?? null); }
-    public function insert($table, $row) {
-        if ($this->fail_insert) return false;
-        $this->insert_id++; $row['id'] = $this->insert_id; $this->rows[$this->insert_id] = $row; return 1;
-    }
-}
+require __DIR__ . '/fixtures/continuity-db.php';
 require dirname(__DIR__) . '/siteengine-consent.php';
 $config = ['policy_version' => '2026-05-08-v1', 'banner_version' => 'fixture-banner', 'cookie_days' => 390];
 $wpdb = new Receipt_Fixture_DB();
@@ -67,11 +51,12 @@ $count = 0;
 function ok($condition, $name) { global $count; if (!$condition) throw new RuntimeException($name); $count++; echo "PASS $name\n"; }
 function event_payload($number, $grant = true) {
     global $config;
-    return ['event_id' => sprintf('00000000-0000-4000-8000-%012d', $number), 'method' => 'save_preferences', 'policy_version' => $config['policy_version'], 'banner_version' => $config['banner_version'],
+    return ['continuity_key' => hash('sha256', 'independent-fixture-' . $number), 'continuity_token' => '', 'event_id' => sprintf('00000000-0000-4000-8000-%012d', $number), 'method' => 'save_preferences', 'policy_version' => $config['policy_version'], 'banner_version' => $config['banner_version'],
         'consent' => ['necessary' => true, 'analytics' => false, 'advertising' => $grant, 'personalization' => false], 'created_at' => '1900-01-01', 'page_url' => 'https://example.invalid/form', 'referrer_url' => '',
         'google_consent' => ['ad_user_data' => $grant ? 'denied' : 'granted'], 'receipt_id' => 'synthetic-browser-claim'];
 }
 function save_fixture($payload) { global $authority; return $authority->save($payload, '', 'fixture'); }
+if (defined('CONTINUITY_FIXTURE_ONLY')) return;
 $grant = save_fixture(event_payload(1));
 ok(!is_wp_error($grant) && strlen($grant['receipt_id']) === 64, 'server issues genuine namespaced acknowledged receipt');
 ok(count($wpdb->rows) === 1 && $wpdb->rows[1]['created_at'] !== '1900-01-01', 'client time cannot age stored event into retention deletion');
@@ -103,7 +88,7 @@ $duplicate = $old; $duplicate['id'] = 4; $wpdb->rows[4] = $duplicate;
 ok($authority->resolve($grant)['state'] === 'ambiguous' && save_fixture(event_payload(1))->get_error_code() === 'ambiguous', 'duplicate rows fail closed without deduplication'); unset($wpdb->rows[4]);
 unset($wpdb->rows[1]); ok($authority->resolve($grant)['state'] === 'missing_receipt', 'deleted or missing receipt stays unresolved'); $wpdb->rows[1] = $old;
 $wpdb->fail_select = true;
-ok($authority->resolve($grant)['state'] === 'unavailable' && save_fixture(event_payload(4))->get_error_code() === 'audit_unavailable', 'lookup failure cannot produce authority'); $wpdb->fail_select = false;
+ok($authority->resolve($grant)['state'] === 'unavailable' && save_fixture(event_payload(4))->get_error_code() === 'continuity_unavailable', 'lookup failure cannot produce authority'); $wpdb->fail_select = false;
 $wpdb->lock = false;
 ok(save_fixture(event_payload(4))->get_error_code() === 'audit_busy', 'contending worker without lock cannot insert'); $wpdb->lock = true;
 $wpdb->fail_insert = true;

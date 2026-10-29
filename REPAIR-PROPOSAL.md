@@ -1,3 +1,7 @@
+# 2026-10-29 implementation update
+
+The bounded same-browser withdrawal extension is implemented as rc.2. WITHDRAWAL-CONTRACT.md replaces prospective planning for this scope; ADS-CODEX-ASSIGNMENT.md specifies remaining enforcement and ALMA-ACCEPTANCE.md remains a future coordinated task. Prior proposal/history follows for provenance. No deployment, historical repair or policy change occurred.
+
 # Proposed Consent repair — review required
 
 Historical proposal retained for provenance. The 2026-10-28 user assignment authorizes the bounded candidate implementation and isolated tests. CONSUMER-CONTRACT.md records the finalized prospective contract and the continuing Ads integration block. No deployment or live acceptance writes are authorized. Retain original 0.6.0 source, policy and all receipt/history records.

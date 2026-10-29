@@ -28,6 +28,10 @@ global $wpdb;
 // 1. Drop audit table.
 $table = $wpdb->prefix . 'se_consent_receipts';
 $wpdb->query("DROP TABLE IF EXISTS {$table}");
+foreach (['se_consent_events', 'se_consent_chains'] as $suffix) {
+    $continuity_table = $wpdb->prefix . $suffix;
+    $wpdb->query("DROP TABLE IF EXISTS {$continuity_table}");
+}
 
 // 2. Remove all plugin options.
 $options = [
@@ -67,6 +71,10 @@ if (is_multisite()) {
         switch_to_blog($site_id);
         $per_site_table = $wpdb->prefix . 'se_consent_receipts';
         $wpdb->query("DROP TABLE IF EXISTS {$per_site_table}");
+        foreach (['se_consent_events', 'se_consent_chains'] as $suffix) {
+            $continuity_table = $wpdb->prefix . $suffix;
+            $wpdb->query("DROP TABLE IF EXISTS {$continuity_table}");
+        }
         foreach ($options as $option) {
             delete_option($option);
         }

@@ -3,7 +3,7 @@ Contributors: siteengine
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 0.6.1-rc.1
+Stable tag: 0.6.1-rc.2
 License: Proprietary
 
 First-party consent management for WordPress. Google Consent Mode v2, Fluent Forms integration, local audit log, exports.
@@ -37,6 +37,14 @@ When SiteEngine Base 2.2+ is active, Business Name and Privacy Policy URL are re
 5. Check SiteEngine → Consent (with Base) or Tools → SiteEngine Consent (standalone) to see the audit log
 
 == Changelog ==
+
+= 0.6.1-rc.2 (candidate; not deployed or accepted) =
+* Adds prospective browser/site continuity, immutable event links and permanent withdrawal barriers.
+* Adds read-only current eligibility API contract 2; historical signed stamps retain contract 1.
+* Uses transactional InnoDB capture with server revisions; stale grants cannot erase withdrawal.
+* Requires Web Locks, secure random generation and durable browser storage for new authority.
+* Adds two tables without altering legacy receipt schema or policy identity.
+* Integration acceptance requires Ads dispatch-boundary eligibility enforcement and coordinated Alma tests.
 
 = 0.6.1-rc.1 (candidate; not deployed or accepted) =
 * Corrects Fluent Forms response-array stamping and sanitizes details/integration data.

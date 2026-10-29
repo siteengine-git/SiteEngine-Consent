@@ -1,29 +1,34 @@
 {
+  "version": "0.6.1-rc.2",
+  "archive": "siteengine-consent-0.6.1-rc.2.zip",
+  "bytes": 35575,
+  "sha256": "8471e4761eef927bb10d44967ab88205ef0890a3b6bf90888b8d1ef2c182b619",
+  "acceptance": "unaccepted candidate; Ads dispatch enforcement and coordinated Alma acceptance pending; no deployment",
   "files": [
     {
       "path": "siteengine-consent.php",
-      "bytes": 94296,
-      "sha256": "5fad4f0afb200a94648f93577c8f68972d43d9d07f77030da79eeecb080f6d4f"
+      "bytes": 98825,
+      "sha256": "29671ec27d277c83260a52ce661d048436cb672ac762100e89b4687f28ff0601"
     },
     {
       "path": "readme.txt",
-      "bytes": 3534,
-      "sha256": "2ad107ad75cbc61a0d8cd7b4f8a9300359af581e6e2a5ac3321f9b384dea6bb7"
+      "bytes": 4162,
+      "sha256": "a9e85f7828240aa3885c6cadee759040a2e1853c0c2fb92bde8da53ab7a6c11a"
     },
     {
       "path": "uninstall.php",
-      "bytes": 2514,
-      "sha256": "5ac04f29a8841637c340a3c630d76903bb458a4534d508fd933208914885a08b"
+      "bytes": 2904,
+      "sha256": "65e849d8f22f98a00c50163bb4e2a645065b47371b0c40bed47ae0296648150b"
     },
     {
       "path": "includes/class-siteengine-consent-authority.php",
-      "bytes": 13177,
-      "sha256": "7c3b419fcc2b33563dc0fde9f917ac44ad620b905bb7cd3a9ec4cfb35586fc54"
+      "bytes": 12175,
+      "sha256": "6d49bfe9006fc108d198dea7309b6dae88e123466d2e0767a2aa74391e4488c9"
+    },
+    {
+      "path": "includes/class-siteengine-consent-continuity.php",
+      "bytes": 14268,
+      "sha256": "660c83315e50ae6f159ddcb3f97f28b1f960c726bb5c9be62a0cdccd2507fe3d"
     }
-  ],
-  "bytes": 30469,
-  "sha256": "c20ecb87b134c411e4f12fc01c9b22c9f105b43e1ac67af4cca1287505633a5a",
-  "version": "0.6.1-rc.1",
-  "archive": "siteengine-consent-0.6.1-rc.1.zip",
-  "acceptance": "unaccepted candidate; Ads integration blocked; no deployment"
+  ]
 }

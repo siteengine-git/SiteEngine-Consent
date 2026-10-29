@@ -3,7 +3,7 @@
  * Plugin Name: SiteEngine Consent
  * Plugin URI:  https://siteengine.io/
  * Description: First-party consent management for WordPress. GTM Consent Mode v2, Fluent Forms server-side consent stamping, local audit log with retention, admin viewer, exports, rate limiting, privacy-policy fallback, public health endpoint. Integrates with SiteEngine Base when available and remains standalone-safe.
- * Version:     0.6.1-rc.1
+ * Version:     0.6.1-rc.2
  * Author:      SiteEngine
  * Author URI:  https://siteengine.io/
  * License:     Proprietary
@@ -19,8 +19,8 @@
  * Deployment: /wp-content/plugins/siteengine-consent/siteengine-consent.php
  * Activate via WP Admin → Plugins.
  *
- * Changelog 0.6.1-rc.1:
- *  - Candidate: immutable acknowledged events and response-array stamping.
+ * Changelog 0.6.1-rc.2:
+ *  - Candidate: same-browser withdrawal barriers and current eligibility API.
  *  - Integration blocked on coordinated Ads contract; no live acceptance.
  *
  * Changelog 0.6.0:
@@ -192,7 +192,7 @@ define('SE_CONSENT_BOOTSTRAPPED', __FILE__);
 
 if (!defined('SE_CONSENT_COMPANY_NAME_EXPLICIT')) { define('SE_CONSENT_COMPANY_NAME_EXPLICIT', defined('SE_CONSENT_COMPANY_NAME')); }
 if (!defined('SE_CONSENT_PRIVACY_URL_EXPLICIT'))  { define('SE_CONSENT_PRIVACY_URL_EXPLICIT', defined('SE_CONSENT_PRIVACY_URL')); }
-if (!defined('SE_CONSENT_VERSION'))               { define('SE_CONSENT_VERSION', '0.6.1-rc.1'); }
+if (!defined('SE_CONSENT_VERSION'))               { define('SE_CONSENT_VERSION', '0.6.1-rc.2'); }
 if (!defined('SE_CONSENT_COOKIE_NAME'))           { define('SE_CONSENT_COOKIE_NAME', 'se_consent'); }
 if (!defined('SE_CONSENT_COOKIE_DAYS'))           { define('SE_CONSENT_COOKIE_DAYS', 390); }
 if (!defined('SE_CONSENT_POLICY_VERSION'))        { define('SE_CONSENT_POLICY_VERSION', '2026-05-08-v1'); }
@@ -252,6 +252,7 @@ function siteengine_consent_activate() {
         KEY created_at (created_at)
     ) {$charset_collate};";
     dbDelta($sql);
+    foreach (SiteEngine_Consent_Continuity::schema($wpdb->prefix, $charset_collate) as $continuity_sql) dbDelta($continuity_sql);
 
     update_option('se_consent_version', SE_CONSENT_VERSION, false);
     update_option('se_consent_policy_version', SE_CONSENT_POLICY_VERSION, false);
@@ -279,6 +280,7 @@ function siteengine_consent_deactivate() {
 }
 register_deactivation_hook(__FILE__, 'siteengine_consent_deactivate');
 
+require_once __DIR__ . '/includes/class-siteengine-consent-continuity.php';
 require_once __DIR__ . '/includes/class-siteengine-consent-authority.php';
 
 final class SiteEngine_Consent {
@@ -508,6 +510,7 @@ final class SiteEngine_Consent {
             KEY created_at (created_at)
         ) {$charset_collate};";
         dbDelta($sql);
+        foreach (SiteEngine_Consent_Continuity::schema($wpdb->prefix, $charset_collate) as $continuity_sql) dbDelta($continuity_sql);
     }
 
     public function get_config(): array { return $this->config; }
@@ -561,7 +564,7 @@ final class SiteEngine_Consent {
         $result = $authority->save($payload, $ip, $user_agent);
         if (is_wp_error($result)) {
             $data = $result->get_error_data();
-            wp_send_json_error(['code' => $result->get_error_code(), 'message' => $result->get_error_message()], $data['status'] ?? 503);
+            wp_send_json_error(['code' => $result->get_error_code(), 'message' => $result->get_error_message(), 'continuity' => $data['continuity'] ?? null], $data['status'] ?? 503);
         }
         wp_send_json_success($result);
     }
@@ -642,6 +645,7 @@ final class SiteEngine_Consent {
             ],
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce'   => wp_create_nonce('se_consent_save_receipt'),
+            'continuityScope' => substr(hash('sha256', home_url('/') . ':' . $GLOBALS['wpdb']->prefix), 0, 16),
         ];
         echo "\n<script>\n";
         echo "window.dataLayer = window.dataLayer || [];\n";
@@ -739,6 +743,37 @@ final class SiteEngine_Consent {
                 var cookieDays = parseInt(config.cookieDays || 390, 10);
                 var storageKey = cookieName + '_state';
                 var receiptKey = cookieName + '_receipt_id';
+                var continuityStorage = cookieName + '_continuity_' + (config.continuityScope || 'site');
+                var continuityMemory = null;
+                function continuityContext(create) {
+                    var found = null;
+                    try { found = safeParse(window.localStorage.getItem(continuityStorage)); } catch (e) {}
+                    try { found = found || safeParse(getCookie(continuityStorage)); } catch (e) {}
+                    found = found || continuityMemory;
+                    if (found && /^[a-f0-9]{64}$/.test(found.key || '')) return found;
+                    if (!create || !window.crypto || typeof window.crypto.getRandomValues !== 'function') return null;
+                    var bytes = new Uint8Array(32); window.crypto.getRandomValues(bytes);
+                    found = { key: Array.prototype.map.call(bytes, function (v) { return ('0' + v.toString(16)).slice(-2); }).join(''), token: '', revision: 0 };
+                    return persistContinuity(found) ? found : null;
+                }
+                function persistContinuity(context) {
+                    var encoded = JSON.stringify(context), durable = false;
+                    try { window.localStorage.setItem(continuityStorage, encoded); durable = window.localStorage.getItem(continuityStorage) === encoded; } catch (e) {}
+                    try { setCookie(continuityStorage, encoded, cookieDays); durable = getCookie(continuityStorage) === encoded || durable; } catch (e) {}
+                    continuityMemory = durable ? context : null;
+                    return durable;
+                }
+                function learnContinuity(payload, context) {
+                    if (!context || !Number.isSafeInteger(context.revision) || context.revision < 1 || typeof context.token !== 'string') return;
+                    var local = continuityContext();
+                    if (!local || local.key !== payload.continuity_key || context.revision <= local.revision) return;
+                    persistContinuity({ key: local.key, token: context.token, revision: context.revision });
+                }
+                // Origin-wide Web Lock prevents two first-use tabs from establishing competing identities.
+                // Without it, local choices remain usable but no new authority is acknowledged.
+                var continuityReady = window.navigator && window.navigator.locks
+                    ? window.navigator.locks.request(continuityStorage, function () { return continuityContext(true); })
+                        .catch(function () { return null; }) : Promise.resolve(null);
                 var root = document.documentElement;
                 root.style.setProperty('--se-consent-accent', config.accentColor || '#235DAA');
                 root.style.setProperty('--se-consent-accent-hover', config.accentHover || '#1B4B8A');
@@ -781,7 +816,8 @@ final class SiteEngine_Consent {
                 }
                 function buildPayload(input, method) {
                     var consent = normalizeConsent(input || {});
-                    return { contract_version: 1, event_id: uuid(), receipt_id: '', audit_token: '', audit_saved: false, audit_status: 'pending', method: method || 'unknown', policy_version: config.policyVersion || '', banner_version: config.bannerVersion || '', created_at: new Date().toISOString(), page_url: window.location.href, referrer_url: document.referrer || '', consent: consent, google_consent: googleConsentFromCategories(consent) };
+                    var continuity = continuityContext();
+                    return { continuity_key: continuity ? continuity.key : '', continuity_token: continuity ? continuity.token : '', contract_version: 1, event_id: uuid(), receipt_id: '', audit_token: '', audit_saved: false, audit_status: 'pending', method: method || 'unknown', policy_version: config.policyVersion || '', banner_version: config.bannerVersion || '', created_at: new Date().toISOString(), page_url: window.location.href, referrer_url: document.referrer || '', consent: consent, google_consent: googleConsentFromCategories(consent) };
                 }
                 function storeConsent(payload) {
                     var encoded = JSON.stringify(payload);
@@ -866,14 +902,25 @@ final class SiteEngine_Consent {
                         element.setAttribute('role', 'status'); element.setAttribute('aria-live', 'polite');
                         document.body.appendChild(element);
                     }
-                    if (element) element.textContent = status === 'saved' ? '' : (status === 'pending' ? 'Saving your preferences…' : 'Your preferences are saved here, but confirmation failed. Save them again to retry.');
+                    if (element) element.textContent = status === 'saved' ? '' : (status === 'pending' ? 'Saving your preferences…' : 'Your preferences apply on this page, but server confirmation failed. Retry, or reopen preferences and choose again.');
+                    if (element && status === 'failed') {
+                        var retry = document.createElement('button'); retry.type = 'button'; retry.textContent = 'Retry confirmation';
+                        retry.onclick = function () { window.SiteEngineConsent.retryAudit(); }; element.appendChild(retry);
+                    }
                 }
                 function isCurrentInteraction(payload) {
                     var stored = readStoredConsent();
                     return activeEventId === payload.event_id && stored && stored.event_id === payload.event_id;
                 }
-                function saveAuditReceipt(payload) {
-                    if (!payload || !config.ajaxUrl || !config.nonce || typeof window.fetch !== 'function') {
+                function saveAuditReceipt(payload, ready) {
+                    if (!ready) return continuityReady.then(function (context) {
+                        if (context && !payload.continuity_key) {
+                            payload.continuity_key = context.key; payload.continuity_token = context.token;
+                            if (isCurrentInteraction(payload)) storeConsent(payload);
+                        }
+                        return saveAuditReceipt(payload, true);
+                    });
+                    if (!payload || !payload.continuity_key || !window.navigator || !window.navigator.locks || !config.ajaxUrl || !config.nonce || typeof window.fetch !== 'function') {
                         if (payload && isCurrentInteraction(payload)) {
                             payload.audit_status = 'failed'; storeConsent(payload); auditStatus('failed');
                         }
@@ -885,9 +932,11 @@ final class SiteEngine_Consent {
                     return window.fetch(config.ajaxUrl, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' }, body: body.toString() })
                         .then(function (r) { return r.json(); })
                         .then(function (result) {
+                            learnContinuity(payload, result && result.data && result.data.continuity);
                             if (!isCurrentInteraction(payload)) return false;
                             var receipt = result && result.success && result.data;
                             if (!receipt || receipt.contract_version !== 1 || receipt.event_id !== payload.event_id || !receipt.event_acknowledged || !receipt.audit_token || !receipt.receipt_id || !receipt.row_id
+                                || !receipt.continuity || receipt.continuity.revision < (continuityContext() || {}).revision
                                 || receipt.policy_version !== config.policyVersion || receipt.banner_version !== config.bannerVersion) throw new Error('Confirmation failed');
                             Object.assign(payload, receipt);
                             payload.audit_saved = true; payload.audit_status = 'saved'; payload.audit_row_id = receipt.row_id;
@@ -1073,7 +1122,7 @@ final class SiteEngine_Consent {
                 window.SiteEngineConsent.saveConsent = saveConsent;
                 window.SiteEngineConsent.openPreferences = openModal;
                 window.SiteEngineConsent.getConsent = getStoredConsent;
-                window.SiteEngineConsent.retryAudit = function () { var payload = getStoredConsent(); if (!payload || payload.audit_status === 'saved') return Promise.resolve(false); activeEventId = payload.event_id; return saveAuditReceipt(payload); };
+                window.SiteEngineConsent.retryAudit = function () { var payload = getStoredConsent(); if (!payload || payload.audit_status === 'saved') return Promise.resolve(false); var context = continuityContext(); if (!payload.continuity_key && context) payload.continuity_key = context.key; activeEventId = payload.event_id; return saveAuditReceipt(payload); };
                 window.addEventListener('storage', function (event) {
                     if (event.key !== storageKey) return;
                     var state = getStoredConsent(); activeEventId = state ? state.event_id : null;

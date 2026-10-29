@@ -62,45 +62,18 @@ final class SiteEngine_Consent_Authority {
         foreach (['method','page_url','referrer_url'] as $key) {
             if (isset($payload[$key]) && !is_string($payload[$key])) return new WP_Error('invalid_metadata', 'Invalid consent metadata.', ['status' => 400]);
         }
-        $table = $wpdb->prefix . 'se_consent_receipts';
-        // Namespace new events so arbitrary legacy receipt IDs can never be appended.
-        $receipt_id = 'sc1_' . substr(hash_hmac('sha256', $event, wp_salt('auth')), 0, 60);
-        $data = ['receipt_id' => $receipt_id, 'method' => substr(sanitize_text_field($payload['method'] ?? 'unknown'), 0, 64),
+        $data = ['method' => substr(sanitize_text_field($payload['method'] ?? 'unknown'), 0, 64),
             'policy_version' => $this->config['policy_version'], 'banner_version' => $this->config['banner_version'],
             'consent_json' => wp_json_encode($consent), 'google_consent_json' => wp_json_encode(self::google($consent)),
             'page_url' => esc_url_raw($payload['page_url'] ?? ''), 'referrer_url' => esc_url_raw($payload['referrer_url'] ?? '')];
-        // No schema change: serialize per-event retries across workers on the same database.
-        $lock = 'se_consent_' . substr(hash('sha256', $table . ':' . $receipt_id), 0, 50);
-        if ((string) $wpdb->get_var($wpdb->prepare('SELECT GET_LOCK(%s, 3)', $lock)) !== '1') {
-            return new WP_Error('audit_busy', 'Consent confirmation is busy. Retry the same interaction.', ['status' => 503]);
+        $data += ['ip_hash' => $ip !== '' ? hash('sha256', $ip . wp_salt('nonce')) : null,
+            'user_agent_hash' => $user_agent !== '' ? hash('sha256', $user_agent . wp_salt('nonce')) : null];
+        $saved = SiteEngine_Consent_Continuity::capture($payload, $data, (int) $this->config['cookie_days'] * DAY_IN_SECONDS);
+        if (is_wp_error($saved)) return $saved;
+        if (strtotime($saved['row']['server_created_at'] . ' UTC') + (int) $this->config['cookie_days'] * DAY_IN_SECONDS <= time()) {
+            return new WP_Error('expired', 'This interaction expired. Choose again.', ['status' => 409]);
         }
-        try {
-            $rows = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$table} WHERE receipt_id = %s ORDER BY id ASC LIMIT 2", $receipt_id), ARRAY_A);
-            if (!is_array($rows) || $wpdb->last_error) return new WP_Error('audit_unavailable', 'Consent confirmation unavailable.', ['status' => 503]);
-            if (count($rows) > 1) return new WP_Error('ambiguous', 'Ambiguous consent interaction.', ['status' => 409]);
-            if ($rows) {
-                foreach ($data as $key => $value) {
-                    if ((string) ($rows[0][$key] ?? '') !== $value) return new WP_Error('event_conflict', 'This interaction already records a different choice.', ['status' => 409]);
-                }
-                if (strtotime($rows[0]['server_created_at'] . ' UTC') + (int) $this->config['cookie_days'] * DAY_IN_SECONDS <= time()) {
-                    return new WP_Error('expired', 'This interaction expired. Choose again.', ['status' => 409]);
-                }
-                return $this->acknowledgement($rows[0], $event);
-            }
-            $now = gmdate('Y-m-d H:i:s');
-            $data += ['ip_hash' => $ip !== '' ? hash('sha256', $ip . wp_salt('nonce')) : null,
-                'user_agent_hash' => $user_agent !== '' ? hash('sha256', $user_agent . wp_salt('nonce')) : null,
-                'created_at' => $now, 'server_created_at' => $now];
-            if (!$wpdb->insert($table, $data)) return new WP_Error('audit_failed', 'Consent confirmation could not be saved.', ['status' => 503]);
-            $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table} WHERE id = %d", (int) $wpdb->insert_id), ARRAY_A);
-            if (!is_array($row) || $wpdb->last_error) return new WP_Error('audit_unavailable', 'Consent confirmation unavailable.', ['status' => 503]);
-            foreach ($data as $key => $value) {
-                if (($row[$key] ?? null) !== $value) return new WP_Error('audit_unavailable', 'Consent confirmation unavailable.', ['status' => 503]);
-            }
-            return $this->acknowledgement($row, $event);
-        } finally {
-            $wpdb->get_var($wpdb->prepare('SELECT RELEASE_LOCK(%s)', $lock));
-        }
+        return $this->acknowledgement($saved['row'], $event) + ['continuity' => $saved['continuity']];
     }
 
     /** Read-only resolution. Cookie fields other than the signed acknowledgement are untrusted. */
@@ -136,9 +109,25 @@ final class SiteEngine_Consent_Authority {
         if (($cookie['contract_version'] ?? null) !== 1 || ($cookie['event_id'] ?? null) !== $proof['event_id'] || ($cookie['receipt_id'] ?? null) !== $row['receipt_id']
             || ($cookie['policy_version'] ?? null) !== $row['policy_version'] || ($cookie['banner_version'] ?? null) !== $row['banner_version']
             || ($cookie['consent'] ?? null) !== $c || ($cookie['google_consent'] ?? null) !== self::google($c)) return $this->failure('conflicting_cookie');
-        return ['contract_version' => 1, 'state' => 'verified', 'receipt_id' => $row['receipt_id'], 'receipt_row_id' => (int) $row['id'],
+        $link = SiteEngine_Consent_Continuity::link((int) $row['id']);
+        if (!$link) return $this->failure('continuity_unavailable');
+        $stamp = ['contract_version' => 1, 'state' => 'verified', 'receipt_id' => $row['receipt_id'], 'receipt_row_id' => (int) $row['id'],
             'method' => $row['method'], 'policy_version' => $row['policy_version'], 'banner_version' => $row['banner_version'],
-            'receipt_digest' => self::receipt_digest($row), 'created_at' => $row['server_created_at'], 'consent' => $c, 'google_consent' => self::google($c), 'captured_at' => gmdate('Y-m-d H:i:s')];
+            'receipt_digest' => self::receipt_digest($row), 'created_at' => $row['server_created_at'], 'consent' => $c, 'google_consent' => self::google($c), 'captured_at' => gmdate('Y-m-d H:i:s')] + SiteEngine_Consent_Continuity::extension($link);
+        $eligibility = self::current_eligibility(self::seal_stamp($stamp, 0), 0, $this->config['policy_version']);
+        if (!$eligibility['available']) return $this->failure($eligibility['reason']);
+        // A stale browser grant must not be stamped after a server-confirmed withdrawal.
+        foreach (['analytics','advertising','personalization'] as $category) {
+            if ($c[$category] && !$eligibility['consent'][$category]) return $this->failure('withdrawn');
+        }
+        return $stamp;
+    }
+
+    /** Contract 2: historical stamp in, current eligibility out; SELECT only, no browser required. */
+    public static function current_eligibility(array $stamp, int $canonical_form_id, string $required_policy): array {
+        $result = SiteEngine_Consent_Continuity::eligibility($stamp, $canonical_form_id, $required_policy);
+        $result['google_consent'] = self::google($result['consent']);
+        return $result;
     }
 
     public function negative(string $state): array { return $this->failure($state); }

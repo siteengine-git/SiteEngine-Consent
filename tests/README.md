@@ -1,22 +1,21 @@
-# Isolated candidate tests
+# Isolated rc.2 verification
 
-Run with PHP 7.4+ and Node supporting the built-in test dependencies (validated with PHP 8.3.36 / Node 24.20.0 on Dell-8940):
+Use the existing local PHP CLI and Node runtime; no installation or site bootstrap:
 
-```powershell
-& <php.exe> -n tests/authority.php '<path-to-original-Ads-0.6.3>/includes/class-siteengine-ads-bridge-cli.php'
-node tests/browser.cjs
-node tests/concurrency.cjs '<php.exe>'
-git show 368c0affe8fe3bb6929222a23164429f3538512e:siteengine-consent.php | & '<php.exe>' -n tests/preserved-contracts.php
-```
+    php -n tests/authority.php
+    php -n tests/withdrawal.php <reviewed-Ads-checkout>/includes/class-siteengine-ads-bridge-consent.php
+    node tests/browser.cjs
+    node tests/concurrency.cjs <php.exe>
+    git show 368c0affe8fe3bb6929222a23164429f3538512e:siteengine-consent.php | php -n tests/preserved-contracts.php
 
-Paths above are command placeholders, not a request to provision a runtime. The existing local test runtime used here is recorded in parent STATUS.md. The Ads source is required for the combined consumer fixtures and is read-only/SHA-256 pinned; omit its argument to run Consent-only PHP checks. Do not repin a changed consumer without review. Standalone `php -n tests/consumer-contract.php <consumer-source>` runs only the five legacy boundary demonstrations.
+Validated using existing PHP 8.3.36 (-n) and Node 24.20.0. Minimum declared PHP 7.4 was not executed. Lint every PHP file and syntax-check both CJS suites. Paths above are placeholders, not permission to provision runtimes.
 
-Tests load actual Consent class/functions/callback registration without executing the constructor/WordPress bootstrap. WordPress APIs, storage/transport and database are doubles. All data/keys are synthetic. The installed Fluent Forms 6.2.16 recordEntryDetails method is preserved as an attributed excerpt; its Arr/Helper/EntryDetails dependencies are doubled. The full unchanged Ads resolver is loaded from a separately provided, hash-verified source file and invoked by reflection against in-memory fixture storage. No real form, account, export, network or database is touched.
+- authority.php: actual Consent capture/resolve/filter/AJAX, WP/SQL boundary doubles, attributed Fluent Forms 6.2.16 details serializer excerpt. Independent fixture keys retain earlier event tests; same-chain withdrawal coverage is separate. Core nonce cryptography and installed lifecycle are not exercised.
+- withdrawal.php: actual capture/eligibility, permanent withdrawal/regrant barriers, stale/conflicting retry, independent chains, forged/missing state, rollback/failure/engine refusal, expiry, ambiguity and immutable history. Executes actual reviewed Ads historical resolver SHA-256 057c59f58bb55905b2b142339626abf1485dbdb9e5702e0f59712d7fca056798 (reviewed commit ba5aff0a94fd490819aaec91f3125b344bef4687), using real Consent signature/digest methods. No Ads source is vendored or edited. Its historical pass after withdrawal demonstrates missing enforcement; it is not joint acceptance.
+- browser.cjs: production embedded JS in a VM with synthetic DOM/Web Locks/storage/fetch. Immediate rejection, pending form authority, delayed/reversed responses, monotonic context, original-base retry, fresh explicit choice, initial shared key, missing locks/storage refusal and retry control. Fixture Web Lock callback is synchronous; actual multi-tab locks/cookie/cache behavior remains unverified.
+- concurrency.cjs: separate PHP processes released from a barrier run actual capture. Global OS file lock/JSON transaction model stand in for per-chain MySQL lock/transaction. Covers identical retries, contradictory reuse, concurrent rejection/grant and forced delayed grant. Generated scratch paths are verified inside tests before deletion. This is parallel algorithm evidence, not InnoDB/GET_LOCK/durability or independent-chain throughput evidence.
+- preserved-contracts.php: 23 unchanged baseline function bodies, policy/nonce boundaries, original receipts DDL in both upgrade entry points and only the added scope in print_config. New DDL and explicit uninstall cleanup are intentional. Static checks are not installed behavior.
 
-The browser harness executes the actual embedded JavaScript in a Node VM, injecting a test-only reference to the private field-population function. It does not replace the production algorithm. DOM/storage/fetch are doubled; this is not accessibility, real browser/cache or live form acceptance.
+Retained consumer-contract.php is a historical rc.1 fixture for the old 0.6.3 CLI resolver; not rerun or counted for rc.2. Do not repin it to a different consumer. New compatibility evidence is in withdrawal.php.
 
-Expected unsafe legacy-consumer outcomes are labeled COMPATIBILITY BLOCKER. Test success means the limitation was reproduced, not that integration is safe. Database lock serialization is tested at the adapter boundary (busy/acquired/released/conflicting retry), not with real concurrent MySQL connections. WordPress nonce behavior is doubled at the API boundary, not a cryptographic WP nonce acceptance test. Engine lock/autocommit behavior, alternate/payment lifecycle, actual sanitization of hidden fields, cache/nonce expiry and real browser acceptance remain deferred.
-
-The concurrency suite launches separate PHP processes, synchronizes them at a start barrier, and runs the actual authority save/resolve code against shared temporary file-backed receipt storage. Real OS file locks stand in for the WPDB named-lock API; same-event workers demonstrably contend. Nine checks cover identical concurrent retries, conflicting reuse and distinct interactions. Scratch files are removed only after verifying the generated directory is directly inside tests/. This is genuine parallel algorithm/storage evidence, not a MySQL GET_LOCK/autocommit or live-site test.
-
-The preservation suite tokenizes retained Git source and compares 26 unchanged PHP function bodies covering Base/standalone configuration and UI, schema/cleanup, public health and export contracts, then checks the unchanged policy default and capture nonce boundary. These 28 checks are static preservation evidence, not executed installed behavior. Together with the prior 74 fixture assertions, the reconciliation totals 111 checks: 44 PHP + 22 browser + 8 consumer + 9 parallel-storage + 28 static preservation. Four of the consumer outcomes deliberately reproduce blockers.
+No actual MySQL/MariaDB, live WordPress/Fluent Forms, real browser/cache, external export or installed acceptance is claimed. STATUS.md records executed counts; ALMA-ACCEPTANCE.md specifies the separate coordinated task.

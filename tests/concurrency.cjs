@@ -30,9 +30,10 @@ async function scenario(name, requests) {
     }
     fs.writeFileSync(path.join(root, 'start'), 'start');
     const out = await complete;
-    const rows = JSON.parse(fs.readFileSync(path.join(root, 'rows.json'), 'utf8'));
+    const state = JSON.parse(fs.readFileSync(path.join(root, 'rows.json'), 'utf8'));
+    const rows = Object.values(state.rows);
     check(new Set(out.map(x => x.pid)).size === requests.length, `${name}: separate PHP workers reached common barrier`);
-    return { out, rows };
+    return { out, rows, state };
   } finally {
     for (const child of workers) if (child.exitCode === null) child.kill();
     // This is our generated scratch folder only, resolved inside this test directory.
@@ -48,8 +49,11 @@ async function scenario(name, requests) {
   check(r.out.some(x => x.wait_ms > 0), 'same-event requests actually contend on the shared named-lock adapter');
   r = await scenario('conflicting reuse', [[2, 'grant'], [2, 'reject']]);
   check(r.rows.length === 1 && r.out.filter(x => x.error === 'event_conflict').length === 1 && r.out.filter(x => x.state === 'verified').length === 1, 'concurrent contradictory replay has one winner and one explicit conflict, no appended authority');
-  r = await scenario('distinct interactions', [[3, 'reject'], [4, 'grant']]);
-  check(r.rows.length === 2 && r.out.every(x => x.state === 'verified') && r.out[0].receipt_id !== r.out[1].receipt_id, 'parallel distinct interactions preserve separate events');
-  check(JSON.parse(r.rows[0].consent_json).advertising !== JSON.parse(r.rows[1].consent_json).advertising, 'parallel accept/reject choices retain their own stored category values');
+  r = await scenario('concurrent grant and withdrawal', [[3, 'reject'], [4, 'grant']]);
+  check(Object.values(r.state.heads).every(x => JSON.parse(x.consent_json).advertising === false), 'either server ordering ends rejected: stale grant cannot erase withdrawal');
+  check(r.rows.length >= 1 && r.rows.length <= 2 && r.rows.some(x => !JSON.parse(x.consent_json).advertising), 'concurrent withdrawal persists genuine negative event, with no fabricated blocking receipt');
+  r = await scenario('delayed grant', [[5, 'reject'], [6, 'delayed-grant']]);
+  check(r.out[1].error === 'continuity_stale' && r.rows.length === 1, 'grant arriving after acknowledged rejection is refused without appending');
+  check(Object.values(r.state.heads).every(x => JSON.parse(x.consent_json).advertising === false), 'delayed request leaves acknowledged withdrawal head intact');
   console.log(`Concurrency checks: ${count} passed using actual parallel PHP processes and temporary file-backed storage. MySQL GET_LOCK semantics are not exercised.`);
 })().catch(error => { console.error(error); process.exitCode = 1; });

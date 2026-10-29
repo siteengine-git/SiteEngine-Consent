@@ -1,3 +1,9 @@
+# Current contract — 0.6.1-rc.2
+
+The authoritative current extension is [WITHDRAWAL-CONTRACT.md](WITHDRAWAL-CONTRACT.md). Stored stamp/signature/exact-row contract 1 is retained. Read API result contract 2 adds same-browser current eligibility. Reviewed Ads historical repair `ba5aff0a94fd490819aaec91f3125b344bef4687` is fixture-compatible but still requires current eligibility enforcement at dispatch. The earlier fallback defect below is a historical finding, not a claim about that reviewed repair.
+
+## Historical rc.1 contract and rationale
+
 # Consent stored authority contract v1 — 2026-10-28
 
 Status: Consent candidate implementation authorized under the full 2026-10-28 prompt. **Integration acceptance and deployment blocked on the Ads consumer contract below.** Full-prompt reconciliation added genuine parallel isolated-storage evidence, preserved-contract checks and ALMA-ACCEPTANCE.md. No application writes are part of this assignment.
