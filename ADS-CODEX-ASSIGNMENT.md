@@ -1,5 +1,7 @@
 # Prepared for Aubrey: Ads dispatch enforcement assignment
 
+Consent implementation pin: [1c0a42000927db720cfc60934ea5e2b31db28533](https://github.com/siteengine-git/SiteEngine-Consent/commit/1c0a42000927db720cfc60934ea5e2b31db28533); candidate 0.6.1-rc.2 ZIP SHA-256 8471e4761eef927bb10d44967ab88205ef0890a3b6bf90888b8d1ef2c182b619 (35,575 bytes). Unaccepted; no deployment.
+
 Prepared only; no message sent and no Ads edit authorized by this Consent task.
 
 Start from the Ads owner's current checkout, preserving subsequent work. Historical resolver repair reviewed at ba5aff0a94fd490819aaec91f3125b344bef4687 is compatible with Consent rc.2's signed v1 stamp extension. Its resolver still reports revocation unavailable and authenticates historical grants after withdrawal. Consent's real-consumer fixture demonstrates this remaining enforcement gap. Use the Consent candidate pin and package hash recorded in STATUS.md/PACKAGE-MANIFEST.json, plus WITHDRAWAL-CONTRACT.md; do not repeat baseline import.

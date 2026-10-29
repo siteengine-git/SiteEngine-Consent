@@ -1,5 +1,7 @@
 # Finite proposed Alma acceptance request — rc.2
 
+Consent implementation pin: [1c0a42000927db720cfc60934ea5e2b31db28533](https://github.com/siteengine-git/SiteEngine-Consent/commit/1c0a42000927db720cfc60934ea5e2b31db28533); candidate 0.6.1-rc.2 ZIP SHA-256 8471e4761eef927bb10d44967ab88205ef0890a3b6bf90888b8d1ef2c182b619 (35,575 bytes). Unaccepted; no deployment.
+
 Prepared for Aubrey; not sent and not an active allocation. ALMA - AGENCY HELPER must review conflicts, record exact resources and identify the executor before any mutation. AGENCY - Alma Codex - Source of Truth owns infrastructure/shared dependencies. Existing access/local authorization grants no new privileges. This request supersedes the earlier generic rc.1 plan while retaining that coordination gate.
 
 Purpose: Consent-owned acceptance of same-browser withdrawal and joint Ads contract-2 enforcement. Candidate pins: current named rc.2 source snapshot in STATUS.md and exact archive/files in PACKAGE-MANIFEST.json. Ads owner must separately provide its dispatch-enforcement commit/package/hash; ba5aff0a94fd490819aaec91f3125b344bef4687 provides historical verification only and is insufficient. No install until both candidates and isolated engine evidence pass review.
