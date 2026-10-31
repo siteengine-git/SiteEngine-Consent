@@ -1,3 +1,19 @@
+# Joint installed acceptance tooling — 2026-10-31
+
+Consent portion complete locally; J1–J6 installed operations NOT RUN. Coordinator release ALMA-JOINT-CONSENT-ADS-20261031 permits J0 preparation/installation only and names Alma Codex sole server executor/cleanup owner. No server command, WordPress bootstrap, SQL or browser action was run here. Communication remains through Aubrey; no messages sent.
+
+Source remains D:\SiteEngine\Plugins\.PLUGIN — SiteEngine Consent\source, origin https://github.com/siteengine-git/SiteEngine-Consent.git, branch main, started from b8ceb8c292ff3a198bd34548ec2e5a2d13afe98f without divergence. Runtime implementation1c0a42000927db720cfc60934ea5e2b31db28533 and all five PACKAGE-MANIFEST runtime hashes are unchanged. Candidate 0.6.1-rc.2 ZIP remains SHA256 8471e4761eef927bb10d44967ab88205ef0890a3b6bf90888b8d1ef2c182b619; not rebuilt. New named checkpoint: consent-joint-operations-local-20261031 (tooling, not installed acceptance).
+
+Added tools/acceptance/consent-joint.php (exact-ID original-evidence inspection and 10 process-local fault projections with finally restoration/positive reread), consent-browser.js (actual rc.2 APIs, one grant/withdrawal/regrant chain and explicit ID admission/resume), CONSENT-OPERATIONS.md (paste-ready actions/commands/mutation ceilings/retention), and focused tests. CONSENT-TOOLING-MANIFEST.json pins delivery files and dependencies. No runtime feature, policy, global setting, original row or other project's file was edited.
+
+Fresh focused evidence: 32 PHP tooling checks through real Consent/Ads helper plus 13 browser-tooling checks with actual embedded rc.2 JS = 45 explicit checks passed. Includes foreign ID/chain/table/hash refusal; all faults deny; callback-failure/write-refusal restoration; changed-state readback stops; browser timeout/setup failure restores and stops; same-event retry and one key/three vendor submits; foreign allocation/returned-ID refusal and boundary resume. Two new PHP files lint, both JS files syntax-check. PHP8.3.36 -n / Node24.20.0; synthetic SQL/VM boundaries only. Existing runtime suites retained, not rerun. Installed evidence remains absent.
+
+Limits: browser fault has zero server receipt requests until deliberate restored same-event retry; baseline totals3 receipts/links, one head/revisions1–3 and3 submissions plus owned vendor details. Every server fault/read has0 persistent writes. Synthetic malformed-evidence projections are not actual corrupted vendor persistence. Existing Ads current consumer at2846305 and handoff409df833 are dependencies; initial observer SHA bff8339e0a3faff075069f84e1f62e1e64eab4afb9b616d81bb8a851f6470f48 retained. Its evolving operations interfaces were inspected read-only. Ads owner must integrate Consent callbacks into its bounded supervised process and use exact returned-ID admission; shared runner's SSH timeout alone is not remote process-group termination proof. Method-only removal from a loaded final class is not supplied; Ads owns missing-plugin request-skip verification. No always-successful stub or persistent fault.
+
+All synthetic audit receipts/links/head/barriers remain retained, identified only by private joint journal IDs. Alma owns execution and approved cleanup of other manifest-owned fixtures; Consent supplies no audit deletion. No installed resources or cleanup were created by this local task. One next task: Aubrey hands this pinned Consent package to Ads/Alma owners for final combined launcher/admission review and fixture-release checkpoint; do not independently execute J1–J6.
+
+## Retained runtime/candidate evidence
+
 # Current status — 2026-10-29
 
 **0.6.1-rc.2: unaccepted candidate, implemented and isolated-tested. No deployment. Joint Ads/installed acceptance BLOCKED pending the concrete owner tasks below.**
