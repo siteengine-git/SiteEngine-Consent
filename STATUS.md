@@ -1,3 +1,15 @@
+# R4 target-context tooling correction — 2026-10-31
+
+Local derivative of ae2fe50dcaaa18d581ea41c06b14db3ac68f1e47, named checkpoint consent-target-context-local-20261031-r4. Canonical source remains D:\SiteEngine\Plugins\.PLUGIN — SiteEngine Consent\source, origin https://github.com/siteengine-git/SiteEngine-Consent.git, branch main. No Alma execution; J1–J6 held and Alma Codex sole executor. Completed J0 evidence is preserved per Ads handback, not reinspected or rerun.
+
+Corrected scj_owned/scj_context to authenticate the existing private context/release/allocation and reuse Ads joint-target.php at09a96e132fe73d02b499dfa9fc3b7ee23d8b2acb (SHA256 2b7a5bf897dd22c1ca7a629b88566b4c9f9589e0f9f3eb8a4e2d62cfe191f117). Stored home/siteurl HTTP, effective home HTTP trailing slash and HTTPS browser origin/allocation are separate exact identities. Server hostname, owner/UID, root, DB host/name hash, prefix and URL checks remain strict. No host-only match, option write or URL filter. Arbitrary supplied target arrays cannot bypass private file pins.
+
+Standalone now requires9 arguments: op label mode allocation.json APIN JPIN RPIN context.json CPIN. Callback signatures unchanged: a._sha256/APIN, a._release_sha256/RPIN, exact a._context companion, journal.context_sha256/CPIN. See tools/acceptance/CONSENT-TARGET-CORRECTION-R4.md for self-contained handoff and revised command arrays. Exact-ID admission, original evidence, release/journal validation and fault restoration remain intact.
+
+Fresh focused tests:39 target checks +32 affected tooling checks pass;4 changed/new PHP files lint. Native OS/WP/private-file and SQL boundaries are synthetic, real pinned validator/Consent/Ads algorithms. No unchanged browser/runtime suites rerun. Browser helper/tests and all5 runtime files/installable ZIP remain unchanged. No audit/J0/metadata data or barrier touched; metadata deletion remains unauthorized. Manifest lists full member/dependency hashes. One next task: Aubrey returns this reviewed derivative to Ads Helper for incorporation into the pinned combined package; J1–J6 remain held for Alma review.
+
+## Prior tooling record
+
 # Joint installed acceptance tooling — 2026-10-31
 
 Consent portion complete locally; J1–J6 installed operations NOT RUN. Coordinator release ALMA-JOINT-CONSENT-ADS-20261031 permits J0 preparation/installation only and names Alma Codex sole server executor/cleanup owner. No server command, WordPress bootstrap, SQL or browser action was run here. Communication remains through Aubrey; no messages sent.
