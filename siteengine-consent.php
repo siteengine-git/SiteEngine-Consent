@@ -3,7 +3,7 @@
  * Plugin Name: SiteEngine Consent
  * Plugin URI:  https://siteengine.io/
  * Description: First-party consent management for WordPress. GTM Consent Mode v2, Fluent Forms server-side consent stamping, local audit log with retention, admin viewer, exports, rate limiting, privacy-policy fallback, public health endpoint. Integrates with SiteEngine Base when available and remains standalone-safe.
- * Version:     0.6.1-rc.2
+ * Version:     0.6.2-rc.1
  * Author:      SiteEngine
  * Author URI:  https://siteengine.io/
  * License:     Proprietary
@@ -192,11 +192,11 @@ define('SE_CONSENT_BOOTSTRAPPED', __FILE__);
 
 if (!defined('SE_CONSENT_COMPANY_NAME_EXPLICIT')) { define('SE_CONSENT_COMPANY_NAME_EXPLICIT', defined('SE_CONSENT_COMPANY_NAME')); }
 if (!defined('SE_CONSENT_PRIVACY_URL_EXPLICIT'))  { define('SE_CONSENT_PRIVACY_URL_EXPLICIT', defined('SE_CONSENT_PRIVACY_URL')); }
-if (!defined('SE_CONSENT_VERSION'))               { define('SE_CONSENT_VERSION', '0.6.1-rc.2'); }
+if (!defined('SE_CONSENT_VERSION'))               { define('SE_CONSENT_VERSION', '0.6.2-rc.1'); }
 if (!defined('SE_CONSENT_COOKIE_NAME'))           { define('SE_CONSENT_COOKIE_NAME', 'se_consent'); }
 if (!defined('SE_CONSENT_COOKIE_DAYS'))           { define('SE_CONSENT_COOKIE_DAYS', 390); }
 if (!defined('SE_CONSENT_POLICY_VERSION'))        { define('SE_CONSENT_POLICY_VERSION', '2026-05-08-v1'); }
-if (!defined('SE_CONSENT_BANNER_VERSION'))        { define('SE_CONSENT_BANNER_VERSION', SE_CONSENT_VERSION); }
+if (!defined('SE_CONSENT_BANNER_VERSION'))        { define('SE_CONSENT_BANNER_VERSION', '0.6.1-rc.2'); }
 if (!defined('SE_CONSENT_COMPANY_NAME'))          { define('SE_CONSENT_COMPANY_NAME', get_bloginfo('name')); }
 if (!defined('SE_CONSENT_PRIVACY_URL'))           { define('SE_CONSENT_PRIVACY_URL', home_url('/privacy-policy/')); }
 if (!defined('SE_CONSENT_PRIVACY_FALLBACK_URL'))  { define('SE_CONSENT_PRIVACY_FALLBACK_URL', 'https://siteengine.io/agency-privacy-template/'); }
@@ -282,6 +282,7 @@ register_deactivation_hook(__FILE__, 'siteengine_consent_deactivate');
 
 require_once __DIR__ . '/includes/class-siteengine-consent-continuity.php';
 require_once __DIR__ . '/includes/class-siteengine-consent-authority.php';
+require_once __DIR__ . '/includes/class-siteengine-consent-diagnostics.php';
 
 final class SiteEngine_Consent {
     private static $instance = null;
@@ -1246,9 +1247,29 @@ final class SiteEngine_Consent {
         return admin_url('tools.php?page=se-consent');
     }
 
+    /** Nonsecret facts only. Use the same configuration precedence as capture. */
+    private function diagnostics_configuration(): array {
+        $facts = $this->config;
+        $facts['retention_days'] = (int) SE_CONSENT_RETENTION_DAYS;
+        $facts['rate_limit_per_min'] = (int) SE_CONSENT_RATE_LIMIT_PER_MIN;
+        $facts['company_configured'] = $this->has_configured_company_name();
+        $facts['privacy_configured'] = $this->has_configured_privacy_url();
+        $facts['privacy_https'] = strtolower((string) parse_url($this->configured_privacy_url(), PHP_URL_SCHEME)) === 'https';
+        $facts['company_source'] = SE_CONSENT_COMPANY_NAME_EXPLICIT ? 'explicit_constant'
+            : (function_exists('siteengine_get') && trim((string) siteengine_get('business_name', '')) !== '' ? 'base' : 'wordpress');
+        $facts['privacy_source'] = SE_CONSENT_PRIVACY_URL_EXPLICIT ? 'explicit_constant'
+            : (function_exists('siteengine_get') && trim((string) siteengine_get('privacy_policy_url', '')) !== '' ? 'base' : 'wordpress');
+        return $facts;
+    }
+
     public function render_admin_page(): void {
         if (!current_user_can('manage_options')) {
             wp_die('Insufficient permissions.');
+        }
+
+        if (isset($_GET['view']) && $_GET['view'] === 'diagnostics') {
+            SiteEngine_Consent_Diagnostics::render($this->diagnostics_configuration());
+            return;
         }
 
         // Handle export download BEFORE any HTML output. Streams CSV/JSON then exit.
@@ -1336,6 +1357,7 @@ final class SiteEngine_Consent {
         ?>
         <div class="wrap">
             <h1>SiteEngine Consent</h1>
+            <p><a class="button" href="<?php echo esc_url(add_query_arg('view', 'diagnostics', $this->admin_page_url())); ?>">Deployment diagnostics and support report</a></p>
             <p style="color:#666">Plugin <code><?php echo esc_html(SE_CONSENT_VERSION); ?></code> &middot; Banner hash <code><?php echo esc_html($this->config['banner_version']); ?></code> &middot; Policy <code><?php echo esc_html(SE_CONSENT_POLICY_VERSION); ?></code></p>
 
             <?php if (!empty($warnings)): ?>

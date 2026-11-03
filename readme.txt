@@ -3,7 +3,7 @@ Contributors: siteengine
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 0.6.1-rc.2
+Stable tag: 0.6.2-rc.1
 License: Proprietary
 
 First-party consent management for WordPress. Google Consent Mode v2, Fluent Forms integration, local audit log, exports.
@@ -21,8 +21,13 @@ Key capabilities:
 * Provides admin UI, WP-CLI, and REST endpoints for exports and monitoring
 * Auto-scheduled retention cleanup (default 730 days, configurable)
 * Integrates with SiteEngine Base when available; remains fully operational without it
+* Administrator-only deployment diagnostics and redacted support reporting
 
 When SiteEngine Base 2.2+ is active, Business Name and Privacy Policy URL are read from SiteEngine → Business Data and the audit screen appears under SiteEngine → Consent. Existing wp-config.php constants remain supported and take precedence for backward compatibility. Without Base, the plugin remains standalone and the audit screen remains under Tools.
+
+On the Consent screen, choose Deployment diagnostics and support report. Checks distinguish verified prerequisites, failures and untested conditions. Generate redacted report requires administrator permissions and a nonce; JSON is displayed for copying, never stored or sent. No consent records, cookies, credentials or signing/continuity material are included. API availability does not prove Ads enforcement or delivery. Capture/current-eligibility explanations are reference material, not an error history.
+
+Upgrade normally without uninstalling. Diagnostics performs no schema repair, capture, cleanup or external dispatch. Existing WordPress/plugin bootstrap can still update version/schema options, cron and privacy transients/probes. The default policy and rc.2 banner identity are preserved; plugin release identity is separate. Preserve all receipt history, links, heads and withdrawal barriers. Missing/incompatible storage or unavailable authority requires targeted investigation; never reset historical data to clear a check. See the source MILESTONE-1.md for upgrade/recovery and verification limits.
 
 == Installation ==
 
@@ -37,6 +42,12 @@ When SiteEngine Base 2.2+ is active, Business Name and Privacy Policy URL are re
 5. Check SiteEngine → Consent (with Base) or Tools → SiteEngine Consent (standalone) to see the audit log
 
 == Changelog ==
+
+= 0.6.2-rc.1 =
+* Milestone 1: administrator deployment diagnostics, capture/current-eligibility explanations and nonce-protected redacted support report in the existing Consent screen.
+* Metadata reads only; no repair, record inspection, capture or external dispatch by diagnostics. Bootstrap behavior remains unchanged.
+* Keeps the rc.2 default banner identity and existing policy unchanged; upgrade does not renew consent solely because the plugin release changed.
+
 
 = 0.6.1-rc.2 (candidate; not deployed or accepted) =
 * Adds prospective browser/site continuity, immutable event links and permanent withdrawal barriers.

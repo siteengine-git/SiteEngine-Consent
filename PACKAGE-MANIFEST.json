@@ -1,19 +1,20 @@
 {
-  "version": "0.6.1-rc.2",
-  "archive": "siteengine-consent-0.6.1-rc.2.zip",
-  "bytes": 35575,
-  "sha256": "8471e4761eef927bb10d44967ab88205ef0890a3b6bf90888b8d1ef2c182b619",
-  "acceptance": "unaccepted candidate; Ads dispatch enforcement and coordinated Alma acceptance pending; no deployment",
+  "version": "0.6.2-rc.1",
+  "archive": "siteengine-consent-0.6.2-rc.1.zip",
+  "bytes": 42961,
+  "sha256": "d26b28da4aff5260dd93a5dd02ee74ff27317866a7cf78ec890e504eb96c1565",
+  "acceptance": "Milestone 1 candidate; locally verified; not installed or released; Helper acceptance pending",
+  "baseline_commit": "7a54433cf5eba4583071c3b25dc6b99b8e548454",
   "files": [
     {
       "path": "siteengine-consent.php",
-      "bytes": 98825,
-      "sha256": "29671ec27d277c83260a52ce661d048436cb672ac762100e89b4687f28ff0601"
+      "bytes": 100343,
+      "sha256": "43ce5dcca42686c5054bfce1f588c88b54779424a22044f9613a00bb6daf6551"
     },
     {
       "path": "readme.txt",
-      "bytes": 4162,
-      "sha256": "a9e85f7828240aa3885c6cadee759040a2e1853c0c2fb92bde8da53ab7a6c11a"
+      "bytes": 5821,
+      "sha256": "d692490c9bd407e53825e3e4deb9d9619a05f509496f94202350af0840bb03a6"
     },
     {
       "path": "uninstall.php",
@@ -29,6 +30,11 @@
       "path": "includes/class-siteengine-consent-continuity.php",
       "bytes": 14268,
       "sha256": "660c83315e50ae6f159ddcb3f97f28b1f960c726bb5c9be62a0cdccd2507fe3d"
+    },
+    {
+      "path": "includes/class-siteengine-consent-diagnostics.php",
+      "bytes": 18387,
+      "sha256": "78f34728082f58ef7c57c8e398fa48d0d0ff2264129a3961f6309def5ced4cf4"
     }
   ]
 }

@@ -1,3 +1,19 @@
+<!-- SITEENGINE-ROLES-AUTHORITY-BEGIN -->
+## Roles and authority
+
+Effective November 2, 2026. This section explicitly supersedes conflicting older workflow, ownership, helper-role, retry-approval and deployment-executor instructions in this file and historical project documents. Preserve historical evidence and all nonconflicting technical, privacy and access requirements. Later explicit task authorizations remain applicable; this governance update itself authorizes no deployment or real delivery.
+
+- Controlling Helper: _ Consent-Helper - 10.
+- Canonical source / working home: D:\SiteEngine\Plugins\.PLUGIN — SiteEngine Consent\source.
+- Permitted server role: Plugin source/build/test owner. No independent shared-server changes; Alma Codex installs/tests unless Master explicitly delegates a bounded server task.
+- Aubrey remains final authority. The Master server chat sets priorities, owns shared-server coordination and decides server/resource conflicts. Each named plugin Helper owns its product requirements, implementation decisions, acceptance criteria and delivery; its dedicated Codex owns its canonical source, tests, GitHub changes and packages. A coordination request does not transfer plugin ownership to Master or Alma Codex.
+- Shared Project context is reference material, not delegated execution authority. Treat each chat according to its name. Return plugin-source corrections to its owning Helper/Codex; do not create a competing source master.
+- Plugin Helpers continue independent authorized implementation while awaiting a server slot. Existing authorization covers routine invocation and test-tool corrections within scope; inspect actual state before retrying, never blindly replay uncertain writes, and do not create repeated approval loops.
+- Only one executor changes overlapping server resources at a time. Alma Codex owns assigned dev-server installation, backups, scoped controls, installed verification and cleanup; other execution requires an explicit bounded delegation. AWS production operations require their own concrete scope.
+- Preserve completed evidence. Expand testing only for a demonstrated failure or concrete unresolved requirement. Diagnose first and use the smallest adequate correction; do not start another general tooling or infrastructure campaign.
+- Messages intended for another chat start with TO / FROM / SUBJECT. Preparing a handoff is not delivery or acknowledgment. Do not claim another chat received or acted on a message without evidence.
+- Report implemented, packaged, installed, verified and released separately; none implies the next. PC/GitHub remain source authority. The live Alma dev site is the continuing test/integration destination; keep its approved verified plugin versions current under assigned installation scope, without inferring client-production release.
+<!-- SITEENGINE-ROLES-AUTHORITY-END -->
 # SiteEngine Consent working rules
 
 Canonical editable checkout: `D:\SiteEngine\Plugins\.PLUGIN — SiteEngine Consent\source`.
@@ -23,3 +39,8 @@ After authorized changes, run meaningful tests, label evidence accurately, revie
 The 2026-10-29 same-browser withdrawal task authorizes the local rc.2 extension, focused tests, reviewed commit/push and ZIP. Read WITHDRAWAL-CONTRACT.md for the current API; the historical Ads fallback repair is now reviewed at ba5aff0a94fd490819aaec91f3125b344bef4687, but dispatch-boundary current eligibility enforcement remains blocked on its owner. Two additive InnoDB tables are prospective source only. Preserve all original receipt history and prior packages. Candidate tags are isolated checkpoints, never installed acceptance. No deployment or server mutation is authorized.
 
 2026-10-31: Consent J1–J6 local test tooling lives in tools/acceptance/; read CONSENT-OPERATIONS.md and current STATUS.md. No runtime/package change. The recorded coordinator release permits J0 preparation/installation by Alma Codex only; fixtures remain unreleased until the combined operations checkpoint is reviewed. Local checks45, installed NOT RUN. Consume Ads-owned exact allocation/journal IDs; retain all Consent audit rows/links/heads/barriers. No external messaging.
+
+
+## Milestone 1 authority — November 3, 2026
+
+The controlling Helper is HELPER — SiteEngine Consent (_ Consent-Helper - 10). Canonical source is D:\SiteEngine\Plugins\.PLUGIN — SiteEngine Consent\source. Its dedicated Codex owns Milestone 1 diagnostics/support implementation, focused checks, build, GitHub and candidate packages. This explicit authorized task supersedes older implementation holds and any assertion that Alma approves plugin decisions. Alma/Master coordinate overlapping server resources; Alma Codex remains the installer/test executor unless explicitly delegated. No independent shared-service or client-production change. Preserve prior evidence and packages. Stage the successor in the project deliverables folder; preserve the approved ZIP in D:\SiteEngine\Plugins\..Deliverables\PLUGIN — SiteEngine Consent until successor acceptance. Installed verification requires actual current activity/lock reconciliation; local evidence is not installed acceptance.

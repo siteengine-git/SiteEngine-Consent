@@ -19,3 +19,8 @@ Validated using existing PHP 8.3.36 (-n) and Node 24.20.0. Minimum declared PHP 
 Retained consumer-contract.php is a historical rc.1 fixture for the old 0.6.3 CLI resolver; not rerun or counted for rc.2. Do not repin it to a different consumer. New compatibility evidence is in withdrawal.php.
 
 No actual MySQL/MariaDB, live WordPress/Fluent Forms, real browser/cache, external export or installed acceptance is claimed. STATUS.md records executed counts; ALMA-ACCEPTANCE.md specifies the separate coordinated task.
+
+
+## Milestone 1 diagnostics (0.6.2-rc.1)
+
+See ../MILESTONE-1.md for focused commands. tests/diagnostics.php:62 isolated metadata/WP assertions, tests/diagnostics-api.php:3 independent process modes (missing/wrong/real), tests/diagnostics-upgrade.php:41 source preservation checks against retained 7a54433 main snapshot. Five changed/new PHP files linted on8.3.36.106 checks total; no unchanged acceptance suites rerun and no installed or real-DB upgrade claim.
