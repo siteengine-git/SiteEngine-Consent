@@ -1,20 +1,20 @@
 {
-  "version": "0.6.2-rc.1",
-  "archive": "siteengine-consent-0.6.2-rc.1.zip",
-  "bytes": 42961,
-  "sha256": "d26b28da4aff5260dd93a5dd02ee74ff27317866a7cf78ec890e504eb96c1565",
-  "acceptance": "Milestone 1 candidate; locally verified; not installed or released; Helper acceptance pending",
+  "version": "0.6.2",
+  "archive": "siteengine-consent-0.6.2.zip",
+  "bytes": 42956,
+  "sha256": "bec0bbbe7cdec7d22fd901ab16931724ebbe4dcc73be86080924b8ad2ce59da5",
+  "acceptance": "Milestone 1 targeted installed candidate checks passed; stable metadata-only successor; final installed payload/version verification recorded in STATUS.md; no client-production deployment",
   "baseline_commit": "7a54433cf5eba4583071c3b25dc6b99b8e548454",
   "files": [
     {
       "path": "siteengine-consent.php",
-      "bytes": 100343,
-      "sha256": "43ce5dcca42686c5054bfce1f588c88b54779424a22044f9613a00bb6daf6551"
+      "bytes": 100333,
+      "sha256": "20e75da418a03afa2f177a04c3cdf4bc859792b4f74bcc2f6c091d1c67a92c74"
     },
     {
       "path": "readme.txt",
-      "bytes": 5821,
-      "sha256": "d692490c9bd407e53825e3e4deb9d9619a05f509496f94202350af0840bb03a6"
+      "bytes": 5811,
+      "sha256": "49daf638187bb7a89dd9fa269df3ed70d7ac516767305b478e19690858916d26"
     },
     {
       "path": "uninstall.php",

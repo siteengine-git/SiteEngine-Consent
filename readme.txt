@@ -3,7 +3,7 @@ Contributors: siteengine
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 0.6.2-rc.1
+Stable tag: 0.6.2
 License: Proprietary
 
 First-party consent management for WordPress. Google Consent Mode v2, Fluent Forms integration, local audit log, exports.
@@ -43,7 +43,7 @@ Upgrade normally without uninstalling. Diagnostics performs no schema repair, ca
 
 == Changelog ==
 
-= 0.6.2-rc.1 =
+= 0.6.2 =
 * Milestone 1: administrator deployment diagnostics, capture/current-eligibility explanations and nonce-protected redacted support report in the existing Consent screen.
 * Metadata reads only; no repair, record inspection, capture or external dispatch by diagnostics. Bootstrap behavior remains unchanged.
 * Keeps the rc.2 default banner identity and existing policy unchanged; upgrade does not renew consent solely because the plugin release changed.
