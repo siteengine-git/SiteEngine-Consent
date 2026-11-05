@@ -54,3 +54,8 @@ HELPER — SiteEngine Consent explicitly delegates this Consent Codex to install
 ## Milestone 2 authority — November 3, 2026
 
 HELPER — SiteEngine Consent controls this milestone and explicitly assigns this Consent Codex scoped Alma browser/Fluent Forms implementation, fixture execution and verification. This supersedes older Alma-only executor restrictions for this assignment. Start at accepted0.6.2; prepare locally, use existing common/overlapping execution locks only during server work or protected unfinished fixtures, and preserve all passing evidence. One focused installed pass; no old joint campaign, new test framework, user-operated harness, unrelated plugin/shared-service change, advertising/notification delivery or Milestone3. Preserve policy/banner, API2, signed/negative evidence and permanent barriers. If no demonstrated runtime defect, close with compatibility evidence and keep0.6.2 ZIP unchanged; otherwise stage a separately versioned candidate for Helper acceptance.
+
+
+## Milestone 3 authority — November 5, 2026
+
+HELPER — SiteEngine Consent delegates this Codex to implement persistent preferences/accessibility, package a separately versioned candidate, install and verify on Alma under the existing common/overlapping executor locks. This bounded assignment supersedes older milestone/executor holds. Start at accepted0.6.2, preserve subsequent work, authority API2/history/barriers/policy/banner. No other-plugin/shared-service/client-production change or Milestone4. Retain the approved0.6.2 delivery ZIP until Helper acceptance; stage candidate outside that directory. Reuse prior evidence and run one focused pass with exact owned fixtures and targeted recovery.

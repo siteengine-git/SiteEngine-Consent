@@ -24,3 +24,5 @@ No actual MySQL/MariaDB, live WordPress/Fluent Forms, real browser/cache, extern
 ## Milestone 1 diagnostics (0.6.2-rc.1)
 
 See ../MILESTONE-1.md for focused commands. tests/diagnostics.php:62 isolated metadata/WP assertions, tests/diagnostics-api.php:3 independent process modes (missing/wrong/real), tests/diagnostics-upgrade.php:41 source preservation checks against retained 7a54433 main snapshot. Five changed/new PHP files linted on8.3.36.106 checks total; no unchanged acceptance suites rerun and no installed or real-DB upgrade claim.
+
+Milestone3 focused changes: `node tests/preferences.cjs` (30 UI assertions), `php -n tests/preferences-config.php` (7 configuration checks), and `php -n tests/preferences-upgrade.php <v0.6.2 main file>` (41 preservation checks). See MILESTONE-3.md for installed evidence and coverage limits. These UI doubles reuse the existing harness and are not screen-reader/browser-layout certification. Do not count retained unchanged suites as fresh passes.

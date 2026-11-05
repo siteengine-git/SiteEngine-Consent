@@ -3,7 +3,7 @@ Contributors: siteengine
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 0.6.2
+Stable tag: 0.6.3-rc.2
 License: Proprietary
 
 First-party consent management for WordPress. Google Consent Mode v2, Fluent Forms integration, local audit log, exports.
@@ -41,7 +41,21 @@ Upgrade normally without uninstalling. Diagnostics performs no schema repair, ca
 4. Verify by visiting the site in incognito — the banner should appear
 5. Check SiteEngine → Consent (with Base) or Tools → SiteEngine Consent (standalone) to see the audit log
 
+== Persistent preferences ==
+
+A compact Consent Preferences button remains available after acceptance or rejection. Opening, Cancel and Escape do not save a choice. Keyboard focus enters the dialog and returns to its launcher. Category switches expose independent On/Off states. Pending/failed confirmation is reported separately from choices applied on this page.
+
+Footer integration: use `<button type="button" data-se-consent-action="manage" data-se-consent-persistent aria-haspopup="dialog" aria-controls="se-consent-modal">Consent Preferences</button>`. Menu integration: add CSS class `se-consent-preferences` to a link with URL `#se-consent-modal`. Either explicit marker present at initial render suppresses the default launcher. For dynamically inserted controls, use the filter below with mode custom and ensure the replacement is always reachable. Existing `window.SiteEngineConsent.openPreferences()` remains supported.
+
+Use the `siteengine_consent_preference_controls` PHP filter to return an array: mode auto (default) or custom, side right (default) or left, bottom clearance in CSS pixels (8–320, default 88). Example: `add_filter("siteengine_consent_preference_controls", function () { return ["mode"=>"auto", "side"=>"right", "bottom"=>120]; });`. Safe-area insets are added automatically. Test alongside site launchers at narrow widths and zoom; no automatic collision detection or other-plugin changes. Presentation options do not alter policy/banner identity.
+
 == Changelog ==
+
+= 0.6.3-rc.2 =
+* Milestone 3 candidate: persistent preferences launcher, footer/menu integration and bounded placement filter.
+* Modal focus isolation/return, hidden-banner keyboard exclusion, visible independent category states and accessible confirmation feedback.
+* Narrow/dynamic viewport and safe-area layout; consent authority, history and policy/banner identity unchanged.
+
 
 = 0.6.2 =
 * Milestone 1: administrator deployment diagnostics, capture/current-eligibility explanations and nonce-protected redacted support report in the existing Consent screen.

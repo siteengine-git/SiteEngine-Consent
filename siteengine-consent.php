@@ -3,7 +3,7 @@
  * Plugin Name: SiteEngine Consent
  * Plugin URI:  https://siteengine.io/
  * Description: First-party consent management for WordPress. GTM Consent Mode v2, Fluent Forms server-side consent stamping, local audit log with retention, admin viewer, exports, rate limiting, privacy-policy fallback, public health endpoint. Integrates with SiteEngine Base when available and remains standalone-safe.
- * Version:     0.6.2
+ * Version:     0.6.3-rc.2
  * Author:      SiteEngine
  * Author URI:  https://siteengine.io/
  * License:     Proprietary
@@ -192,7 +192,7 @@ define('SE_CONSENT_BOOTSTRAPPED', __FILE__);
 
 if (!defined('SE_CONSENT_COMPANY_NAME_EXPLICIT')) { define('SE_CONSENT_COMPANY_NAME_EXPLICIT', defined('SE_CONSENT_COMPANY_NAME')); }
 if (!defined('SE_CONSENT_PRIVACY_URL_EXPLICIT'))  { define('SE_CONSENT_PRIVACY_URL_EXPLICIT', defined('SE_CONSENT_PRIVACY_URL')); }
-if (!defined('SE_CONSENT_VERSION'))               { define('SE_CONSENT_VERSION', '0.6.2'); }
+if (!defined('SE_CONSENT_VERSION'))               { define('SE_CONSENT_VERSION', '0.6.3-rc.2'); }
 if (!defined('SE_CONSENT_COOKIE_NAME'))           { define('SE_CONSENT_COOKIE_NAME', 'se_consent'); }
 if (!defined('SE_CONSENT_COOKIE_DAYS'))           { define('SE_CONSENT_COOKIE_DAYS', 390); }
 if (!defined('SE_CONSENT_POLICY_VERSION'))        { define('SE_CONSENT_POLICY_VERSION', '2026-05-08-v1'); }
@@ -613,10 +613,22 @@ final class SiteEngine_Consent {
         return '';
     }
 
+    /** Presentation only: never participates in policy/banner identity. */
+    private function preference_controls(): array {
+        $input = apply_filters('siteengine_consent_preference_controls', []);
+        $input = is_array($input) ? $input : [];
+        return [
+            'mode' => isset($input['mode']) && $input['mode'] === 'custom' ? 'custom' : 'auto',
+            'side' => isset($input['side']) && $input['side'] === 'left' ? 'left' : 'right',
+            'bottom' => isset($input['bottom']) && is_numeric($input['bottom']) ? max(8, min(320, (int) $input['bottom'])) : 88,
+        ];
+    }
+
     public function print_config(): void {
         if (is_admin()) return;
         $frontend_config = [
             'version'        => $this->config['version'],
+            'preferenceControls' => $this->preference_controls(),
             'cookieName'     => $this->config['cookie_name'],
             'cookieDays'     => $this->config['cookie_days'],
             'policyVersion'  => $this->config['policy_version'],
@@ -670,14 +682,14 @@ final class SiteEngine_Consent {
         <style id="se-consent-styles">
             #se-consent-banner,#se-consent-modal,#se-consent-backdrop{box-sizing:border-box}
             #se-consent-banner *,#se-consent-modal *{box-sizing:border-box}
-            #se-consent-banner{position:fixed;left:0;right:0;bottom:0;z-index:999999;background:#1f2937;color:#f9fafb;box-shadow:0 -4px 24px rgba(0,0,0,.24);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;transform:translateY(110%);transition:transform 240ms ease}
-            #se-consent-banner.se-consent-visible{transform:translateY(0)}
+            #se-consent-banner{position:fixed;left:0;right:0;bottom:0;z-index:999999;background:#1f2937;color:#f9fafb;box-shadow:0 -4px 24px rgba(0,0,0,.24);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;visibility:hidden;transform:translateY(110%);transition:transform 240ms ease}
+            #se-consent-banner.se-consent-visible{visibility:visible;transform:translateY(0)}
             .se-consent-banner-inner{max-width:1180px;margin:0 auto;padding:18px 22px;display:flex;align-items:center;gap:18px}
-            .se-consent-banner-copy{flex:1;min-width:260px;font-size:14px;line-height:1.5}
+            .se-consent-banner-copy{flex:1;min-width:0;font-size:14px;line-height:1.5}
             .se-consent-banner-copy strong{display:block;margin-bottom:3px;font-size:15px;color:#fff}
             .se-consent-banner-copy a{color:#bfdbfe;text-decoration:underline}
             .se-consent-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
-            .se-consent-button{border-radius:7px;border:1px solid transparent;padding:10px 18px;font-size:14px;line-height:1.2;font-weight:600;cursor:pointer;transition:background 160ms ease,border-color 160ms ease,color 160ms ease;white-space:nowrap}
+            .se-consent-button{border-radius:7px;border:1px solid transparent;padding:10px 18px;font-size:14px;line-height:1.2;font-weight:600;cursor:pointer;transition:background 160ms ease,border-color 160ms ease,color 160ms ease;white-space:normal;min-height:44px}
             .se-consent-button-primary{background:var(--se-consent-accent,#235DAA);border-color:var(--se-consent-accent,#235DAA);color:#fff}
             .se-consent-button-primary:hover{background:var(--se-consent-accent-hover,#1B4B8A);border-color:var(--se-consent-accent-hover,#1B4B8A);color:#fff}
             .se-consent-button-secondary{background:transparent;border-color:#9ca3af;color:#f3f4f6}
@@ -701,6 +713,18 @@ final class SiteEngine_Consent {
             #se-consent-modal{display:none;position:fixed;z-index:1000001;left:50%;top:50%;width:min(560px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:auto;transform:translate(-50%,-50%);background:#fff;color:#111827;border-radius:14px;box-shadow:0 24px 80px rgba(0,0,0,.35);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
             #se-consent-modal.se-consent-visible{display:block}
             .se-consent-modal-inner{padding:24px}
+            #se-consent-launcher{position:fixed;z-index:999998;right:max(16px,env(safe-area-inset-right));bottom:calc(var(--se-consent-control-bottom,88px) + env(safe-area-inset-bottom,0px));max-width:calc(100vw - 32px);width:auto;background:#1f2937;color:#fff;border:1px solid #fff;box-shadow:0 2px 8px #0005;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+            #se-consent-launcher.se-consent-left{right:auto;left:max(16px,env(safe-area-inset-left))}
+            #se-consent-launcher[hidden]{display:none}
+            #se-consent-confirmation{position:fixed;z-index:1000002;left:max(16px,env(safe-area-inset-left));bottom:calc(var(--se-consent-control-bottom,88px) + 64px + env(safe-area-inset-bottom,0px));max-width:min(480px,calc(100vw - 32px));max-height:30vh;overflow:auto;background:#fff;color:#111827;border:2px solid #235DAA;border-radius:8px;padding:12px;font:14px/1.5 system-ui,sans-serif;box-shadow:0 2px 12px #0004}
+            #se-consent-confirmation:empty,#se-consent-modal-status:empty{display:none}
+            #se-consent-confirmation[inert]{visibility:hidden}
+            #se-consent-modal-status{padding:12px;border:1px solid #9a3412;background:#fff7ed;color:#7c2d12;font:14px/1.5 system-ui,sans-serif;margin-bottom:16px}
+            #se-consent-confirmation button{display:block;margin-top:8px}
+            #se-consent-modal{max-height:calc(100dvh - max(32px,env(safe-area-inset-top)) - env(safe-area-inset-bottom,0px));overscroll-behavior:contain}
+            .se-consent-category-state{display:block;font-size:12px;font-weight:600;margin-top:4px}
+            @media(max-width:360px){.se-consent-modal-inner{padding:16px}.se-consent-category{padding:10px}.se-consent-category-row{gap:8px}}
+            .se-consent-banner-inner{padding-bottom:max(18px,env(safe-area-inset-bottom))}
             .se-consent-modal-title{margin:0 0 8px;font-size:21px;line-height:1.25}
             .se-consent-modal-copy{margin:0 0 18px;color:#4b5563;font-size:14px;line-height:1.55}
             .se-consent-category{border:1px solid #e5e7eb;border-radius:10px;padding:14px;margin:0 0 12px}
@@ -710,7 +734,7 @@ final class SiteEngine_Consent {
             /* WCAG 1.4.11 — the off-state track needs >=3:1 against the white card.
                #d1d5db alone is ~1.5:1, so the control was effectively invisible.
                A #6b7280 border (4.8:1 on white) carries the boundary instead. */
-            .se-consent-toggle{min-width:48px;height:26px;border-radius:999px;border:1px solid #6b7280;background:#d1d5db;cursor:pointer;position:relative;transition:background 160ms ease}
+            .se-consent-toggle{flex-shrink:0;min-width:48px;height:32px;border-radius:999px;border:1px solid #6b7280;background:#d1d5db;cursor:pointer;position:relative;transition:background 160ms ease}
             .se-consent-toggle::after{content:"";position:absolute;width:20px;height:20px;border-radius:999px;left:2px;top:2px;background:#fff;transition:transform 160ms ease;box-shadow:0 1px 3px rgba(0,0,0,.25)}
             .se-consent-toggle[aria-checked="true"]{background:var(--se-consent-accent,#235DAA);border-color:var(--se-consent-accent,#235DAA)}
             .se-consent-toggle[aria-checked="true"]::after{transform:translateX(22px)}
@@ -778,6 +802,7 @@ final class SiteEngine_Consent {
                 var root = document.documentElement;
                 root.style.setProperty('--se-consent-accent', config.accentColor || '#235DAA');
                 root.style.setProperty('--se-consent-accent-hover', config.accentHover || '#1B4B8A');
+                root.style.setProperty('--se-consent-control-bottom', Math.max(8, Math.min(320, Number((config.preferenceControls || {}).bottom) || 88)) + 'px');
 
                 function log() { if (!config.debug || !window.console) return; console.log.apply(console, ['[SiteEngine Consent]'].concat(Array.prototype.slice.call(arguments))); }
                 function uuid() {
@@ -897,17 +922,27 @@ final class SiteEngine_Consent {
                 }
                 function cssEscape(value) { if (window.CSS && typeof window.CSS.escape === 'function') return window.CSS.escape(value); return String(value).replace(/[^a-zA-Z0-9_-]/g, '\\$&'); }
                 function auditStatus(status) {
+                    modalConfirmation(status);
                     var element = document.getElementById('se-consent-confirmation');
                     if (!element && document.body) {
                         element = document.createElement('div'); element.id = 'se-consent-confirmation';
                         element.setAttribute('role', 'status'); element.setAttribute('aria-live', 'polite');
                         document.body.appendChild(element);
                     }
-                    if (element) element.textContent = status === 'saved' ? '' : (status === 'pending' ? 'Saving your preferences…' : 'Your preferences apply on this page, but server confirmation failed. Retry, or reopen preferences and choose again.');
+                    if (element) {
+                        element.setAttribute('aria-atomic', 'true');
+                        element.setAttribute('aria-busy', 'false');
+                        element.setAttribute('data-confirmation-state', status);
+                        element.textContent = status === 'saved' ? '' : (status === 'pending' ? 'Preferences applied on this page. Waiting for server confirmation…' : 'Your preferences apply on this page, but server confirmation failed. Retry, or reopen preferences and choose again.');
+                    }
                     if (element && status === 'failed') {
-                        var retry = document.createElement('button'); retry.type = 'button'; retry.textContent = 'Retry confirmation';
+                        var retry = document.createElement('button'); retry.type = 'button'; retry.className = 'se-consent-button se-consent-button-primary'; retry.textContent = 'Retry confirmation';
                         retry.onclick = function () { window.SiteEngineConsent.retryAudit(); }; element.appendChild(retry);
                     }
+                }
+                function modalConfirmation(status) {
+                    var inline = document.getElementById('se-consent-modal-status');
+                    if (inline) inline.textContent = status === 'failed' ? 'Your choices apply on this page, but server confirmation failed. Close this dialog to retry confirmation, or save a new choice.' : (status === 'pending' ? 'Your choices apply on this page. Waiting for server confirmation.' : '');
                 }
                 function isCurrentInteraction(payload) {
                     var stored = readStoredConsent();
@@ -977,13 +1012,30 @@ final class SiteEngine_Consent {
                 function rejectNonEssential() { return saveConsent({ analytics: false, advertising: false, personalization: false }, 'reject_non_essential'); }
                 function savePreferences() { return saveConsent({ analytics: getToggleValue('analytics'), advertising: getToggleValue('advertising'), personalization: getToggleValue('personalization') }, 'save_preferences'); }
                 function getToggleValue(category) { var t = document.querySelector('[data-se-consent-toggle="' + category + '"]'); return t ? t.getAttribute('aria-checked') === 'true' : false; }
-                function setToggleValue(category, value) { var t = document.querySelector('[data-se-consent-toggle="' + category + '"]'); if (t) t.setAttribute('aria-checked', value ? 'true' : 'false'); }
+                function setToggleValue(category, value) { var t = document.querySelector('[data-se-consent-toggle="' + category + '"]'); if (t) t.setAttribute('aria-checked', value ? 'true' : 'false');  var label = document.getElementById('se-consent-state-' + category); if (label) label.textContent = category === 'necessary' ? 'Always on' : (value ? 'On' : 'Off'); }
                 function toggleCategory(category) { setToggleValue(category, !getToggleValue(category)); }
-                function showBanner() { var b = document.getElementById('se-consent-banner'); if (b) window.setTimeout(function () { b.classList.add('se-consent-visible'); }, 200); }
-                function hideBanner() { var b = document.getElementById('se-consent-banner'); if (b) b.classList.remove('se-consent-visible'); }
+                function showBanner() { var b = document.getElementById('se-consent-banner'); if (b) window.setTimeout(function () { b.classList.add('se-consent-visible'); syncLauncher(); }, 200); }
+                function hideBanner() { var b = document.getElementById('se-consent-banner'); if (b) b.classList.remove('se-consent-visible'); syncLauncher(); }
                 // Element that had focus before the dialog opened, so focus can be
                 // returned to it on close (WCAG 2.4.3 Focus Order).
-                var lastFocusedBeforeModal = null;
+                function syncLauncher() {
+                    var launcher = document.getElementById('se-consent-launcher'), banner = document.getElementById('se-consent-banner');
+                    if (launcher) launcher.hidden = !!(banner && banner.classList.contains('se-consent-visible'));
+                }
+                var lastFocusedBeforeModal = null, backgroundState = [], previousOverflow = '';
+                function isolateModal(open) {
+                    if (open) {
+                        previousOverflow = document.body.style.overflow; document.body.style.overflow = 'hidden';
+                        backgroundState = Array.prototype.filter.call(document.body.children, function (el) { return el.id !== 'se-consent-modal' && el.id !== 'se-consent-backdrop'; }).map(function (el) {
+                            var state = { el: el, inert: el.inert, aria: el.getAttribute('aria-hidden') };
+                            if (el.id !== 'se-consent-modal' && el.id !== 'se-consent-backdrop') { el.inert = true; el.setAttribute('aria-hidden', 'true'); }
+                            return state;
+                        });
+                    } else {
+                        backgroundState.forEach(function (s) { s.el.inert = s.inert; if (s.aria === null) s.el.removeAttribute('aria-hidden'); else s.el.setAttribute('aria-hidden', s.aria); });
+                        backgroundState = []; document.body.style.overflow = previousOverflow;
+                    }
+                }
                 var FOCUSABLE = 'button:not([disabled]),[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
 
                 function modalIsOpen() {
@@ -997,17 +1049,16 @@ final class SiteEngine_Consent {
                         return el.offsetWidth > 0 || el.offsetHeight > 0 || el === document.activeElement;
                     });
                 }
-                function openModal() {
+                function openModal(initiator) {
+                    if (modalIsOpen()) return;
                     var s = getStoredConsent();
+                    modalConfirmation(s ? s.audit_status : '');
                     if (s && s.consent) { setToggleValue('analytics', !!s.consent.analytics); setToggleValue('advertising', !!s.consent.advertising); setToggleValue('personalization', !!s.consent.personalization); }
                     var m = document.getElementById('se-consent-modal'); var bd = document.getElementById('se-consent-backdrop');
                     if (!m || !bd) return;
-                    lastFocusedBeforeModal = document.activeElement;
+                    lastFocusedBeforeModal = initiator && typeof initiator.focus === 'function' ? initiator : document.activeElement;
                     bd.classList.add('se-consent-visible'); m.classList.add('se-consent-visible'); m.setAttribute('aria-hidden', 'false');
-                    // Hide the rest of the page from assistive technology while the
-                    // dialog is open, so a virtual cursor cannot wander behind it.
-                    var banner = document.getElementById('se-consent-banner');
-                    if (banner) banner.setAttribute('aria-hidden', 'true');
+                    isolateModal(true);
                     // Move focus into the dialog (WCAG 2.4.3). The heading receives it
                     // so the dialog name is announced before the controls.
                     var heading = document.getElementById('se-consent-modal-title');
@@ -1019,11 +1070,10 @@ final class SiteEngine_Consent {
                     if (!m || !bd) return;
                     var wasOpen = m.classList.contains('se-consent-visible');
                     bd.classList.remove('se-consent-visible'); m.classList.remove('se-consent-visible'); m.setAttribute('aria-hidden', 'true');
-                    var banner = document.getElementById('se-consent-banner');
-                    if (banner) banner.removeAttribute('aria-hidden');
+                    if (wasOpen) isolateModal(false);
                     // Return focus to whatever opened the dialog (WCAG 2.4.3).
                     if (wasOpen && lastFocusedBeforeModal && document.contains(lastFocusedBeforeModal)) {
-                        try { lastFocusedBeforeModal.focus(); } catch (e) {}
+                        try { var target = lastFocusedBeforeModal; if (!target.offsetWidth && !target.offsetHeight) target = document.getElementById('se-consent-launcher') || target; target.focus(); } catch (e) {}
                     }
                     lastFocusedBeforeModal = null;
                 }
@@ -1047,6 +1097,7 @@ final class SiteEngine_Consent {
                     modal.innerHTML = '<div class="se-consent-modal-inner">' +
                         '<h2 class="se-consent-modal-title" id="se-consent-modal-title">Manage Cookie Preferences</h2>' +
                         '<p class="se-consent-modal-copy">Choose how this site may use cookies and similar technologies. Necessary cookies are always active because they keep the website secure and functional.</p>' +
+                        '<p id="se-consent-modal-status" role="status" aria-live="polite" aria-atomic="true"></p>' +
                         categoryHtml('Necessary', 'Required for security, page delivery, forms, and basic site functionality.', 'necessary', true, true) +
                         categoryHtml('Analytics', 'Helps us understand visits, traffic sources, and website performance.', 'analytics', false, false) +
                         categoryHtml('Advertising', 'Helps measure advertising performance and improve campaign attribution.', 'advertising', false, false) +
@@ -1057,25 +1108,34 @@ final class SiteEngine_Consent {
                         '<button type="button" class="se-consent-button se-consent-button-primary" data-se-consent-action="save">Save Preferences</button>' +
                         '</div></div>';
                     document.body.appendChild(banner); document.body.appendChild(backdrop); document.body.appendChild(modal);
+                    var controls = config.preferenceControls || {};
+                    if (controls.mode !== 'custom' && !document.querySelector('[data-se-consent-persistent],.se-consent-preferences')) {
+                        var launcher = document.createElement('button'); launcher.id = 'se-consent-launcher'; launcher.hidden = true; launcher.type = 'button';
+                        launcher.className = 'se-consent-button' + (controls.side === 'left' ? ' se-consent-left' : '');
+                        launcher.textContent = 'Consent Preferences'; launcher.setAttribute('data-se-consent-action', 'manage');
+                        launcher.setAttribute('aria-haspopup', 'dialog'); launcher.setAttribute('aria-controls', 'se-consent-modal');
+                        launcher.style.setProperty('--se-consent-control-bottom', Math.max(8, Math.min(320, Number(controls.bottom) || 88)) + 'px');
+                        document.body.appendChild(launcher);
+                    }
                     bindEvents(); bindFormPopulation();
                     var stored = getStoredConsent();
-                    if (!stored) { showBanner(); }
-                    else { activeEventId = stored.event_id; stored.google_consent = googleConsentFromCategories(stored.consent); window.SiteEngineConsent.state = stored; applyGoogleConsent(stored, 'update'); if (stored.audit_status !== 'saved') showBanner(); }
+                    if (!stored) { showBanner(); } else { activeEventId = stored.event_id; stored.google_consent = googleConsentFromCategories(stored.consent); window.SiteEngineConsent.state = stored; applyGoogleConsent(stored, 'update'); if (stored.audit_status !== 'saved') { showBanner(); auditStatus(stored.audit_status); } else syncLauncher(); }
                 }
                 function categoryHtml(title, description, key, checked, locked) {
                     return '<div class="se-consent-category"><div class="se-consent-category-row">' +
-                        '<div><h3>' + escapeHtml(title) + '</h3><p>' + escapeHtml(description) + '</p></div>' +
-                        '<button type="button" class="se-consent-toggle" role="switch" data-se-consent-toggle="' + escapeAttribute(key) + '" aria-checked="' + (checked?'true':'false') + '" aria-disabled="' + (locked?'true':'false') + '" aria-label="' + escapeAttribute(title) + '"></button>' +
+                        '<div><h3>' + escapeHtml(title) + '</h3><p id="se-consent-description-' + key + '">' + escapeHtml(description) + '</p><span class="se-consent-category-state" id="se-consent-state-' + key + '">' + (locked ? 'Always on' : (checked ? 'On' : 'Off')) + '</span></div>' +
+                        '<button type="button" class="se-consent-toggle" role="switch" data-se-consent-toggle="' + escapeAttribute(key) + '" aria-checked="' + (checked?'true':'false') + '" aria-disabled="' + (locked?'true':'false') + '" aria-describedby="se-consent-description-' + key + ' se-consent-state-' + key + '" aria-label="' + escapeAttribute(title) + '"></button>' +
                         '</div></div>';
                 }
                 function bindEvents() {
                     document.addEventListener('click', function (event) {
-                        var actionEl = event.target.closest('[data-se-consent-action]');
+                        var actionEl = event.target.closest('[data-se-consent-action],.se-consent-preferences');
                         var toggleEl = event.target.closest('[data-se-consent-toggle]');
                         if (actionEl) {
-                            var action = actionEl.getAttribute('data-se-consent-action');
+                            var action = actionEl.getAttribute('data-se-consent-action') || 'manage';
+                            event.preventDefault();
                             if (action === 'accept') acceptAll();
-                            else if (action === 'manage') openModal();
+                            else if (action === 'manage') openModal(actionEl);
                             else if (action === 'reject') rejectNonEssential();
                             else if (action === 'save') savePreferences();
                             else if (action === 'close') closeModal();
@@ -1085,8 +1145,12 @@ final class SiteEngine_Consent {
                             toggleCategory(toggleEl.getAttribute('data-se-consent-toggle'));
                         }
                     });
+                    document.addEventListener('focusin', function (event) {
+                        var modal = document.getElementById('se-consent-modal');
+                        if (modalIsOpen() && !modal.contains(event.target)) document.getElementById('se-consent-modal-title').focus();
+                    });
                     document.addEventListener('keydown', function (event) {
-                        if (event.key === 'Escape') { closeModal(); return; }
+                        if (event.key === 'Escape' && modalIsOpen()) { event.preventDefault(); closeModal(); return; }
 
                         // WCAG 2.1.2 No Keyboard Trap / 2.4.3 Focus Order — while the
                         // dialog is open, Tab cycles within it instead of moving to the
