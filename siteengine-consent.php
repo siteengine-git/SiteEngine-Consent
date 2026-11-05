@@ -942,7 +942,12 @@ final class SiteEngine_Consent {
                 }
                 function modalConfirmation(status) {
                     var inline = document.getElementById('se-consent-modal-status');
-                    if (inline) inline.textContent = status === 'failed' ? 'Your choices apply on this page, but server confirmation failed. Close this dialog to retry confirmation, or save a new choice.' : (status === 'pending' ? 'Your choices apply on this page. Waiting for server confirmation.' : '');
+                    if (!inline) return;
+                    inline.textContent = status === 'failed' ? 'Your choices apply on this page, but server confirmation failed. Retry confirmation or save a new choice.' : (status === 'pending' ? 'Your choices apply on this page. Waiting for server confirmation.' : '');
+                    if (status === 'failed') {
+                        var retry = document.createElement('button'); retry.type = 'button'; retry.className = 'se-consent-button se-consent-button-primary'; retry.textContent = 'Retry confirmation';
+                        retry.onclick = function () { window.SiteEngineConsent.retryAudit(); }; inline.appendChild(retry);
+                    }
                 }
                 function isCurrentInteraction(payload) {
                     var stored = readStoredConsent();
@@ -1260,9 +1265,7 @@ final class SiteEngine_Consent {
                 }
                 function openModal(initiator) {
                     if (modalIsOpen()) return;
-                    var s = getStoredConsent();
-                    modalConfirmation(s ? s.audit_status : '');
-                    if (s && s.consent) { setToggleValue('analytics', !!s.consent.analytics); setToggleValue('advertising', !!s.consent.advertising); setToggleValue('personalization', !!s.consent.personalization); }
+                    resetPreferenceDraft();
                     var m = document.getElementById('se-consent-modal'); var bd = document.getElementById('se-consent-backdrop');
                     if (!m || !bd) return;
                     rememberCustomLaunchers();
@@ -1274,6 +1277,12 @@ final class SiteEngine_Consent {
                     var heading = document.getElementById('se-consent-modal-title');
                     if (heading) { heading.setAttribute('tabindex', '-1'); heading.focus(); }
                     else { var f = focusableInModal(); if (f.length) f[0].focus(); }
+                }
+                // Presentation-only session initialization; never persists a choice.
+                function resetPreferenceDraft() {
+                    var s = getStoredConsent();
+                    modalConfirmation(s ? s.audit_status : '');
+                    ['analytics', 'advertising', 'personalization'].forEach(function (category) { setToggleValue(category, !!(s && s.consent && s.consent[category])); });
                 }
                 function closeModal() {
                     var m = document.getElementById('se-consent-modal'), bd = document.getElementById('se-consent-backdrop');
@@ -1303,7 +1312,7 @@ final class SiteEngine_Consent {
                     var backdrop = document.createElement('div'); backdrop.id = 'se-consent-backdrop';
                     var modal = document.createElement('div'); modal.id = 'se-consent-modal';
                     modal.setAttribute('role', 'dialog'); modal.setAttribute('aria-modal', 'true'); modal.setAttribute('aria-hidden', 'true'); modal.setAttribute('aria-labelledby', 'se-consent-modal-title');
-                    modal.innerHTML = '<div class="se-consent-modal-inner">' +
+                    modal.innerHTML = '<div class="se-consent-modal-inner" id="se-consent-preferences-content">' +
                         '<h2 class="se-consent-modal-title" id="se-consent-modal-title">Manage Cookie Preferences</h2>' +
                         '<p class="se-consent-modal-copy">Choose how this site may use cookies and similar technologies. Necessary cookies are always active because they keep the website secure and functional.</p>' +
                         '<p id="se-consent-modal-status" role="status" aria-live="polite" aria-atomic="true"></p>' +

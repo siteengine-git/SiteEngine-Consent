@@ -1,3 +1,19 @@
+# Shared tabbed panel — Consent preparation / interface exchange pending — 2026-11-05
+
+Task: one Shield-owned panel with Accessibility and Consent tabs. Source D:\SiteEngine\Plugins\.PLUGIN — SiteEngine Consent\source; origin https://github.com/siteengine-git/SiteEngine-Consent.git, main. Accepted rollback remains Consent0.6.4-rc.1 source aaf13f3878a8db0b20935da2e6dcd4d221177391 / ZIP5842abffe169046db66e0213c0ea5333b0fe2d86fb26496f1ceb3239fa174337 with ShieldRC4. Preserve subsequent acceptance docs97f46ad1c96b5b3a8bb68385bfd8ba3544503528. Delivery ZIP unchanged; no rebuild/replacement.
+
+Feasible without authority redesign: move the single existing inner controls subtree, reuse delegated handlers, keep standalone modal hidden and bypass its isolated focus/scroll behavior while mounted. Proposed exact interface and failure/draft lifecycle: SHARED-PANEL-CONTRACT-2-PROPOSED.md. All new cross-plugin interfaces are proposed, not wired or agreed. Task explicitly requires exchange through Helpers/Aubrey before wiring; no receipt of agreement is claimed.
+
+Independent Consent preparation implemented: stable ID on existing controls root; presentation-only draft initialization that clears stale unsaved categories even when no stored choice exists; inline Retry confirmation delegates to existing retryAudit. Category decisions, capture/retry identity, policy/banner, API2 and protected PHP methods unchanged. This source checkpoint is unaccepted preparation, not a versioned successor build; PACKAGE-MANIFEST.json still identifies only the accepted original ZIP/pin, not these changed working-source bytes.
+
+Actually run: 34 focused preferences UI assertions; 66 existing adapter checks because its opener/feedback dependencies changed; PHP8.3.36 main lint; 42 PHP/authority/policy preservation checks against accepted rc.1; embedded JS syntax via preferences test; git diff whitespace check. Isolated DOM/storage/broker evidence only. No installed tab, layout, screenshot, screen-reader, save-fixture or cache results claimed. No new framework, authority campaign or server operation/lock acquisition. Accepted delivery ZIP rehashed unchanged.
+
+Implemented: independent preparation only. Packaged: no successor. Installed/verified tabbed integration: pending. Released: no. Shield Codex is the sole future joint Alma executor, owns shared host/tabs and exact fixture/lock cleanup; Consent edits only Consent. Existing accepted installation and private recovery records remain retained.
+
+**One next task:** receive the exact Shield/Helper interface agreement or revisions through Aubrey, then wire Consent to that single agreed interface, finish focused checks/package and hand exact candidate pin/hash to Shield for its one bounded installed pass. No general permission request, public Stable promotion, client deployment or Milestone4.
+
+## Historical accepted delivery and evidence
+
 # Shared-launcher compatibility candidate accepted and delivered — 2026-11-05
 
 Canonical source D:\SiteEngine\Plugins\.PLUGIN — SiteEngine Consent\source; origin https://github.com/siteengine-git/SiteEngine-Consent.git, main. Accepted runtime/source **aaf13f3878a8db0b20935da2e6dcd4d221177391 / 0.6.4-rc.1**. Helper accepts this compatibility candidate for controlled agency installation with **Shield 2.0.0-rc.4**, based on joint installed evidence **1ec82b191f4d5d098c34dc57bac654864fc74afb** in the Shield repository. This acceptance supersedes the historical local-only/pending status below.

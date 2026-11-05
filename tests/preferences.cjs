@@ -30,7 +30,16 @@ for(const method of ['acceptAll','rejectNonEssential']){
 }
 check(!ui({mode:'custom'}).nodes.has('se-consent-launcher'),'explicit custom mode suppresses duplicate launcher');
 check(!ui({own:true}).nodes.has('se-consent-launcher'),'declared persistent site control suppresses duplicate launcher');
-const feedback=ui();const inline=feedback.document.createElement();inline.id='se-consent-modal-status';feedback.nodes.set(inline.id,inline);feedback.window.__fixture.status('failed');check(inline.textContent.includes('Close this dialog to retry'),'failed feedback is also available inside modal');
+const feedback=ui();const inline=feedback.document.createElement();inline.id='se-consent-modal-status';feedback.nodes.set(inline.id,inline);feedback.window.__fixture.status('failed');check(inline.textContent.includes('Retry confirmation'),'failed feedback is also available inside preferences');
+let retryCalls=0;feedback.api.retryAudit=()=>{retryCalls++;return Promise.resolve(false)};inline.children.at(-1).onclick();check(retryCalls===1&&inline.children.at(-1).textContent==='Retry confirmation','inline failure retry delegates exactly once to existing retry API');
+{
+ const draft=ui(),toggles={};for(const category of ['analytics','advertising','personalization']){const node=draft.document.createElement();node.setAttribute('aria-checked','false');toggles[category]=node;}
+ const query=draft.document.querySelector;draft.document.querySelector=s=>{const match=s.match(/^\[data-se-consent-toggle="([^"]+)"\]$/);return match?toggles[match[1]]:query(s)};
+ const before=JSON.stringify({stored:[...draft.shared],requests:draft.requests.length,events:draft.events.length});
+ draft.window.__fixture.open();draft.window.__fixture.setToggle('advertising',true);check(toggles.advertising.getAttribute('aria-checked')==='true','unsaved category draft can change without an explicit choice');
+ draft.window.__fixture.close();draft.window.__fixture.open();check(Object.values(toggles).every(n=>n.getAttribute('aria-checked')==='false'),'new session without stored choice discards prior unsaved categories');draft.window.__fixture.close();
+ check(JSON.stringify({stored:[...draft.shared],requests:draft.requests.length,events:draft.events.length})===before,'draft edits/open/close cause no storage, capture or choice events');
+}
 const css=fs.readFileSync(path.join(__dirname,'../siteengine-consent.php'),'utf8');check(css.includes('var(--se-consent-control-bottom,88px) + 64px')&&css.includes('#se-consent-confirmation[inert]{visibility:hidden}'),'floating feedback reserves launcher space and hides behind active modal');
 const h=ui({side:'left',bottom:900});check(h.nodes.get('se-consent-launcher').className.includes('left')&&h.nodes.get('se-consent-launcher').style['--se-consent-control-bottom']==='320px','side and bounded clearance applied');
 const php=fs.readFileSync(path.join(__dirname,'../siteengine-consent.php'),'utf8');check(php.includes('env(safe-area-inset-bottom')&&php.includes('100dvh')&&php.includes('visibility:hidden'),'safe areas, dynamic viewport and hidden banner supported');
