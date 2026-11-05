@@ -3,7 +3,7 @@ Contributors: siteengine
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 0.6.3
+Stable tag: 0.6.4-rc.1
 License: Proprietary
 
 First-party consent management for WordPress. Google Consent Mode v2, Fluent Forms integration, local audit log, exports.
@@ -49,7 +49,21 @@ Footer integration: use `<button type="button" data-se-consent-action="manage" d
 
 Use the `siteengine_consent_preference_controls` PHP filter to return an array: mode auto (default) or custom, side right (default) or left, bottom clearance in CSS pixels (8–320, default 88). Example: `add_filter("siteengine_consent_preference_controls", function () { return ["mode"=>"auto", "side"=>"right", "bottom"=>120]; });`. Safe-area insets are added automatically. Test alongside site launchers at narrow widths and zoom; no automatic collision detection or other-plugin changes. Presentation options do not alter policy/banner identity.
 
+== Optional shared launcher candidate ==
+
+0.6.4-rc.1 implements Consent's local adapter for Shared Launcher Contract 1. Site Shield must supply the separately implemented SEShieldSharedLauncher version1 broker with current-registration identity. Consent keeps its own control until its provider is ready and the exact registration is confirmed with a current generation and an unexpired six-second lease; Shield renews every two seconds. Revocation, expiry, unavailable capability or failed opening restores independent fallback. This is presentation coordination only and grants no advertising permission.
+
+The provider calls the existing openPreferences(initiator) once and independently verifies visible/focused modal opening. The legacy method still returns undefined. Background/scroll restoration precedes focus return; a missing/disabled Shield launcher uses Consent's safe fallback. Consent's modal making Shield temporarily inert is expected. Direct footer/menu controls and initial banner remain independent. A missing/unreachable custom replacement cannot block restoration of an owned fallback control. No consent decision/evidence is carried in the interface or stored registration identity.
+
+This is a locally verified candidate, not installed or jointly accepted. Stable0.6.3 and its accepted installation ZIP remain preserved. Each plugin owns its implementation; joint installed/Reading Mode/cache/accessibility acceptance follows separately. No schema, policy/banner, receipt, chain or retention change. The earlier Consent shared-launcher proposal is superseded; only Shield's approved broker contract plus registrationId clarification is implemented.
+
 == Changelog ==
+
+= 0.6.4-rc.1 =
+* Optional Shared Launcher Contract1 Consent provider, identity-bound readiness, six-second lease expiry and safe standalone restoration.
+* Checked boolean opening adapter around existing preferences opening; safe focus return and partial-modal cleanup.
+* Narrow owned-UI lifecycle handling; no new consent processing or authority changes.
+
 
 = 0.6.3 =
 * Milestone 3: persistent preferences launcher, footer/menu integration and bounded placement filter.

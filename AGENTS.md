@@ -64,3 +64,9 @@ HELPER — SiteEngine Consent delegates this Codex to implement persistent prefe
 ## Milestone 3 stable release — November 5, 2026
 
 Helper accepts candidate3a9fc67243edb115012f514dac9fae63207d8582/ZIP6e8c4e27b15e1a549615f2d34cd6cd55e7b123b1034c8654eaff26a0e0568f91 and delegates this Codex to finalize metadata-only stable0.6.3, install/verify its exact payload/version under the existing locks, publish v0.6.3 with ZIP/checksum, and replace the accepted delivery after verification. Preserve prior packages/history, policy/banner and all consent data/barriers; carry prior functional evidence/coverage limits. No repeated acceptance campaign, consent choices/forms/exports, client deployment or Milestone4.
+
+## Optional shared-launcher adapter authority — November 5, 2026
+
+Helper authorizes local Consent-only implementation, focused synthetic-broker tests, docs, reviewed commit/push and versioned candidate packaging from accepted0.6.3. Use Shield contracteba2e2e085e5da3a60c0bde8c2fa7531e9770238 plus the exact registrationId clarification in SHARED-LAUNCHER-CONTRACT-1.md; earlier Consent proposal is superseded, not a second runtime API. No Shield source, schema/consent processing, installation, stable delivery promotion, client deployment or Milestone4. Joint installed verification follows both candidates under a separate bounded execution assignment. Preserve all accepted packages/history/policy/banner/API2 and permanent barriers.
+
+Authoritative installation delivery now contains only the latest accepted stable ZIP. Archive ancillary checksum/manifest/installation-note files outside that directory; keep candidate ZIPs in project deliverables/candidates until acceptance. This supersedes prior delivery layouts with sidecars/documents next to the installation ZIP.

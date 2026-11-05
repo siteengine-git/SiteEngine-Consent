@@ -3,7 +3,7 @@
  * Plugin Name: SiteEngine Consent
  * Plugin URI:  https://siteengine.io/
  * Description: First-party consent management for WordPress. GTM Consent Mode v2, Fluent Forms server-side consent stamping, local audit log with retention, admin viewer, exports, rate limiting, privacy-policy fallback, public health endpoint. Integrates with SiteEngine Base when available and remains standalone-safe.
- * Version:     0.6.3
+ * Version:     0.6.4-rc.1
  * Author:      SiteEngine
  * Author URI:  https://siteengine.io/
  * License:     Proprietary
@@ -192,7 +192,7 @@ define('SE_CONSENT_BOOTSTRAPPED', __FILE__);
 
 if (!defined('SE_CONSENT_COMPANY_NAME_EXPLICIT')) { define('SE_CONSENT_COMPANY_NAME_EXPLICIT', defined('SE_CONSENT_COMPANY_NAME')); }
 if (!defined('SE_CONSENT_PRIVACY_URL_EXPLICIT'))  { define('SE_CONSENT_PRIVACY_URL_EXPLICIT', defined('SE_CONSENT_PRIVACY_URL')); }
-if (!defined('SE_CONSENT_VERSION'))               { define('SE_CONSENT_VERSION', '0.6.3'); }
+if (!defined('SE_CONSENT_VERSION'))               { define('SE_CONSENT_VERSION', '0.6.4-rc.1'); }
 if (!defined('SE_CONSENT_COOKIE_NAME'))           { define('SE_CONSENT_COOKIE_NAME', 'se_consent'); }
 if (!defined('SE_CONSENT_COOKIE_DAYS'))           { define('SE_CONSENT_COOKIE_DAYS', 390); }
 if (!defined('SE_CONSENT_POLICY_VERSION'))        { define('SE_CONSENT_POLICY_VERSION', '2026-05-08-v1'); }
@@ -1018,22 +1018,231 @@ final class SiteEngine_Consent {
                 function hideBanner() { var b = document.getElementById('se-consent-banner'); if (b) b.classList.remove('se-consent-visible'); syncLauncher(); }
                 // Element that had focus before the dialog opened, so focus can be
                 // returned to it on close (WCAG 2.4.3 Focus Order).
-                function syncLauncher() {
-                    var launcher = document.getElementById('se-consent-launcher'), banner = document.getElementById('se-consent-banner');
-                    if (launcher) launcher.hidden = !!(banner && banner.classList.contains('se-consent-visible'));
+                // Shared Launcher Contract 1. Presentation only; no consent state in the handshake.
+                var consentUiRendered = false, ownModalNode = null, ownBackdropNode = null;
+                var explicitCustomLauncher = false, rememberedCustomLaunchers = [];
+                var sharedAttempt = null, sharedUsable = false, sharedExpiry = null, sharedBusy = false;
+                var sharedPageActive = true, sharedReturnTarget = null, consentUiObserver = null;
+                function visibleFocusTarget(el) {
+                    if (!el || typeof el.focus !== 'function' || typeof el.getAttribute !== 'function' || !document.contains(el) || (el.ownerDocument && el.ownerDocument !== document)) return false;
+                    if (el.disabled || el.getAttribute('aria-disabled') === 'true') return false;
+                    for (var p = el; p && p !== document; p = p.parentElement) {
+                        if (p.hidden || p.inert || (p.getAttribute && p.getAttribute('aria-hidden') === 'true')) return false;
+                        var style = window.getComputedStyle ? window.getComputedStyle(p) : null;
+                        if (style && (style.display === 'none' || style.visibility === 'hidden' || style.visibility === 'collapse')) return false;
+                    }
+                    return el.offsetWidth > 0 || el.offsetHeight > 0;
                 }
-                var lastFocusedBeforeModal = null, backgroundState = [], previousOverflow = '';
+                function usableFocusTarget(el) {
+                    return visibleFocusTarget(el) && (typeof el.tabIndex !== 'number' || el.tabIndex >= 0);
+                }
+                function rememberCustomLaunchers() {
+                    if (modalIsolationActive) return;
+                    rememberedCustomLaunchers = Array.prototype.filter.call(document.querySelectorAll('[data-se-consent-persistent],.se-consent-preferences'), usableFocusTarget);
+                }
+                function customLauncherAvailable() {
+                    rememberCustomLaunchers();
+                    return rememberedCustomLaunchers.some(function (el) { return document.contains(el); });
+                }
+                function createConsentLauncher() {
+                    if (!document.body || document.getElementById('se-consent-launcher')) return;
+                    var controls = config.preferenceControls || {}, launcher = document.createElement('button');
+                    launcher.id = 'se-consent-launcher'; launcher.hidden = true; launcher.type = 'button';
+                    launcher.className = 'se-consent-button' + (controls.side === 'left' ? ' se-consent-left' : '');
+                    launcher.textContent = 'Consent Preferences'; launcher.setAttribute('data-se-consent-action', 'manage');
+                    launcher.setAttribute('aria-haspopup', 'dialog'); launcher.setAttribute('aria-controls', 'se-consent-modal');
+                    launcher.style.setProperty('--se-consent-control-bottom', Math.max(8, Math.min(320, Number(controls.bottom) || 88)) + 'px');
+                    document.body.appendChild(launcher);
+                }
+                function syncLauncher() {
+                    if (!consentUiRendered) return;
+                    var banner = document.getElementById('se-consent-banner');
+                    var bannerVisible = !!(banner && banner.classList.contains('se-consent-visible'));
+                    var customAvailable = explicitCustomLauncher && customLauncherAvailable();
+                    if (!bannerVisible && !customAvailable && !sharedUsable) createConsentLauncher();
+                    var launcher = document.getElementById('se-consent-launcher');
+                    if (launcher) launcher.hidden = bannerVisible || customAvailable || sharedUsable;
+                }
+                function returnConsentFocus(target) {
+                    if (!usableFocusTarget(target)) {
+                        if (sharedReturnTarget) sharedDrop('return-target-unavailable');
+                        syncLauncher();
+                        var candidates = [document.getElementById('se-consent-launcher')];
+                        var banner = document.getElementById('se-consent-banner');
+                        if (banner) candidates.push(banner.querySelector('[data-se-consent-action="manage"]'));
+                        candidates = candidates.concat(Array.prototype.slice.call(document.querySelectorAll('[data-se-consent-persistent],.se-consent-preferences')));
+                        target = candidates.filter(usableFocusTarget)[0];
+                    }
+                    sharedReturnTarget = null;
+                    if (target) { try { target.focus({ preventScroll: true }); return; } catch (e) {} }
+                    var fallback = document.querySelector('main h1, main, [role="main"], h1') || document.body;
+                    if (!visibleFocusTarget(fallback)) return;
+                    var prior = fallback.getAttribute('tabindex');
+                    fallback.setAttribute('tabindex', '-1');
+                    try { fallback.focus({ preventScroll: true }); } catch (e) {}
+                    if (prior === null) fallback.removeAttribute('tabindex'); else fallback.setAttribute('tabindex', prior);
+                }
+                function sharedUiReady() {
+                    return sharedPageActive && consentUiRendered && !!ownModalNode && !!ownBackdropNode &&
+                        document.getElementById('se-consent-modal') === ownModalNode && document.contains(ownModalNode) &&
+                        document.getElementById('se-consent-backdrop') === ownBackdropNode && document.contains(ownBackdropNode);
+                }
+                function sharedNow() {
+                    try { return window.performance && typeof window.performance.now === 'function' ? window.performance.now() : NaN; } catch (e) { return NaN; }
+                }
+                function sharedSetUsable(usable) {
+                    if (sharedUsable === usable) return;
+                    sharedUsable = usable; syncLauncher();
+                }
+                function sharedCancelExpiry() {
+                    if (sharedExpiry !== null && typeof window.clearTimeout === 'function') window.clearTimeout(sharedExpiry);
+                    sharedExpiry = null;
+                }
+                function sharedDrop(reason) {
+                    var previous = sharedAttempt; sharedAttempt = null;
+                    sharedCancelExpiry(); sharedSetUsable(false);
+                    if (previous) {
+                        previous.active = false; previous.confirmed = false;
+                        try { if (previous.handle) previous.handle.withdraw(reason); } catch (e) {}
+                    }
+                    if (previous) syncLauncher();
+                }
+                function sharedStateReady(attempt) {
+                    if (!attempt || attempt !== sharedAttempt || !attempt.active || !attempt.confirmed ||
+                        attempt.broker !== window.SEShieldSharedLauncher || !sharedUiReady() || document.visibilityState === 'hidden') return null;
+                    var state = attempt.broker.getState(), now = sharedNow();
+                    if (!state || state.contractVersion !== 1 || !Number.isSafeInteger(state.generation) || state.generation < 0) return null;
+                    if (state.generation < attempt.generation) return null;
+                    attempt.generation = state.generation;
+                    if (state.registrationId !== attempt.registrationId || attempt.handle.registrationId !== attempt.registrationId) { attempt.identityLost = true; return null; }
+                    if (state.status !== 'ready') { attempt.confirmed = false; return null; }
+                    if (typeof state.expiresAt !== 'number' ||
+                        !Number.isFinite(now) || !Number.isFinite(state.expiresAt) || state.expiresAt <= now || state.expiresAt - now > 6000) return null;
+                    if (typeof window.setTimeout !== 'function' || typeof window.clearTimeout !== 'function') return null;
+                    return state;
+                }
+                function sharedReconcile() {
+                    if (sharedBusy) return;
+                    var attempt = sharedAttempt, state = null;
+                    try { state = sharedStateReady(attempt); } catch (e) { sharedDrop('broker-error'); return; }
+                    sharedCancelExpiry();
+                    if (!state) { if (attempt && attempt.identityLost) sharedDrop('registration-replaced'); else sharedSetUsable(false); return; }
+                    sharedSetUsable(true);
+                    var deadline = state.expiresAt;
+                    sharedExpiry = window.setTimeout(function () {
+                        if (sharedAttempt !== attempt || !attempt.active) return;
+                        sharedExpiry = null;
+                        // An early timer is re-armed against the same authoritative deadline.
+                        if (sharedNow() < deadline) { sharedReconcile(); return; }
+                        sharedSetUsable(false);
+                    }, Math.max(1, deadline - sharedNow()));
+                }
+                function sharedProviderOpen(attempt, launcher) {
+                    if (attempt !== sharedAttempt || !attempt.active) return false;
+                    var state;
+                    try { state = sharedStateReady(attempt); } catch (e) { state = null; }
+                    if (!state || modalIsOpen() || !usableFocusTarget(launcher)) {
+                        sharedDrop('open-failed');
+                        if (!modalIsOpen()) returnConsentFocus(launcher);
+                        return false;
+                    }
+                    sharedReturnTarget = launcher;
+                    try {
+                        window.SiteEngineConsent.openPreferences(launcher); // Existing opening path, exactly once.
+                        if (modalIsOpen() && ownModalNode.getAttribute('aria-hidden') === 'false' &&
+                            (ownModalNode.offsetWidth > 0 || ownModalNode.offsetHeight > 0) && ownModalNode.contains(document.activeElement)) return true;
+                    } catch (e) {}
+                    sharedDrop('open-failed');
+                    var partiallyOpened = modalIsolationActive || modalIsOpen();
+                    closeModal(); // Also restores isolation when modal/backdrop was removed mid-open.
+                    if (!partiallyOpened) returnConsentFocus(launcher);
+                    return false;
+                }
+                function sharedAttach(confirm) {
+                    if (sharedBusy || !sharedPageActive) return;
+                    sharedBusy = true;
+                    try {
+                        var broker = window.SEShieldSharedLauncher;
+                        if (!broker || broker.contractVersion !== 1 || typeof broker.register !== 'function' || typeof broker.getState !== 'function') {
+                            sharedDrop('broker-unavailable'); return;
+                        }
+                        if (sharedAttempt && sharedAttempt.broker !== broker) sharedDrop('broker-replaced');
+                        if (!sharedAttempt) {
+                            var attempt = { broker: broker, handle: null, active: true, confirmed: false, generation: -1 };
+                            sharedAttempt = attempt;
+                            attempt.provider = {
+                                id: 'siteengine-consent', contractVersion: 1,
+                                isReady: function () { return sharedAttempt === attempt && attempt.active && sharedUiReady(); },
+                                open: function (launcher) {
+                                    try { return sharedProviderOpen(attempt, launcher); }
+                                    catch (e) {
+                                        if (sharedAttempt === attempt) {
+                                            sharedDrop('open-failed');
+                                            try { closeModal(); returnConsentFocus(null); } catch (ignored) {}
+                                        }
+                                        return false;
+                                    }
+                                }
+                            };
+                            attempt.handle = broker.register(attempt.provider);
+                            if (!attempt.handle || typeof attempt.handle.registrationId !== 'string' || !attempt.handle.registrationId ||
+                                typeof attempt.handle.confirm !== 'function' || typeof attempt.handle.withdraw !== 'function') {
+                                sharedDrop('invalid-registration'); return;
+                            }
+                            attempt.registrationId = attempt.handle.registrationId;
+                        }
+                        if (confirm && sharedUiReady() && document.visibilityState !== 'hidden') sharedAttempt.confirmed = sharedAttempt.handle.confirm() === true;
+                    } catch (e) { sharedDrop('broker-error'); }
+                    finally { sharedBusy = false; sharedReconcile(); }
+                }
+                function announceSharedProvider() {
+                    if (typeof window.dispatchEvent === 'function') window.dispatchEvent(new CustomEvent('se-consent-shared-launcher-provider', { detail: { contractVersion: 1 } }));
+                }
+                function watchConsentUi() {
+                    if (consentUiObserver) consentUiObserver.disconnect();
+                    if (!window.MutationObserver || !document.body) return;
+                    // Our modal/backdrop are direct body children; do not observe the page subtree.
+                    consentUiObserver = new window.MutationObserver(function () {
+                        if (!sharedUiReady()) {
+                            sharedDrop('provider-unavailable');
+                            if (modalIsolationActive) closeModal();
+                        }
+                    });
+                    consentUiObserver.observe(document.body, { childList: true });
+                }
+                function initializeSharedLauncher() {
+                    window.addEventListener('se-shield-shared-launcher-api', function () { sharedAttach(true); });
+                    window.addEventListener('se-shield-shared-launcher-state', function () { sharedReconcile(); });
+                    window.addEventListener('pagehide', function () {
+                        sharedPageActive = false; sharedDrop('pagehide');
+                        if (consentUiObserver) consentUiObserver.disconnect();
+                    });
+                    window.addEventListener('pageshow', function () {
+                        sharedPageActive = true; sharedCancelExpiry(); sharedSetUsable(false);
+                        if (sharedAttempt) sharedAttempt.confirmed = false;
+                        watchConsentUi(); syncLauncher(); sharedAttach(true); announceSharedProvider();
+                    });
+                    document.addEventListener('visibilitychange', function () {
+                        sharedCancelExpiry(); sharedSetUsable(false);
+                        if (sharedAttempt) sharedAttempt.confirmed = false;
+                        if (document.visibilityState !== 'hidden') { syncLauncher(); sharedAttach(true); }
+                    });
+                    sharedAttach(false); // Subscribe first; explicit confirmation waits for render.
+                }
+
+                var lastFocusedBeforeModal = null, backgroundState = [], previousOverflow = '', modalIsolationActive = false;
                 function isolateModal(open) {
                     if (open) {
-                        previousOverflow = document.body.style.overflow; document.body.style.overflow = 'hidden';
-                        backgroundState = Array.prototype.filter.call(document.body.children, function (el) { return el.id !== 'se-consent-modal' && el.id !== 'se-consent-backdrop'; }).map(function (el) {
+                        previousOverflow = document.body.style.overflow; modalIsolationActive = true; document.body.style.overflow = 'hidden';
+                        backgroundState = [];
+                        Array.prototype.filter.call(document.body.children, function (el) { return el.id !== 'se-consent-modal' && el.id !== 'se-consent-backdrop'; }).forEach(function (el) {
                             var state = { el: el, inert: el.inert, aria: el.getAttribute('aria-hidden') };
-                            if (el.id !== 'se-consent-modal' && el.id !== 'se-consent-backdrop') { el.inert = true; el.setAttribute('aria-hidden', 'true'); }
-                            return state;
+                            backgroundState.push(state);
+                            el.inert = true; el.setAttribute('aria-hidden', 'true');
                         });
                     } else {
                         backgroundState.forEach(function (s) { s.el.inert = s.inert; if (s.aria === null) s.el.removeAttribute('aria-hidden'); else s.el.setAttribute('aria-hidden', s.aria); });
-                        backgroundState = []; document.body.style.overflow = previousOverflow;
+                        backgroundState = []; document.body.style.overflow = previousOverflow; modalIsolationActive = false;
                     }
                 }
                 var FOCUSABLE = 'button:not([disabled]),[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
@@ -1056,6 +1265,7 @@ final class SiteEngine_Consent {
                     if (s && s.consent) { setToggleValue('analytics', !!s.consent.analytics); setToggleValue('advertising', !!s.consent.advertising); setToggleValue('personalization', !!s.consent.personalization); }
                     var m = document.getElementById('se-consent-modal'); var bd = document.getElementById('se-consent-backdrop');
                     if (!m || !bd) return;
+                    rememberCustomLaunchers();
                     lastFocusedBeforeModal = initiator && typeof initiator.focus === 'function' ? initiator : document.activeElement;
                     bd.classList.add('se-consent-visible'); m.classList.add('se-consent-visible'); m.setAttribute('aria-hidden', 'false');
                     isolateModal(true);
@@ -1066,15 +1276,14 @@ final class SiteEngine_Consent {
                     else { var f = focusableInModal(); if (f.length) f[0].focus(); }
                 }
                 function closeModal() {
-                    var m = document.getElementById('se-consent-modal'); var bd = document.getElementById('se-consent-backdrop');
-                    if (!m || !bd) return;
-                    var wasOpen = m.classList.contains('se-consent-visible');
-                    bd.classList.remove('se-consent-visible'); m.classList.remove('se-consent-visible'); m.setAttribute('aria-hidden', 'true');
-                    if (wasOpen) isolateModal(false);
-                    // Return focus to whatever opened the dialog (WCAG 2.4.3).
-                    if (wasOpen && lastFocusedBeforeModal && document.contains(lastFocusedBeforeModal)) {
-                        try { var target = lastFocusedBeforeModal; if (!target.offsetWidth && !target.offsetHeight) target = document.getElementById('se-consent-launcher') || target; target.focus(); } catch (e) {}
-                    }
+                    var m = document.getElementById('se-consent-modal'), bd = document.getElementById('se-consent-backdrop');
+                    var wasOpen = modalIsolationActive || !!(m && m.classList.contains('se-consent-visible'));
+                    if (bd) bd.classList.remove('se-consent-visible');
+                    if (m) { m.classList.remove('se-consent-visible'); m.setAttribute('aria-hidden', 'true'); }
+                    if (modalIsolationActive) isolateModal(false);
+                    // Restore the original background/scroll before testing or returning focus.
+                    sharedReconcile(); syncLauncher();
+                    if (wasOpen) returnConsentFocus(lastFocusedBeforeModal);
                     lastFocusedBeforeModal = null;
                 }
                 function render() {
@@ -1108,18 +1317,14 @@ final class SiteEngine_Consent {
                         '<button type="button" class="se-consent-button se-consent-button-primary" data-se-consent-action="save">Save Preferences</button>' +
                         '</div></div>';
                     document.body.appendChild(banner); document.body.appendChild(backdrop); document.body.appendChild(modal);
-                    var controls = config.preferenceControls || {};
-                    if (controls.mode !== 'custom' && !document.querySelector('[data-se-consent-persistent],.se-consent-preferences')) {
-                        var launcher = document.createElement('button'); launcher.id = 'se-consent-launcher'; launcher.hidden = true; launcher.type = 'button';
-                        launcher.className = 'se-consent-button' + (controls.side === 'left' ? ' se-consent-left' : '');
-                        launcher.textContent = 'Consent Preferences'; launcher.setAttribute('data-se-consent-action', 'manage');
-                        launcher.setAttribute('aria-haspopup', 'dialog'); launcher.setAttribute('aria-controls', 'se-consent-modal');
-                        launcher.style.setProperty('--se-consent-control-bottom', Math.max(8, Math.min(320, Number(controls.bottom) || 88)) + 'px');
-                        document.body.appendChild(launcher);
-                    }
+                    explicitCustomLauncher = (config.preferenceControls || {}).mode === 'custom' || !!document.querySelector('[data-se-consent-persistent],.se-consent-preferences');
+                    if (!explicitCustomLauncher) createConsentLauncher();
                     bindEvents(); bindFormPopulation();
+                    ownModalNode = modal; ownBackdropNode = backdrop; consentUiRendered = true;
+                    watchConsentUi();
                     var stored = getStoredConsent();
                     if (!stored) { showBanner(); } else { activeEventId = stored.event_id; stored.google_consent = googleConsentFromCategories(stored.consent); window.SiteEngineConsent.state = stored; applyGoogleConsent(stored, 'update'); if (stored.audit_status !== 'saved') { showBanner(); auditStatus(stored.audit_status); } else syncLauncher(); }
+                    sharedAttach(true); announceSharedProvider();
                 }
                 function categoryHtml(title, description, key, checked, locked) {
                     return '<div class="se-consent-category"><div class="se-consent-category-row">' +
@@ -1196,6 +1401,7 @@ final class SiteEngine_Consent {
                     populateAllConsentForms(); if (!state) showBanner();
                 });
 
+                initializeSharedLauncher();
                 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', render);
                 else render();
             })();

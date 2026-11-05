@@ -1,17 +1,17 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),path=require('node:path');
 // Reuse the retained browser transport/storage double; only model UI boundaries here.
 let prefix=fs.readFileSync(path.join(__dirname,'browser.cjs'),'utf8').split('(async () => {')[0];
-prefix=prefix.replace('populateConsentFields: populateConsentFields','populateConsentFields: populateConsentFields, render: render, open: openModal, close: closeModal, setToggle: setToggleValue, status: auditStatus');
+prefix=prefix.replace('populateConsentFields: populateConsentFields','populateConsentFields: populateConsentFields, render: render, open: openModal, close: closeModal, setToggle: setToggleValue, status: auditStatus, hideBanner: hideBanner');
 prefix=prefix.replace('return { window, document, config, shared, requests, listeners, events, api:', 'return { nodes, window, document, config, shared, requests, listeners, events, api:');
 const {harness}=vm.runInNewContext(prefix+';({harness})',{require,__dirname,console,URLSearchParams});
 let passed=0;function check(ok,label){assert.ok(ok,label);passed++;console.log('PASS '+label)}
 function ui(options={}){
- const h=harness();h.config.preferenceControls=options;h.document.body.children=[];h.document.body.style={overflow:'auto'};
- function el(id='') {const attrs=new Map(),classes=new Set();return {id,offsetWidth:80,offsetHeight:40,inert:false,hidden:false,style:{setProperty(k,v){this[k]=v}},children:[],classList:{add(k){classes.add(k)},remove(k){classes.delete(k)},contains(k){return classes.has(k)}},setAttribute(k,v){attrs.set(k,String(v))},getAttribute(k){return attrs.has(k)?attrs.get(k):null},removeAttribute(k){attrs.delete(k)},appendChild(n){this.children.push(n)},querySelectorAll(){return this.children.filter(n=>n.id!=='se-consent-modal-title')},contains(n){return this===n||this.children.includes(n)},focus(){h.document.activeElement=this}}}
+ const h=harness(undefined, false, false, options.runtime || {});h.config.preferenceControls=options;h.document.body.children=[];h.document.body.style={overflow:'auto'};
+ function el(id='') {const attrs=new Map(),classes=new Set();return {id,offsetWidth:80,offsetHeight:40,inert:false,hidden:false,style:{setProperty(k,v){this[k]=v}},children:[],classList:{add(k){classes.add(k)},remove(k){classes.delete(k)},contains(k){return classes.has(k)}},setAttribute(k,v){attrs.set(k,String(v))},getAttribute(k){return attrs.has(k)?attrs.get(k):null},removeAttribute(k){attrs.delete(k)},appendChild(n){this.children.push(n)},querySelector(selector){return this.children.find(n=>n.getAttribute('data-se-consent-action')==='manage')||null},querySelectorAll(){return this.children.filter(n=>n.id!=='se-consent-modal-title')},contains(n){return this===n||this.children.includes(n)},focus(){h.document.activeElement=this}}}
  h.document.createElement=()=>el();h.document.body.appendChild=n=>{h.nodes.set(n.id,n);h.document.body.children.push(n)};
  h.document.querySelector=s=>s.includes('persistent')?(options.own?{}:null):null;
  h.document.contains=n=>h.document.body.children.includes(n)||h.modal?.children.includes(n);
- h.window.setTimeout=cb=>cb();h.window.__fixture.render();
+ h.window.setTimeout=options.runtime?.setTimeout || (cb=>cb());h.window.__fixture.render();
  h.modal=h.nodes.get('se-consent-modal');h.heading=el('se-consent-modal-title');h.first=el('first');h.last=el('last');h.modal.children=[h.heading,h.first,h.last];h.nodes.set(h.heading.id,h.heading);h.modal.setAttribute('aria-hidden','true');
  return h;
 }

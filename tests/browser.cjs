@@ -5,12 +5,12 @@ const source = fs.readFileSync(require('node:path').join(__dirname, '../siteengi
 const script = source.match(/<script id="se-consent-script">\s*([\s\S]*?)\s*<\/script>/)[1];
 let passed = 0;
 function check(value, name) { assert.ok(value, name); passed++; console.log(`PASS ${name}`); }
-function harness(shared = new Map(), storageThrows = false, cookieThrows = false) {
+function harness(shared = new Map(), storageThrows = false, cookieThrows = false, options = {}) {
   const requests = [], listeners = {}, events = [], cookies = new Map(), nodes = new Map();
   let n = 0;
   const document = {
     documentElement: { style: { setProperty() {} } },
-    readyState: 'loading', referrer: '', body: { appendChild(node) { nodes.set(node.id, node); } },
+    readyState: 'loading', visibilityState: 'visible', referrer: '', body: { appendChild(node) { nodes.set(node.id, node); } },
     addEventListener(name, callback) { listeners[name] = callback; },
     dispatchEvent(event) { events.push(event); },
     querySelectorAll() { return []; }, getElementById(id) { return nodes.get(id) || null; },
@@ -22,12 +22,14 @@ function harness(shared = new Map(), storageThrows = false, cookieThrows = false
   });
   const config = { cookieName: 'se_consent', cookieDays: 390, version: '0.6.1-rc.1', policyVersion: 'fixture-policy', bannerVersion: 'fixture-banner', ajaxUrl: '/synthetic-ajax', nonce: 'synthetic-nonce', formFields: {} };
   const window = {
+    SEShieldSharedLauncher: options.broker, performance: options.performance, MutationObserver: options.MutationObserver,
+    dispatchEvent(event) { if (listeners[event.type]) listeners[event.type](event); }, clearTimeout: options.clearTimeout || function () {},
     navigator: { locks: { request(name, callback) { return Promise.resolve(callback()); } } }, SEConsentConfig: config, location: { href: 'https://example.invalid/form' }, dataLayer: [],
     crypto: { getRandomValues(bytes) { require('node:crypto').randomFillSync(bytes); return bytes; }, randomUUID() { n++; return `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`; } },
     localStorage: { getItem(k) { if (storageThrows) throw Error('denied'); return shared.get(k) || null; }, setItem(k, v) { if (storageThrows) throw Error('denied'); shared.set(k, v); } },
     addEventListener(name, callback) { listeners[name] = callback; },
     fetch(url, options) { return new Promise((resolve, reject) => requests.push({ resolve, reject, options })); },
-    setTimeout() {}, console
+    setTimeout: options.setTimeout || function () {}, console
   };
   const instrumented = script.replace('window.SiteEngineConsent = window.SiteEngineConsent || {};', 'window.__fixture = { populateConsentFields: populateConsentFields }; window.SiteEngineConsent = window.SiteEngineConsent || {};');
   vm.runInNewContext(instrumented, { window, document, console, Date, Math, JSON, Promise, URLSearchParams, CustomEvent: class { constructor(type, args) { this.type = type; this.detail = args.detail; } }, isFinite });

@@ -1,20 +1,20 @@
 {
-  "version": "0.6.3",
-  "archive": "siteengine-consent-0.6.3.zip",
-  "bytes": 45274,
-  "sha256": "fbd0ebc9c63f37c088a3fb9f341297fcbb80ed30f912fbb89cd1afd3c45db737",
-  "acceptance": "Milestone 3 accepted by Helper at candidate3a9fc67243edb115012f514dac9fae63207d8582; stable metadata-only successor; final installed verification recorded in STATUS.md; no client deployment",
-  "baseline_commit": "3a9fc67243edb115012f514dac9fae63207d8582",
+  "version": "0.6.4-rc.1",
+  "archive": "siteengine-consent-0.6.4-rc.1.zip",
+  "bytes": 48745,
+  "sha256": "5842abffe169046db66e0213c0ea5333b0fe2d86fb26496f1ceb3239fa174337",
+  "acceptance": "Local Consent shared-launcher adapter candidate; synthetic broker/UI evidence only; not installed or jointly accepted; stable0.6.3 preserved",
+  "baseline_commit": "b7142169ae6d1f5ac8f9d32b9312f7ebe8fe207c",
   "files": [
     {
       "path": "siteengine-consent.php",
-      "bytes": 107397,
-      "sha256": "dc9ad82e342a043d025e77ad43e7b2c76d33a56f3d576a0a1c5231bdaf72b94f"
+      "bytes": 122020,
+      "sha256": "2c73d7865bfa5c3a24eb400b842701536f4b7c396c1c9bb8d15ffc74d005b41b"
     },
     {
       "path": "readme.txt",
-      "bytes": 7662,
-      "sha256": "4a3777630a6e6da2933eae7cea9ee6cd77509cb54c02aa856d41eb91e6cb2fac"
+      "bytes": 9696,
+      "sha256": "f48c337a81fc2ceb1324ac148078bb16a7ee3add1fb17e315a4c145def126854"
     },
     {
       "path": "uninstall.php",
