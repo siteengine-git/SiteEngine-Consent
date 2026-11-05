@@ -1,3 +1,17 @@
+# Shared Launcher Contract 1 proposed — 2026-11-05
+
+Documentation-only assignment from HELPER — SiteEngine Consent. Canonical source D:\SiteEngine\Plugins\.PLUGIN — SiteEngine Consent\source; origin https://github.com/siteengine-git/SiteEngine-Consent.git, main. Stable runtime remains accepted **v0.6.3 / b7142169ae6d1f5ac8f9d32b9312f7ebe8fe207c**; existing completion work876e49802be9d2904beace98f8d94c0753792063 preserved.
+
+Published proposal: **SHARED-LAUNCHER-CONTRACT-1.md**. Incorporates Shield Helper's architectural review relayed through Consent Helper: Shield owns shared accessible launcher/panel; Consent owns existing modal/focus/authority; explicit acknowledgment before temporary suppression; revocation restores fallback; persistent launcher is the return target. Read-only source confirms0.6.3 directly exposes openModal(initiator), returns undefined, and restores background/scroll before focus. Existing removed/unusable-target fallback needs the narrowly proposed enhancement in that same return path. Shield's private nonmodal dismiss is synchronous; inspected widget bytes match accepted RC3. Exact contract still awaits both Helpers' agreement; **all new interfaces are proposed/unimplemented**.
+
+Defines two versioned current-global descriptors, registration/callback acknowledgment and release, readiness/dialog events, current-identity guards, completed Shield dismissal before the existing Consent opener, structured opening results, restored-background-first focus fallback, independent custom/footer/banner rules, two implementation sketches and a short future verification checklist. No polling/new broad observation/general widget framework or consent state/evidence in the interface. Arbitrary unannounced third-party DOM/CSS tampering while idle is explicitly outside immediate-detection guarantees; owner lifecycle notifications are mandatory.
+
+Validation actually run: focused Consent and Shield source inspection; two illustrative JS examples syntax-checked (not executed); all6 runtime members byte-identical to v0.6.3/manifest; project and sole authoritative delivery ZIP SHA256 unchanged **fbd0ebc9c63f37c088a3fb9f341297fcbb80ed30f912fbb89cd1afd3c45db737**. No runtime/tests framework/site execution, package/build/install/delivery replacement or version/policy change. No proposed integration/installed acceptance tests run; completed M1–M3 evidence/coverage limits retained. No external message sent.
+
+**One next task:** Aubrey relays the pinned proposal to HELPER — SiteEngine Site Shield for exact contract agreement with Consent Helper; implementation remains separately assigned to each owning Codex after agreement. No Milestone4.
+
+## Prior stable release record (unchanged)
+
 # Stable 0.6.3 released — Milestone 3 closed — 2026-11-05
 
 **Implemented, packaged, installed, verified, Helper-accepted and released.** Runtime/source pin **b7142169ae6d1f5ac8f9d32b9312f7ebe8fe207c / v0.6.3**; canonical D:\SiteEngine\Plugins\.PLUGIN — SiteEngine Consent\source, origin https://github.com/siteengine-git/SiteEngine-Consent.git, main. This completion documentation follows the immutable release source pin without changing its runtime/package.
