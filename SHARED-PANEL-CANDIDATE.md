@@ -2,6 +2,8 @@
 
 November 5, 2026. **Implemented, locally verified and packaged; not installed, jointly verified, Helper-accepted or released.** Approved interface is the exact Contract2 at `eb2da2a0493d92d475c65c18695f6febd292e71d`, confirmed by both Helpers through Aubrey. Existing proposal filename is retained; no alternative API was introduced. Candidate checkpoint: `candidate-0.6.4-rc.2-shared-panel-local-20261105`.
 
+Exact local implementation commit: **e5431cad99b7b4ec634e7b031fbed57d8c7b001d**. Publication is blocked by GitHub receive-side `fatal error in commit_refs_rules`: combined branch/tag, branch-only and new candidate-branch pushes were rejected. Readback leaves remote main at eb2da2a and no candidate ref published. Public branch-rules lookup returned an empty list; GitHub status reported operational, so no specific policy or outage cause is inferred. No force push, settings change or alternate credential route was attempted. The local candidate tag and exact source/package remain retained; a remote commit link is not yet verified. Use the local canonical checkout/pin for review and retry normal publication only after the server-side condition is resolved.
+
 ## Implemented behavior
 
 The version2 provider registers with `SEShieldSharedLauncher`, validates the exact registration ID, current global, nonregressing safe generation and live six-second lease. Shield renews every two seconds. Both initialization orders and delayed render are supported. Duplicate API announcements do not reconfirm/reset an active draft. Old version1 handoff is incompatible and leaves standalone controls available.
