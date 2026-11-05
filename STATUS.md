@@ -1,3 +1,17 @@
+# Stable 0.6.3 released — Milestone 3 closed — 2026-11-05
+
+**Implemented, packaged, installed, verified, Helper-accepted and released.** Runtime/source pin **b7142169ae6d1f5ac8f9d32b9312f7ebe8fe207c / v0.6.3**; canonical D:\SiteEngine\Plugins\.PLUGIN — SiteEngine Consent\source, origin https://github.com/siteengine-git/SiteEngine-Consent.git, main. This completion documentation follows the immutable release source pin without changing its runtime/package.
+
+[Stable release](https://github.com/siteengine-git/SiteEngine-Consent/releases/tag/v0.6.3) published (not draft/prerelease) with ZIP, checksum, manifest and Milestone3 evidence; all four public downloads byte-verified. ZIP **siteengine-consent-0.6.3.zip**,45274 bytes, SHA256 **fbd0ebc9c63f37c088a3fb9f341297fcbb80ed30f912fbb89cd1afd3c45db737**. Authoritative delivery D:\SiteEngine\Plugins\..Deliverables\PLUGIN — SiteEngine Consent now contains exactly one installable ZIP,0.6.3, with matching checksum/manifest/installation notes. Previous0.6.2 delivery ZIP/documents archived outside that directory with all hashes preserved; prior candidate/original packages and Git history retained. The lookalike Plugins..Deliverables path remains absent.
+
+Helper-accepted candidate3a9fc67243edb115012f514dac9fae63207d8582 / ZIP6e8c4e27b15e1a549615f2d34cd6cd55e7b123b1034c8654eaff26a0e0568f91 finalized by release metadata only. Fresh checks: exact normalized six-member comparison to accepted source; PHP main lint; final ZIP/member/source hashes; installed six payload hashes; CLI/option and HTTPS200 dynamic version0.6.3; effective configuration/policy/banner and native before/after preservation. All10 receipts/9 links/5 heads, schema and permanent barriers unchanged; protected activation/Ads settings unchanged; only Consent option delta versionrc.2→stable. Privacy transients unchanged. Cron digest changed during ordinary bootstrap; no explicit cron write or exact attribution claimed. No new capture, fixture, submission, export, notification, advertising dispatch, other-plugin change or client deployment. Both executor locks released and positively read back FREE before publication.
+
+Carry forward accepted M1–M3 functional evidence; no repeated acceptance campaign/operator testing. Coverage limits unchanged: actual browser zoom unverified (320px reflow passed), no screen-reader session/certification, physical safe-area device/browser matrix, newly forced live ACK/storage failure, minimumPHP7.4/WordPress5.8 or new Ads dispatch acceptance. See MILESTONE-3.md and RELEASE-0.6.3.md for integration, upgrade/recovery and precise evidence. Private recovery before-state and publication/delivery readbacks remain outside public Git.
+
+**One next task:** maintain accepted0.6.3 and await the next explicit Helper assignment; no Milestone4.
+
+## Prior installed/publication preparation record (completed)
+
 # Stable 0.6.3 — installed and Helper accepted — 2026-11-05
 
 Canonical source D:\SiteEngine\Plugins\.PLUGIN — SiteEngine Consent\source; origin https://github.com/siteengine-git/SiteEngine-Consent.git, main. Helper accepts candidate3a9fc67243edb115012f514dac9fae63207d8582 / ZIP6e8c4e27b15e1a549615f2d34cd6cd55e7b123b1034c8654eaff26a0e0568f91. Stable0.6.3 is its metadata-only successor (main two version strings, readme release labeling; four other members unchanged). Policy/banner and consent behavior remain unchanged. Runtime/source pin: v0.6.3.
