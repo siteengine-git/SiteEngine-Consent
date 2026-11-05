@@ -3,7 +3,10 @@
   "archive": "siteengine-consent-0.6.4-rc.1.zip",
   "bytes": 48745,
   "sha256": "5842abffe169046db66e0213c0ea5333b0fe2d86fb26496f1ceb3239fa174337",
-  "acceptance": "Local Consent shared-launcher adapter candidate; synthetic broker/UI evidence only; not installed or jointly accepted; stable0.6.3 preserved",
+  "acceptance": "Helper-accepted compatibility candidate for controlled agency installation; verified with Shield 2.0.0-rc.4; original ZIP promoted without rebuilding; not a public Stable release",
+  "accepted_source_commit": "aaf13f3878a8db0b20935da2e6dcd4d221177391",
+  "joint_installed_evidence_commit": "1ec82b191f4d5d098c34dc57bac654864fc74afb",
+  "verification_limits": ["Screen-reader speech untested", "Cache-HIT interoperability untested"],
   "baseline_commit": "b7142169ae6d1f5ac8f9d32b9312f7ebe8fe207c",
   "files": [
     {

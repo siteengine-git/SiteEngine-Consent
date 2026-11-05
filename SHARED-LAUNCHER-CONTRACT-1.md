@@ -6,7 +6,7 @@ November 5, 2026. The Helper approved **Shield's contract at `eba2e2e085e5da3a60
 
 This explicitly supersedes Consent proposal `dee85e8ca1aeff655b9a656ac8952556ddf814e5`. Its `SiteEngineShield.sharedLauncher`, `SiteEngineConsent.preferencesAction`, callback registration, structured opening results and dialog notification API are obsolete and **not implemented**. There are no compatibility aliases or second contract. Historical proposal bytes remain in Git only.
 
-Baseline: accepted Consent **v0.6.3 / b7142169ae6d1f5ac8f9d32b9312f7ebe8fe207c**. Consent candidate **0.6.4-rc.1** implements only its side locally. Shield's broker and joint installed acceptance are separate dependencies; no installed interoperability is claimed.
+Baseline: accepted Consent **v0.6.3 / b7142169ae6d1f5ac8f9d32b9312f7ebe8fe207c**. Consent **0.6.4-rc.1 / aaf13f3878a8db0b20935da2e6dcd4d221177391** is now a Helper-accepted compatibility candidate for controlled agency installation, verified with Shield **2.0.0-rc.4**. [Acceptance and delivery record](SHARED-LAUNCHER-ACCEPTANCE.md) carries the installed evidence and limits. Screen-reader speech and cache-HIT interoperability remain untested. This is not a public Stable release.
 
 ## Exact registration-identity clarification for Shield
 

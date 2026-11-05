@@ -1,3 +1,17 @@
+# Shared-launcher compatibility candidate accepted and delivered — 2026-11-05
+
+Canonical source D:\SiteEngine\Plugins\.PLUGIN — SiteEngine Consent\source; origin https://github.com/siteengine-git/SiteEngine-Consent.git, main. Accepted runtime/source **aaf13f3878a8db0b20935da2e6dcd4d221177391 / 0.6.4-rc.1**. Helper accepts this compatibility candidate for controlled agency installation with **Shield 2.0.0-rc.4**, based on joint installed evidence **1ec82b191f4d5d098c34dc57bac654864fc74afb** in the Shield repository. This acceptance supersedes the historical local-only/pending status below.
+
+Implemented/packaged: unchanged accepted candidate. Installed/verified: carried forward from the joint executor, including 6/6 Consent payload parity, browser handoff/focus/mobile/lease behavior and protected-data preservation. Helper-accepted/delivery-promoted: yes. Public Stable released: no; retain rc.1 version/filename. Screen-reader speech and cache-HIT interoperability remain untested; other retained limits remain disclosed in SHARED-LAUNCHER-ACCEPTANCE.md and prior milestone evidence.
+
+Exact original ZIP copied without rebuild to filesystem-resolved **D:\SiteEngine\Plugins\..Deliverables\PLUGIN — SiteEngine Consent\siteengine-consent-0.6.4-rc.1.zip**. Directory readback: **one ZIP, one total entry**, 48,745 bytes, SHA-256 **5842abffe169046db66e0213c0ea5333b0fe2d86fb26496f1ceb3239fa174337**. Six ZIP members checked against retained manifest; copied ZIP hash verified. Superseded0.6.3 archived intact outside delivery in project deliverables/checkpoints/delivery-0.6.3-before-accepted-shared-launcher-20261105; hash fbd0ebc9c63f37c088a3fb9f341297fcbb80ed30f912fbb89cd1afd3c45db737. Prior ancillary archive, packages and Git history preserved.
+
+Promotion checks only: artifact/member/hash verification and directory/archive readback. No rebuild, repeated runtime suite, server action, lock acquisition, client deployment, public Stable publication or Shield delivery edit. Documentation/manifest acceptance fields updated; runtime and packaged bytes unchanged. See SHARED-LAUNCHER-ACCEPTANCE.md for acceptance, retention and evidence boundaries.
+
+**One next task:** maintain accepted compatibility candidate; await the owning Helper's next explicit assignment. No Milestone4.
+
+## Historical records (superseded where noted)
+
 # Optional shared-launcher Consent candidate — 2026-11-05
 
 Canonical source D:\SiteEngine\Plugins\.PLUGIN — SiteEngine Consent\source; origin https://github.com/siteengine-git/SiteEngine-Consent.git, main. Accepted runtime baseline **v0.6.3 / b7142169ae6d1f5ac8f9d32b9312f7ebe8fe207c**; later source/docs work through dee85e8ca1aeff655b9a656ac8952556ddf814e5 preserved. **0.6.4-rc.1 locally implemented, focused-verified and packaged; not installed, jointly verified, Helper-accepted or released.** Named checkpoint candidate-0.6.4-rc.1-shared-launcher-local-20261105. This optional compatibility work is not Milestone4.
