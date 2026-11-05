@@ -59,3 +59,8 @@ HELPER — SiteEngine Consent controls this milestone and explicitly assigns thi
 ## Milestone 3 authority — November 5, 2026
 
 HELPER — SiteEngine Consent delegates this Codex to implement persistent preferences/accessibility, package a separately versioned candidate, install and verify on Alma under the existing common/overlapping executor locks. This bounded assignment supersedes older milestone/executor holds. Start at accepted0.6.2, preserve subsequent work, authority API2/history/barriers/policy/banner. No other-plugin/shared-service/client-production change or Milestone4. Retain the approved0.6.2 delivery ZIP until Helper acceptance; stage candidate outside that directory. Reuse prior evidence and run one focused pass with exact owned fixtures and targeted recovery.
+
+
+## Milestone 3 stable release — November 5, 2026
+
+Helper accepts candidate3a9fc67243edb115012f514dac9fae63207d8582/ZIP6e8c4e27b15e1a549615f2d34cd6cd55e7b123b1034c8654eaff26a0e0568f91 and delegates this Codex to finalize metadata-only stable0.6.3, install/verify its exact payload/version under the existing locks, publish v0.6.3 with ZIP/checksum, and replace the accepted delivery after verification. Preserve prior packages/history, policy/banner and all consent data/barriers; carry prior functional evidence/coverage limits. No repeated acceptance campaign, consent choices/forms/exports, client deployment or Milestone4.

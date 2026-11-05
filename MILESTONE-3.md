@@ -1,3 +1,13 @@
+# Stable 0.6.3 — Helper accepted and installed
+
+Helper accepted candidate3a9fc67243edb115012f514dac9fae63207d8582 / ZIP6e8c4e27b15e1a549615f2d34cd6cd55e7b123b1034c8654eaff26a0e0568f91. Stable0.6.3 changes only two main release-version strings and readme release labeling; the four other packaged files are byte-identical. Completed candidate functional evidence and the coverage limits below are carried forward, not rerun as a new campaign.
+
+Final ZIP siteengine-consent-0.6.3.zip,45274 bytes, SHA256 **fbd0ebc9c63f37c088a3fb9f341297fcbb80ed30f912fbb89cd1afd3c45db737**. Final six installed/source/archive hashes, CLI/HTTPS version0.6.3, effective non-version configuration/policy/banner, all receipt/event/head/barrier data and protected activation/Ads settings verified. Consent option delta: version only; privacy transients unchanged; cron digest changed during ordinary bootstrap with no explicit cron write or exact attribution. No new event, fixture, form/submission, dispatch or client deployment. Both existing executor locks positively released; targeted recovery evidence retained privately. Runtime pin: v0.6.3. Publication/delivery completion is recorded separately from installation below in STATUS.md.
+
+Historical candidate holds below are superseded by this explicit Helper acceptance and stable release assignment. The implementation/integration examples, recovery boundaries and precise coverage limits remain applicable.
+
+## Retained candidate implementation and evidence
+
 # Milestone 3 — persistent preferences candidate
 
 Version: **0.6.3-rc.2**, based on accepted v0.6.2 (`ca46d81ce016c451a8be9377a9510b0932d2e9c6`). Milestones 1–2 evidence is carried forward. Candidate implemented, packaged, installed on Alma and focused-verified; **not Helper-accepted or released**. The accepted delivery ZIP remains 0.6.2.

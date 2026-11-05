@@ -1,3 +1,15 @@
+# Stable 0.6.3 — installed and Helper accepted — 2026-11-05
+
+Canonical source D:\SiteEngine\Plugins\.PLUGIN — SiteEngine Consent\source; origin https://github.com/siteengine-git/SiteEngine-Consent.git, main. Helper accepts candidate3a9fc67243edb115012f514dac9fae63207d8582 / ZIP6e8c4e27b15e1a549615f2d34cd6cd55e7b123b1034c8654eaff26a0e0568f91. Stable0.6.3 is its metadata-only successor (main two version strings, readme release labeling; four other members unchanged). Policy/banner and consent behavior remain unchanged. Runtime/source pin: v0.6.3.
+
+Implemented/packaged/installed/targeted-verified/Helper-accepted: yes. Publication and authoritative delivery finalization are pending as a separate step; installed verification does not imply release publication. Final package parent deliverables/siteengine-consent-0.6.3.zip,45274 bytes, SHA256 **fbd0ebc9c63f37c088a3fb9f341297fcbb80ed30f912fbb89cd1afd3c45db737**. Exact six source/archive/installed member hashes, CLI and HTTPS version0.6.3 verified. All10 receipts/9 event links/5 chain heads, schemas/barriers and effective non-version config preserved. Activation/Ads settings unchanged. Only Consent option delta is versionrc.2→stable; privacy transients unchanged; cron digest changed during ordinary bootstrap with no explicit cron mutation/attribution claimed. No new choices, fixtures, submissions, exports, notifications or advertising dispatch. Locks positively released before local publication work.
+
+Carry forward accepted M1–M3 functional evidence; only release metadata/package/installation/preservation/version checks performed now. Existing coverage limits: actual browser zoom unverified (320px reflow passed), no screen-reader session/certification, physical safe-area device/browser matrix, newly forced live ACK/storage failures, minimumPHP7.4/WordPress5.8 or new Ads dispatch acceptance. See MILESTONE-3.md for exact integration, targeted file-only recovery and retained evidence. No client deployment or Milestone4.
+
+**One next task:** publish/verify v0.6.3 and its ZIP/checksum, then replace the authoritative delivery copy while preserving predecessors.
+
+## Prior evidence (historical candidate acceptance holds superseded)
+
 # Milestone 3 candidate installed — 2026-11-05
 
 Canonical source D:\SiteEngine\Plugins\.PLUGIN — SiteEngine Consent\source; origin https://github.com/siteengine-git/SiteEngine-Consent.git, main. Based on accepted v0.6.2 ca46d81ce016c451a8be9377a9510b0932d2e9c6 and preserved subsequent M2 evidence8ca2fa40a19e9240181a2b4180c046b3bf061e54. Helper explicitly delegates this Codex for bounded Alma installation/verification. **0.6.3-rc.2 implemented, packaged, installed and focused-verified; pending Helper acceptance, not released.** Named checkpoint: candidate-0.6.3-rc.2-milestone3-20261105.

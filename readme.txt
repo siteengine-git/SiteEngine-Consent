@@ -3,7 +3,7 @@ Contributors: siteengine
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 0.6.3-rc.2
+Stable tag: 0.6.3
 License: Proprietary
 
 First-party consent management for WordPress. Google Consent Mode v2, Fluent Forms integration, local audit log, exports.
@@ -51,8 +51,8 @@ Use the `siteengine_consent_preference_controls` PHP filter to return an array: 
 
 == Changelog ==
 
-= 0.6.3-rc.2 =
-* Milestone 3 candidate: persistent preferences launcher, footer/menu integration and bounded placement filter.
+= 0.6.3 =
+* Milestone 3: persistent preferences launcher, footer/menu integration and bounded placement filter.
 * Modal focus isolation/return, hidden-banner keyboard exclusion, visible independent category states and accessible confirmation feedback.
 * Narrow/dynamic viewport and safe-area layout; consent authority, history and policy/banner identity unchanged.
 
