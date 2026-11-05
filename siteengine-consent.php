@@ -3,7 +3,7 @@
  * Plugin Name: SiteEngine Consent
  * Plugin URI:  https://siteengine.io/
  * Description: First-party consent management for WordPress. GTM Consent Mode v2, Fluent Forms server-side consent stamping, local audit log with retention, admin viewer, exports, rate limiting, privacy-policy fallback, public health endpoint. Integrates with SiteEngine Base when available and remains standalone-safe.
- * Version:     0.6.4-rc.1
+ * Version:     0.6.4-rc.2
  * Author:      SiteEngine
  * Author URI:  https://siteengine.io/
  * License:     Proprietary
@@ -192,7 +192,7 @@ define('SE_CONSENT_BOOTSTRAPPED', __FILE__);
 
 if (!defined('SE_CONSENT_COMPANY_NAME_EXPLICIT')) { define('SE_CONSENT_COMPANY_NAME_EXPLICIT', defined('SE_CONSENT_COMPANY_NAME')); }
 if (!defined('SE_CONSENT_PRIVACY_URL_EXPLICIT'))  { define('SE_CONSENT_PRIVACY_URL_EXPLICIT', defined('SE_CONSENT_PRIVACY_URL')); }
-if (!defined('SE_CONSENT_VERSION'))               { define('SE_CONSENT_VERSION', '0.6.4-rc.1'); }
+if (!defined('SE_CONSENT_VERSION'))               { define('SE_CONSENT_VERSION', '0.6.4-rc.2'); }
 if (!defined('SE_CONSENT_COOKIE_NAME'))           { define('SE_CONSENT_COOKIE_NAME', 'se_consent'); }
 if (!defined('SE_CONSENT_COOKIE_DAYS'))           { define('SE_CONSENT_COOKIE_DAYS', 390); }
 if (!defined('SE_CONSENT_POLICY_VERSION'))        { define('SE_CONSENT_POLICY_VERSION', '2026-05-08-v1'); }
@@ -713,6 +713,10 @@ final class SiteEngine_Consent {
             #se-consent-modal{display:none;position:fixed;z-index:1000001;left:50%;top:50%;width:min(560px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:auto;transform:translate(-50%,-50%);background:#fff;color:#111827;border-radius:14px;box-shadow:0 24px 80px rgba(0,0,0,.35);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
             #se-consent-modal.se-consent-visible{display:block}
             .se-consent-modal-inner{padding:24px}
+            #se-consent-preferences-content{box-sizing:border-box;color:#111827;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+            #se-consent-preferences-content *{box-sizing:border-box}
+            #se-consent-preferences-content[data-se-consent-mounted]{padding:16px}
+            #se-consent-draft-notice:empty{display:none}
             #se-consent-launcher{position:fixed;z-index:999998;right:max(16px,env(safe-area-inset-right));bottom:calc(var(--se-consent-control-bottom,88px) + env(safe-area-inset-bottom,0px));max-width:calc(100vw - 32px);width:auto;background:#1f2937;color:#fff;border:1px solid #fff;box-shadow:0 2px 8px #0005;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
             #se-consent-launcher.se-consent-left{right:auto;left:max(16px,env(safe-area-inset-left))}
             #se-consent-launcher[hidden]{display:none}
@@ -1012,19 +1016,20 @@ final class SiteEngine_Consent {
                     saveAuditReceipt(payload);
                     log('saved', payload);
                 }
-                function saveConsent(input, method) { var payload = buildPayload(input, method); activeEventId = payload.event_id; storeConsent(payload); dispatchConsent(payload); hideBanner(); closeModal(); return payload; }
+                function saveConsent(input, method) { var payload = buildPayload(input, method); activeEventId = payload.event_id; storeConsent(payload); dispatchConsent(payload); hideBanner(); closeModal('saved'); return payload; }
                 function acceptAll() { return saveConsent({ analytics: true, advertising: true, personalization: true }, 'accept_all'); }
                 function rejectNonEssential() { return saveConsent({ analytics: false, advertising: false, personalization: false }, 'reject_non_essential'); }
                 function savePreferences() { return saveConsent({ analytics: getToggleValue('analytics'), advertising: getToggleValue('advertising'), personalization: getToggleValue('personalization') }, 'save_preferences'); }
                 function getToggleValue(category) { var t = document.querySelector('[data-se-consent-toggle="' + category + '"]'); return t ? t.getAttribute('aria-checked') === 'true' : false; }
                 function setToggleValue(category, value) { var t = document.querySelector('[data-se-consent-toggle="' + category + '"]'); if (t) t.setAttribute('aria-checked', value ? 'true' : 'false');  var label = document.getElementById('se-consent-state-' + category); if (label) label.textContent = category === 'necessary' ? 'Always on' : (value ? 'On' : 'Off'); }
-                function toggleCategory(category) { setToggleValue(category, !getToggleValue(category)); }
+                function toggleCategory(category) { setToggleValue(category, !getToggleValue(category)); preferenceDraftDirty = true; }
                 function showBanner() { var b = document.getElementById('se-consent-banner'); if (b) window.setTimeout(function () { b.classList.add('se-consent-visible'); syncLauncher(); }, 200); }
                 function hideBanner() { var b = document.getElementById('se-consent-banner'); if (b) b.classList.remove('se-consent-visible'); syncLauncher(); }
                 // Element that had focus before the dialog opened, so focus can be
                 // returned to it on close (WCAG 2.4.3 Focus Order).
                 // Shared Launcher Contract 1. Presentation only; no consent state in the handshake.
-                var consentUiRendered = false, ownModalNode = null, ownBackdropNode = null;
+                var consentUiRendered = false, ownModalNode = null, ownBackdropNode = null, ownContentNode = null;
+                var sharedMount = null, preferenceDraftDirty = false, sharedFailureNotice = false;
                 var explicitCustomLauncher = false, rememberedCustomLaunchers = [];
                 var sharedAttempt = null, sharedUsable = false, sharedExpiry = null, sharedBusy = false;
                 var sharedPageActive = true, sharedReturnTarget = null, consentUiObserver = null;
@@ -1089,7 +1094,7 @@ final class SiteEngine_Consent {
                 }
                 function sharedUiReady() {
                     return sharedPageActive && consentUiRendered && !!ownModalNode && !!ownBackdropNode &&
-                        document.getElementById('se-consent-modal') === ownModalNode && document.contains(ownModalNode) &&
+                        document.getElementById('se-consent-modal') === ownModalNode && document.contains(ownModalNode) && !!ownContentNode && document.contains(ownContentNode) &&
                         document.getElementById('se-consent-backdrop') === ownBackdropNode && document.contains(ownBackdropNode);
                 }
                 function sharedNow() {
@@ -1110,13 +1115,15 @@ final class SiteEngine_Consent {
                         previous.active = false; previous.confirmed = false;
                         try { if (previous.handle) previous.handle.withdraw(reason); } catch (e) {}
                     }
+                    if (sharedMount && sharedMount.attempt === previous) unmountSharedControls(previous);
                     if (previous) syncLauncher();
                 }
                 function sharedStateReady(attempt) {
                     if (!attempt || attempt !== sharedAttempt || !attempt.active || !attempt.confirmed ||
-                        attempt.broker !== window.SEShieldSharedLauncher || !sharedUiReady() || document.visibilityState === 'hidden') return null;
+                        attempt.broker !== window.SEShieldSharedLauncher || !sharedMount || sharedMount.attempt !== attempt ||
+                        ownContentNode.parentNode !== sharedMount.slot || !sharedUiReady() || document.visibilityState === 'hidden') return null;
                     var state = attempt.broker.getState(), now = sharedNow();
-                    if (!state || state.contractVersion !== 1 || !Number.isSafeInteger(state.generation) || state.generation < 0) return null;
+                    if (!state || state.contractVersion !== 2 || !Number.isSafeInteger(state.generation) || state.generation < 0) return null;
                     if (state.generation < attempt.generation) return null;
                     attempt.generation = state.generation;
                     if (state.registrationId !== attempt.registrationId || attempt.handle.registrationId !== attempt.registrationId) { attempt.identityLost = true; return null; }
@@ -1131,7 +1138,7 @@ final class SiteEngine_Consent {
                     var attempt = sharedAttempt, state = null;
                     try { state = sharedStateReady(attempt); } catch (e) { sharedDrop('broker-error'); return; }
                     sharedCancelExpiry();
-                    if (!state) { if (attempt && attempt.identityLost) sharedDrop('registration-replaced'); else sharedSetUsable(false); return; }
+                    if (!state) { if (attempt && (attempt.confirmed || attempt.identityLost || sharedMount)) sharedDrop('readiness-lost'); else sharedSetUsable(false); return; }
                     sharedSetUsable(true);
                     var deadline = state.expiresAt;
                     sharedExpiry = window.setTimeout(function () {
@@ -1139,36 +1146,83 @@ final class SiteEngine_Consent {
                         sharedExpiry = null;
                         // An early timer is re-armed against the same authoritative deadline.
                         if (sharedNow() < deadline) { sharedReconcile(); return; }
-                        sharedSetUsable(false);
+                        sharedDrop('lease-expired');
                     }, Math.max(1, deadline - sharedNow()));
                 }
-                function sharedProviderOpen(attempt, launcher) {
-                    if (attempt !== sharedAttempt || !attempt.active) return false;
-                    var state;
-                    try { state = sharedStateReady(attempt); } catch (e) { state = null; }
-                    if (!state || modalIsOpen() || !usableFocusTarget(launcher)) {
-                        sharedDrop('open-failed');
-                        if (!modalIsOpen()) returnConsentFocus(launcher);
-                        return false;
-                    }
-                    sharedReturnTarget = launcher;
+                function showSharedRecoveryNotice() {
+                    var notice = document.getElementById('se-consent-draft-notice');
+                    if (notice) notice.textContent = sharedFailureNotice ? 'The shared panel became unavailable. Unsaved changes were discarded. Review your preferences and save explicitly.' : '';
+                }
+                function mountSharedControls(attempt, slot, actions) {
+                    if (attempt !== sharedAttempt || !attempt.active || !sharedUiReady() || modalIsOpen() || modalIsolationActive) return false;
+                    if (sharedMount) return sharedMount.attempt === attempt && sharedMount.slot === slot && ownContentNode.parentNode === slot;
+                    if (!slot || slot.ownerDocument !== document || !document.contains(slot) || !slot.appendChild ||
+                        slot === ownModalNode || slot === ownBackdropNode || ownContentNode.contains(slot) ||
+                        !slot.childNodes || slot.childNodes.length || !actions || typeof actions.close !== 'function' || typeof actions.invalidate !== 'function') return false;
                     try {
-                        window.SiteEngineConsent.openPreferences(launcher); // Existing opening path, exactly once.
-                        if (modalIsOpen() && ownModalNode.getAttribute('aria-hidden') === 'false' &&
-                            (ownModalNode.offsetWidth > 0 || ownModalNode.offsetHeight > 0) && ownModalNode.contains(document.activeElement)) return true;
+                        sharedMount = { attempt: attempt, slot: slot, actions: actions, view: 'closed' };
+                        slot.appendChild(ownContentNode);
+                        ownContentNode.setAttribute('data-se-consent-mounted', 'true');
+                        if (ownContentNode.parentNode === slot && document.contains(ownContentNode)) return true;
+                        unmountSharedControls(attempt); return false;
+                    } catch (e) { unmountSharedControls(attempt); return false; }
+                }
+                function setSharedView(attempt, view) {
+                    var mounted = sharedMount;
+                    if (!mounted || mounted.attempt !== attempt || attempt !== sharedAttempt || !attempt.active ||
+                        ['closed', 'inactive', 'active'].indexOf(view) === -1) return false;
+                    // Closed must remain callable during removal so teardown can finish.
+                    if (view !== 'closed' && (!sharedUiReady() || ownContentNode.parentNode !== mounted.slot)) return false;
+                    if (view === 'closed') mounted.closedDirty = preferenceDraftDirty || mounted.closedDirty;
+                    else if (mounted.view === 'closed') mounted.closedDirty = false;
+                    if (view === 'closed' || mounted.view === 'closed') resetPreferenceDraft();
+                    mounted.view = view;
+                    return true;
+                }
+                function unmountSharedControls(attempt) {
+                    var mounted = sharedMount;
+                    if (!mounted || mounted.attempt !== attempt) return;
+                    if ((preferenceDraftDirty && mounted.view !== 'closed') || mounted.closedDirty) sharedFailureNotice = true;
+                    // Keep the retained node even when the host removed its slot.
+                    try {
+                        ownModalNode.appendChild(ownContentNode);
+                        ownContentNode.removeAttribute('data-se-consent-mounted');
+                        sharedMount = null;
+                        resetPreferenceDraft(); showSharedRecoveryNotice(); sharedSetUsable(false); syncLauncher();
+                        if (document.visibilityState !== 'hidden' && ownContentNode.contains(document.activeElement) && !modalIsOpen()) returnConsentFocus(null);
+                    } catch (e) {
+                        // Retain ownership for a later recovery attempt; never clone or lose controls.
+                        sharedSetUsable(false);
+                    }
+                }
+                function openSharedPreferences(initiator) {
+                    var attempt = sharedAttempt, ready = null;
+                    try { ready = sharedStateReady(attempt); } catch (e) {}
+                    if (!ready) { if (attempt) sharedDrop('open-unavailable'); return false; }
+                    try {
+                        if (attempt.handle.openConsent(initiator) === true && sharedStateReady(attempt) &&
+                            sharedMount.view === 'active' && visibleFocusTarget(ownContentNode) && ownContentNode.contains(document.activeElement)) return true;
                     } catch (e) {}
                     sharedDrop('open-failed');
-                    var partiallyOpened = modalIsolationActive || modalIsOpen();
-                    closeModal(); // Also restores isolation when modal/backdrop was removed mid-open.
-                    if (!partiallyOpened) returnConsentFocus(launcher);
                     return false;
+                }
+                function closeSharedPreferences(reason) {
+                    var mounted = sharedMount;
+                    if (!mounted) return false;
+                    try {
+                        if (mounted.actions.close(reason === 'saved' ? 'saved' : 'cancel') === true &&
+                            (!sharedMount || sharedMount.view === 'closed')) return true;
+                    } catch (e) {}
+                    sharedDrop('close-failed');
+                    returnConsentFocus(null);
+                    return true; // The shared attempt was cleaned up; do not run a second close path.
                 }
                 function sharedAttach(confirm) {
                     if (sharedBusy || !sharedPageActive) return;
                     sharedBusy = true;
                     try {
                         var broker = window.SEShieldSharedLauncher;
-                        if (!broker || broker.contractVersion !== 1 || typeof broker.register !== 'function' || typeof broker.getState !== 'function') {
+                        if (!broker || broker.contractVersion !== 2 || typeof broker.register !== 'function' || typeof broker.getState !== 'function') {
                             sharedDrop('broker-unavailable'); return;
                         }
                         if (sharedAttempt && sharedAttempt.broker !== broker) sharedDrop('broker-replaced');
@@ -1176,32 +1230,29 @@ final class SiteEngine_Consent {
                             var attempt = { broker: broker, handle: null, active: true, confirmed: false, generation: -1 };
                             sharedAttempt = attempt;
                             attempt.provider = {
-                                id: 'siteengine-consent', contractVersion: 1,
+                                id: 'siteengine-consent', contractVersion: 2,
                                 isReady: function () { return sharedAttempt === attempt && attempt.active && sharedUiReady(); },
-                                open: function (launcher) {
-                                    try { return sharedProviderOpen(attempt, launcher); }
-                                    catch (e) {
-                                        if (sharedAttempt === attempt) {
-                                            sharedDrop('open-failed');
-                                            try { closeModal(); returnConsentFocus(null); } catch (ignored) {}
-                                        }
-                                        return false;
-                                    }
-                                }
+                                mount: function (slot, actions) {
+                                    try { return mountSharedControls(attempt, slot, actions); } catch (e) { unmountSharedControls(attempt); return false; }
+                                },
+                                setView: function (view) {
+                                    try { return setSharedView(attempt, view); } catch (e) { return false; }
+                                },
+                                unmount: function () { unmountSharedControls(attempt); }
                             };
                             attempt.handle = broker.register(attempt.provider);
                             if (!attempt.handle || typeof attempt.handle.registrationId !== 'string' || !attempt.handle.registrationId ||
-                                typeof attempt.handle.confirm !== 'function' || typeof attempt.handle.withdraw !== 'function') {
+                                typeof attempt.handle.confirm !== 'function' || typeof attempt.handle.withdraw !== 'function' || typeof attempt.handle.openConsent !== 'function') {
                                 sharedDrop('invalid-registration'); return;
                             }
                             attempt.registrationId = attempt.handle.registrationId;
                         }
-                        if (confirm && sharedUiReady() && document.visibilityState !== 'hidden') sharedAttempt.confirmed = sharedAttempt.handle.confirm() === true;
+                        if (confirm && !sharedAttempt.confirmed && sharedUiReady() && document.visibilityState !== 'hidden') sharedAttempt.confirmed = sharedAttempt.handle.confirm() === true;
                     } catch (e) { sharedDrop('broker-error'); }
                     finally { sharedBusy = false; sharedReconcile(); }
                 }
                 function announceSharedProvider() {
-                    if (typeof window.dispatchEvent === 'function') window.dispatchEvent(new CustomEvent('se-consent-shared-launcher-provider', { detail: { contractVersion: 1 } }));
+                    if (typeof window.dispatchEvent === 'function') window.dispatchEvent(new CustomEvent('se-consent-shared-launcher-provider', { detail: { contractVersion: 2 } }));
                 }
                 function watchConsentUi() {
                     if (consentUiObserver) consentUiObserver.disconnect();
@@ -1229,6 +1280,7 @@ final class SiteEngine_Consent {
                     });
                     document.addEventListener('visibilitychange', function () {
                         sharedCancelExpiry(); sharedSetUsable(false);
+                        if (document.visibilityState === 'hidden') sharedDrop('hidden');
                         if (sharedAttempt) sharedAttempt.confirmed = false;
                         if (document.visibilityState !== 'hidden') { syncLauncher(); sharedAttach(true); }
                     });
@@ -1265,7 +1317,10 @@ final class SiteEngine_Consent {
                 }
                 function openModal(initiator) {
                     if (modalIsOpen()) return;
-                    resetPreferenceDraft();
+                    var target = initiator && typeof initiator.focus === 'function' ? initiator : document.activeElement;
+                    if (openSharedPreferences(target)) return;
+                    if (sharedMount) { unmountSharedControls(sharedMount.attempt); if (sharedMount) return; }
+                    resetPreferenceDraft(); showSharedRecoveryNotice();
                     var m = document.getElementById('se-consent-modal'); var bd = document.getElementById('se-consent-backdrop');
                     if (!m || !bd) return;
                     rememberCustomLaunchers();
@@ -1282,9 +1337,11 @@ final class SiteEngine_Consent {
                 function resetPreferenceDraft() {
                     var s = getStoredConsent();
                     modalConfirmation(s ? s.audit_status : '');
+                    preferenceDraftDirty = false;
                     ['analytics', 'advertising', 'personalization'].forEach(function (category) { setToggleValue(category, !!(s && s.consent && s.consent[category])); });
                 }
-                function closeModal() {
+                function closeModal(reason) {
+                    if (sharedMount && closeSharedPreferences(reason)) return;
                     var m = document.getElementById('se-consent-modal'), bd = document.getElementById('se-consent-backdrop');
                     var wasOpen = modalIsolationActive || !!(m && m.classList.contains('se-consent-visible'));
                     if (bd) bd.classList.remove('se-consent-visible');
@@ -1313,8 +1370,10 @@ final class SiteEngine_Consent {
                     var modal = document.createElement('div'); modal.id = 'se-consent-modal';
                     modal.setAttribute('role', 'dialog'); modal.setAttribute('aria-modal', 'true'); modal.setAttribute('aria-hidden', 'true'); modal.setAttribute('aria-labelledby', 'se-consent-modal-title');
                     modal.innerHTML = '<div class="se-consent-modal-inner" id="se-consent-preferences-content">' +
-                        '<h2 class="se-consent-modal-title" id="se-consent-modal-title">Manage Cookie Preferences</h2>' +
+                        '<h2 class="se-consent-modal-title" id="se-consent-modal-title" tabindex="-1">Manage Cookie Preferences</h2>' +
                         '<p class="se-consent-modal-copy">Choose how this site may use cookies and similar technologies. Necessary cookies are always active because they keep the website secure and functional.</p>' +
+                        '<p class="se-consent-modal-copy">Changes are kept while switching tabs. Closing without saving discards unsaved changes.</p>' +
+                        '<p id="se-consent-draft-notice" role="status"></p>' +
                         '<p id="se-consent-modal-status" role="status" aria-live="polite" aria-atomic="true"></p>' +
                         categoryHtml('Necessary', 'Required for security, page delivery, forms, and basic site functionality.', 'necessary', true, true) +
                         categoryHtml('Analytics', 'Helps us understand visits, traffic sources, and website performance.', 'analytics', false, false) +
@@ -1329,7 +1388,7 @@ final class SiteEngine_Consent {
                     explicitCustomLauncher = (config.preferenceControls || {}).mode === 'custom' || !!document.querySelector('[data-se-consent-persistent],.se-consent-preferences');
                     if (!explicitCustomLauncher) createConsentLauncher();
                     bindEvents(); bindFormPopulation();
-                    ownModalNode = modal; ownBackdropNode = backdrop; consentUiRendered = true;
+                    ownModalNode = modal; ownBackdropNode = backdrop; ownContentNode = document.getElementById('se-consent-preferences-content'); consentUiRendered = true;
                     watchConsentUi();
                     var stored = getStoredConsent();
                     if (!stored) { showBanner(); } else { activeEventId = stored.event_id; stored.google_consent = googleConsentFromCategories(stored.consent); window.SiteEngineConsent.state = stored; applyGoogleConsent(stored, 'update'); if (stored.audit_status !== 'saved') { showBanner(); auditStatus(stored.audit_status); } else syncLauncher(); }

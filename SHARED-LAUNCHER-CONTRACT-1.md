@@ -1,5 +1,7 @@
 # Shared Launcher Contract 1 — authoritative broker and Consent adapter
 
+Historical accepted rc.1 interface. The unaccepted 0.6.4-rc.2 successor implements the separately approved Contract2 in SHARED-PANEL-CONTRACT-2-PROPOSED.md, replacing this separate-dialog handoff. Accepted rc.1 rollback/delivery and its evidence remain unchanged; see SHARED-PANEL-CANDIDATE.md for successor scope and limits.
+
 ## Authority and supersession
 
 November 5, 2026. The Helper approved **Shield's contract at `eba2e2e085e5da3a60c0bde8c2fa7531e9770238` plus the registration-identity addition below** for this Consent implementation assignment. [Pinned Shield contract](https://github.com/siteengine-git/SiteEngine-Site-Shield/blob/eba2e2e085e5da3a60c0bde8c2fa7531e9770238/docs/SHARED-LAUNCHER-CONTRACT-1.md). The originating document's historical proposed/unimplemented labels do not grant Shield implementation/deployment authority; each owner retains its own assignment.

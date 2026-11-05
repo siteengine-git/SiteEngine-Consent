@@ -1,6 +1,6 @@
-# Shared panel contract 2 — proposed for owner agreement
+# Shared panel contract 2 — approved interface
 
-November 5, 2026. **Proposed, not implemented or agreed.** Prepared by Consent Codex for exchange through the Helpers/Aubrey before either owner wires the implementations. This is a narrow replacement for the Contract 1 modal handoff, not an extension that silently changes its meaning. Accepted Shield RC4 / Consent 0.6.4-rc.1 and their rollback ZIPs remain unchanged.
+November 5, 2026. **Both Helpers approved the exact interface at eb2da2a0493d92d475c65c18695f6febd292e71d through Aubrey.** This existing filename is retained for stable references. Consent0.6.4-rc.2 implements its provider; Shield owns its separately implemented host. Installed successor acceptance remains pending. This is a narrow replacement for the Contract 1 modal handoff, not an extension that silently changes its meaning. Accepted Shield RC4 / Consent 0.6.4-rc.1 and their rollback ZIPs remain unchanged.
 
 ## Feasibility from accepted source
 
@@ -10,7 +10,7 @@ Shield RC4 source `7fae4bc682887de050a283b04235a56a7212bb07`, `assets/js/widget.
 
 Smallest Consent change: retain the original dialog/backdrop for fallback, move its **single existing inner subtree** into a Shield-owned slot, route close through the host when mounted, and keep the original dialog hidden. Never clone controls or call `openModal` while mounted. Delegate mounting and closing to presentation helpers only; keep category/save/reject/retry and all authority code intact. Add the existing Retry confirmation action to the mounted status area so retry is reachable without closing the host or relying on a separate banner. Preserve same-event retry semantics.
 
-## Proposed exact browser interface
+## Approved exact browser interface
 
 Use the existing `window.SEShieldSharedLauncher` global with **contractVersion: 2**. Contract 1 is incompatible with mounted presentation; the new Consent candidate must use standalone UI with an old broker, and the new Shield candidate must retain Accessibility without a compatible provider. Do not run both handoffs or suppress fallback on registration alone.
 

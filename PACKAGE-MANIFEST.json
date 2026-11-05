@@ -1,23 +1,21 @@
 {
-  "version": "0.6.4-rc.1",
-  "archive": "siteengine-consent-0.6.4-rc.1.zip",
-  "bytes": 48745,
-  "sha256": "5842abffe169046db66e0213c0ea5333b0fe2d86fb26496f1ceb3239fa174337",
-  "acceptance": "Helper-accepted compatibility candidate for controlled agency installation; verified with Shield 2.0.0-rc.4; original ZIP promoted without rebuilding; not a public Stable release",
-  "accepted_source_commit": "aaf13f3878a8db0b20935da2e6dcd4d221177391",
-  "joint_installed_evidence_commit": "1ec82b191f4d5d098c34dc57bac654864fc74afb",
-  "verification_limits": ["Screen-reader speech untested", "Cache-HIT interoperability untested"],
-  "baseline_commit": "b7142169ae6d1f5ac8f9d32b9312f7ebe8fe207c",
+  "version": "0.6.4-rc.2",
+  "archive": "siteengine-consent-0.6.4-rc.2.zip",
+  "bytes": 50016,
+  "sha256": "74691f60a2114c0e5f582c7612ec1c8d7173e5ce7ecd8cffbbdd7e9e911135c6",
+  "acceptance": "Unaccepted Shared Panel Contract 2 Consent candidate; focused local synthetic evidence; joint installed successor acceptance pending",
+  "baseline_commit": "aaf13f3878a8db0b20935da2e6dcd4d221177391",
+  "approved_contract_commit": "eb2da2a0493d92d475c65c18695f6febd292e71d",
   "files": [
     {
       "path": "siteengine-consent.php",
-      "bytes": 122020,
-      "sha256": "2c73d7865bfa5c3a24eb400b842701536f4b7c396c1c9bb8d15ffc74d005b41b"
+      "bytes": 128004,
+      "sha256": "b0f5fea8323dcb0130000073947d921191ed7ea16a4bffdf981611d253e0fe30"
     },
     {
       "path": "readme.txt",
-      "bytes": 9696,
-      "sha256": "f48c337a81fc2ceb1324ac148078bb16a7ee3add1fb17e315a4c145def126854"
+      "bytes": 10151,
+      "sha256": "1951ead054f2eba5bad4681707c6b886bfb6c1bc674751d1dab516e1dd5fb5fd"
     },
     {
       "path": "uninstall.php",

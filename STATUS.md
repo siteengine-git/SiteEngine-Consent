@@ -1,3 +1,19 @@
+# Shared Panel Contract2 — Consent candidate complete locally — 2026-11-05
+
+Canonical source D:\SiteEngine\Plugins\.PLUGIN — SiteEngine Consent\source; origin https://github.com/siteengine-git/SiteEngine-Consent.git, main. Both Helpers approved exact interface eb2da2a0493d92d475c65c18695f6febd292e71d through Aubrey. Candidate0.6.4-rc.2, checkpoint candidate-0.6.4-rc.2-shared-panel-local-20261105; preserve accepted rc.1/aaf13f3878a8db0b20935da2e6dcd4d221177391 and preparatory eb2da2a history. This supersedes the historical pending-interface gate below.
+
+Implemented v2 provider mount/setView/unmount and direct handle.openConsent; only the original controls subtree moves. No v1 modal handoff or duplicate controls. Exact registration/generation/6s lease, both orders, 2s host renewals; tab drafts retained, close discards with explanation, explicit Save/Reject/pending/retry preserved; expiry/removal/failure returns controls and safe focus to standalone. Mounted mode does not activate Consent's modal trap/background isolation/body lock. Banner/footer/custom integration independent. API2, policy/banner, authority/history/barriers and four other packaged members unchanged.
+
+Candidate project deliverables/candidates/siteengine-consent-0.6.4-rc.2.zip: 50,016 bytes, SHA25674691f60a2114c0e5f582c7612ec1c8d7173e5ce7ecd8cffbbdd7e9e911135c6. All6 members/source bytes checked. Accepted authoritative rc.1 ZIP remains the only installable ZIP there, unchanged5842abffe169046db66e0213c0ea5333b0fe2d86fb26496f1ceb3239fa174337. No delivery promotion or rebuild of prior packages.
+
+Actually run: 70 focused v2 fixtures; 34 affected standalone UI assertions; PHP8.3.36 main lint; 42 preservation checks versus accepted rc.1; embedded JS and test syntax; git whitespace checks; artifact/member/hash readback. Synthetic DOM/storage/host/capture boundaries only. No installed tab/layout/browser/screenshot/save-fixture/cache/AT results claimed. Historical v1 suite not rerun; prior authority evidence carried. Source, tests, contract acceptance record and candidate handoff documented in SHARED-PANEL-CANDIDATE.md.
+
+Implemented/packaged/local focused verified: yes. Installed/joint verified/Helper accepted/released successor: no. Consent acquired no server lock, fixture or allocation; no server execution, forms, export, external message or Shield edits. Shield Codex is the sole joint executor and is independently completing its host. Recovery is targeted accepted plugin files under existing lock, never older DB history. Preserve all retained resources/barriers.
+
+**One next task:** through Aubrey coordinate this exact candidate pin/hash with Shield, whose executor performs the one bounded installed pass and returns screenshots/preservation/fixture disposition plus positive lock release. Accepted delivery ZIPs stay unchanged until separate successor acceptance. No client deployment, Stable promotion or Milestone4.
+
+## Historical preparation and accepted evidence
+
 # Shared tabbed panel — Consent preparation / interface exchange pending — 2026-11-05
 
 Task: one Shield-owned panel with Accessibility and Consent tabs. Source D:\SiteEngine\Plugins\.PLUGIN — SiteEngine Consent\source; origin https://github.com/siteengine-git/SiteEngine-Consent.git, main. Accepted rollback remains Consent0.6.4-rc.1 source aaf13f3878a8db0b20935da2e6dcd4d221177391 / ZIP5842abffe169046db66e0213c0ea5333b0fe2d86fb26496f1ceb3239fa174337 with ShieldRC4. Preserve subsequent acceptance docs97f46ad1c96b5b3a8bb68385bfd8ba3544503528. Delivery ZIP unchanged; no rebuild/replacement.
