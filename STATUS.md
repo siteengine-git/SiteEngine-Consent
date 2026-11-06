@@ -1,3 +1,19 @@
+# Accepted0.6.5-rc.1 installation delivery promoted — 2026-11-06
+
+Consent Helper accepts exact source1b2bfd3bae8e4565a0b7dda5ec0c727d211ca6cc and original ZIP0dd340d791cb8518b93523f4d56f793032ebfe4bd2a4cdc93a37ab77700fe365. Canonical source D:\SiteEngine\Plugins\.PLUGIN — SiteEngine Consent\source; origin https://github.com/siteengine-git/SiteEngine-Consent.git,main. Latest explicit instruction supersedes any stable0.6.5 rebuild direction: keep rc.1 version/filename and original bytes; no public Stable publication.
+
+Completed paired Alma evidence: Shield6512b4fd4092e0723fd0a4a786db6e699ac0c44e/docs/PANEL-PRESENTATION-INSTALLED.md, branch codex/panel-presentation. Exact paired ShieldRC6 sourceae108b188e21ea6e585dcc04eabfc6dee15418a6 / ZIPcc13e267c72fb0694564aafff11449e6ebe471cbf1ffb17d7a15867802a61024. Carried evidence:67/67 Shield,6/6 Consent installed parity;180 installed assertions;199 local exact-pair/native Chrome100/200/400% and27 status/control-state assertions;Consent80 local checks. No tests repeated here. No padding conflict:Consent16px inset,Shield slot0,one scroller.
+
+All11 receipts/10 immutable links/6 heads/barriers,complete row/data/schema digests and prior synthetic receipt11 were preserved by the paired executor. Zero installed POST/choices/submissions or additions. Configuration/policy/banner,activation,privacy digest,protected settings and Consent autoload/inventory preserved;only version option0.6.4→rc.1 changed. Ordinary cron digest change recorded without explicit cron operation/exclusive attribution. Executor exited;both locks positively FREE. Raw evidence/backups retained under Shield ownership;screen-reader/physical hardware/other browser/cache-HIT limits remain. See ACCEPTANCE-0.6.5-rc.1.md.
+
+Filesystem-resolved promoted path D:\SiteEngine\Plugins\..Deliverables\PLUGIN — SiteEngine Consent\siteengine-consent-0.6.5-rc.1.zip. Verified51,136 bytes,SHA2560dd340d791cb8518b93523f4d56f793032ebfe4bd2a4cdc93a37ab77700fe365;exactly ONE total file and ONE ZIP including hidden-entry readback. Source candidate retained. Superseded0.6.4 archived intact outside delivery at project deliverables/checkpoints/delivery-0.6.4-before-accepted-0.6.5-rc.1-20261106/siteengine-consent-0.6.4.zip,unchangede09709997aa6f612f01148e083b0d523d63180aa4f48a975e91d6374e141c02a. Earlier packages/ancillary archives/Git preserved.
+
+Implemented/packaged/installed/paired verified:carried complete. Consent Helper accepted/internal delivery promoted:yes. Public Stable0.6.5:NOT created. This task:local copy/hash/count/archive and documentation/manifest acceptance metadata only;no runtime changes,rebuild,version rename,tests,Alma operation,reinstall or cleanup. Existing local profile remnants remain recorded outside source and are not a delivery dependency. Shield promotion remains independently owned.
+
+**One next task:** maintain exact accepted rc.1 installation delivery and await explicit Consent Helper assignment. No client operation,public Stable publication or Milestone4.
+
+## Historical candidate and stable evidence (superseded where noted)
+
 # Controls polish candidate0.6.5-rc.1 — local visual work complete — 2026-11-06
 
 Source D:\SiteEngine\Plugins\.PLUGIN — SiteEngine Consent\source; origin https://github.com/siteengine-git/SiteEngine-Consent.git,main. Accepted baseline stable0.6.4/14e0b1a8cff81acf1611edf2d0202de313f22250 preserved, including later closure71f4a5facde791e0fdba1e8495a16b45ac7dcd3a. New named unaccepted checkpoint candidate-0.6.5-rc.1-controls-polish-local-20261106.

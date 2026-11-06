@@ -1,5 +1,7 @@
 # Consent controls polish — 0.6.5-rc.1
 
+**Current acceptance supersedes the historical pending labels below:** Consent Helper accepts this exact rc.1, following completed paired Alma evidence with ShieldRC6. The unchanged original ZIP is now the sole accepted installation delivery. No stable0.6.5 rebuild/version rename/public Stable release. See [acceptance and delivery](ACCEPTANCE-0.6.5-rc.1.md) for exact pins, carried results, limits and archived prior delivery.
+
 November 6, 2026. **Implemented, locally visual-verified and packaged; not installed, Helper-accepted or released.** Baseline accepted stable0.6.4 / `14e0b1a8cff81acf1611edf2d0202de313f22250`. Candidate checkpoint: `candidate-0.6.5-rc.1-controls-polish-local-20261106`. No Milestone4 or processing architecture change.
 
 ## Reproduced cascade and correction

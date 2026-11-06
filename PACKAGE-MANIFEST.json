@@ -3,7 +3,9 @@
   "archive": "siteengine-consent-0.6.5-rc.1.zip",
   "bytes": 51136,
   "sha256": "0dd340d791cb8518b93523f4d56f793032ebfe4bd2a4cdc93a37ab77700fe365",
-  "acceptance": "Unaccepted scoped controls-polish candidate; local accepted-RC5 paired visual fixture verified; corrected Shield/Alma pass pending",
+  "acceptance": "Consent Helper accepted exact rc.1 after completed Shield RC6 paired Alma evidence; original ZIP promoted unchanged for installation; no public Stable0.6.5 release",
+  "accepted_source_commit": "1b2bfd3bae8e4565a0b7dda5ec0c727d211ca6cc",
+  "paired_installed_evidence_commit": "6512b4fd4092e0723fd0a4a786db6e699ac0c44e",
   "baseline_commit": "14e0b1a8cff81acf1611edf2d0202de313f22250",
   "baseline_sha256": "e09709997aa6f612f01148e083b0d523d63180aa4f48a975e91d6374e141c02a",
   "files": [
