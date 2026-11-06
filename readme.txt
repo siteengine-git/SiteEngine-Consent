@@ -3,7 +3,7 @@ Contributors: siteengine
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 0.6.4-rc.2
+Stable tag: 0.6.4
 License: Proprietary
 
 First-party consent management for WordPress. Google Consent Mode v2, Fluent Forms integration, local audit log, exports.
@@ -49,19 +49,19 @@ Footer integration: use `<button type="button" data-se-consent-action="manage" d
 
 Use the `siteengine_consent_preference_controls` PHP filter to return an array: mode auto (default) or custom, side right (default) or left, bottom clearance in CSS pixels (8–320, default 88). Example: `add_filter("siteengine_consent_preference_controls", function () { return ["mode"=>"auto", "side"=>"right", "bottom"=>120]; });`. Safe-area insets are added automatically. Test alongside site launchers at narrow widths and zoom; no automatic collision detection or other-plugin changes. Presentation options do not alter policy/banner identity.
 
-== Optional shared panel candidate ==
+== Optional shared panel integration ==
 
-0.6.4-rc.2 implements Consent's side of approved Shared Panel Contract 2. A compatible Site Shield SEShieldSharedLauncher version2 host mounts the original single Consent controls subtree inside its Consent tab. Shield owns its one panel, tabs, focus and scrolling. No nested Consent modal opens while mounted. General Shield entry selects Accessibility; Consent banner/footer/menu Manage actions and openPreferences(initiator) select Consent directly. The legacy method still returns undefined.
+0.6.4 implements Consent's side of approved Shared Panel Contract 2. A compatible Site Shield SEShieldSharedLauncher version2 host mounts the original single Consent controls subtree inside its Consent tab. Shield owns its one panel, tabs, focus and scrolling. No nested Consent modal opens while mounted. General Shield entry selects Accessibility; Consent banner/footer/menu Manage actions and openPreferences(initiator) select Consent directly. The legacy method still returns undefined.
 
 Unsaved category selections survive tab switching. Closing without saving discards them; explicit Save/Reject retain existing consent persistence and pending/failed acknowledgment semantics. Retry confirmation is available inside the controls and uses the existing same-event retry API. Opening, changing tabs and closing do not record a choice. The initial banner remains independent.
 
 Consent suppresses its own floating control only after exact-registration confirmation and a live six-second readiness lease, renewed by Shield every two seconds. Missing, incompatible, expired or failed hosts restore the original controls to the standalone dialog. Registration and presentation never establish advertising authority. Policy/banner identity, API2, immutable history and withdrawal barriers remain unchanged.
 
-This is a local candidate pending the separately authorized joint installed pass and each Helper's successor acceptance. Preserve accepted Shield RC4 / Consent0.6.4-rc.1 packages and delivery copies. Screen-reader speech and cache-HIT interoperability remain untested; synthetic checks do not establish installed layout or accessibility certification. Each owner edits only its plugin; Shield is the single joint Alma executor. No client deployment or public Stable promotion.
+Stable 0.6.4 finalizes the Helper-accepted Contract 2 runtime verified on Alma with Shield 2.0.0-rc.5. Completed functional evidence is retained; screen-reader speech and cache-HIT interoperability remain untested. No accessibility certification or client-site deployment is implied. Policy/banner identity, consent authority and historical evidence remain unchanged. See RELEASE-0.6.4.md in the source repository for exact release, compatibility and recovery notes.
 
 == Changelog ==
 
-= 0.6.4-rc.2 =
+= 0.6.4 =
 * Shared Panel Contract2 mounting lifecycle, direct Consent tab entry and identity-bound fallback.
 * One original controls subtree; host owns focus/scroll. Drafts survive tabs and are discarded on close.
 * Inline same-event retry feedback; consent authority/policy/history unchanged.

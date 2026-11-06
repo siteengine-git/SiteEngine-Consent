@@ -1,3 +1,19 @@
+# Stable 0.6.4 — installed verification complete — 2026-11-06
+
+Canonical source D:\SiteEngine\Plugins\.PLUGIN — SiteEngine Consent\source; origin https://github.com/siteengine-git/SiteEngine-Consent.git, main. Consent Helper accepts runtime e5431cad99b7b4ec634e7b031fbed57d8c7b001d / rc.2 ZIP74691f60a2114c0e5f582c7612ec1c8d7173e5ce7ecd8cffbbdd7e9e911135c6, based on Shield e6edc6e54dc0fd695ce0b5ff3eb33249bff168f8 installed handoff. Stable0.6.4 changes only version/readme release metadata; approved Contract2, policy/banner, controls and authority remain unchanged. Source/release target v0.6.4.
+
+Final ZIP siteengine-consent-0.6.4.zip,49,991 bytes,SHA256e09709997aa6f612f01148e083b0d523d63180aa4f48a975e91d6374e141c02a. All6 member/source bytes verified; normalized accepted-candidate comparison allows only exact version/readme release-status substitutions. Main PHP lint passed. Completed functional evidence carried; no repeated acceptance campaign. Compatibility Shield2.0.0-rc.5; screen-reader speech/cache-HIT remain untested, no certification.
+
+Explicitly delegated Consent-only Alma update complete under both existing locks. Installed before-state matched accepted rc.2; targeted rollback/settings/schema/data copies retained owner-private. Only main/readme changed. Final6 installed hashes,CLI runtime/option0.6.4 and HTTPS200/DYNAMIC health version0.6.4 passed. Full rows/schema unchanged:11 receipts/10 links/6 heads including barriers; retained joint synthetic row11 included. Effective non-version config/policy/banner,all Shield files and protected activation/Ads/Base/Shield settings unchanged. Consent autoload unchanged; only Consent option delta rc.2→0.6.4 version. Privacy-cache digests unchanged; cron digest changed during ordinary bootstrap, no explicit cron write/exclusive attribution claimed. No new events/forms/exports/fixtures.
+
+Both locks positively released/free and holder absent before publication. Recovery/evidence retained in /home/alma.siteengine.space/.se-consent-delivery/release-0.6.4-20261106; Consent Codex owns retention,no cleanup scheduled. No server allocation remains. RELEASE-0.6.4.md and BUILD-AND-DELIVERY.md contain compatibility,limits,targeted recovery and exact one-file destination.
+
+Implemented/packaged/installed/final verification:complete;accepted runtime:yes. GitHub release and authoritative delivery finalization are the remaining local steps. Accepted rc.1 delivery is preserved until publication/promotion completes. No Shield release decision,client operation or Milestone4.
+
+**One next task:** finish normal reviewed commit/push,v0.6.4 release with four byte-verified assets,then promote exact final ZIP and archive the superseded delivery outside the one-file destination.
+
+## Historical candidate and coordination evidence
+
 # Shared Panel Contract2 — Consent candidate complete locally — 2026-11-05
 
 Publication resolved by the authorized normal retry after remote/access inspection. Exact implementation pin e5431cad99b7b4ec634e7b031fbed57d8c7b001d and completion record34af86eea235fce0776450926d35a275ad93ef2b are now pushed; remote main and peeled candidate tag were positively verified. All6 pinned remote payloads match the manifest/Git blobs. Prior receive-side fatal error in commit_refs_rules remains historical; no rules, credentials, package bytes or history changed to bypass it. Candidate published as a source checkpoint, not a Stable release or installed/Helper-accepted successor.
