@@ -1,21 +1,21 @@
 {
-  "version": "0.6.4",
-  "archive": "siteengine-consent-0.6.4.zip",
-  "bytes": 49991,
-  "sha256": "e09709997aa6f612f01148e083b0d523d63180aa4f48a975e91d6374e141c02a",
-  "acceptance": "Stable metadata-only finalization of Helper-accepted Contract 2 runtime; compatible with Shield 2.0.0-rc.5",
-  "accepted_candidate_commit": "e5431cad99b7b4ec634e7b031fbed57d8c7b001d",
-  "accepted_candidate_sha256": "74691f60a2114c0e5f582c7612ec1c8d7173e5ce7ecd8cffbbdd7e9e911135c6",
+  "version": "0.6.5-rc.1",
+  "archive": "siteengine-consent-0.6.5-rc.1.zip",
+  "bytes": 51136,
+  "sha256": "0dd340d791cb8518b93523f4d56f793032ebfe4bd2a4cdc93a37ab77700fe365",
+  "acceptance": "Unaccepted scoped controls-polish candidate; local accepted-RC5 paired visual fixture verified; corrected Shield/Alma pass pending",
+  "baseline_commit": "14e0b1a8cff81acf1611edf2d0202de313f22250",
+  "baseline_sha256": "e09709997aa6f612f01148e083b0d523d63180aa4f48a975e91d6374e141c02a",
   "files": [
     {
       "path": "siteengine-consent.php",
-      "bytes": 127994,
-      "sha256": "a621f120898cf853ed877ebe35978a450dde11afda612ffc8af2689e11fe081c"
+      "bytes": 133132,
+      "sha256": "d2fa624a7afd42e7b8b1106461871f29b9c46803902e3dddd84711e9ad9d4cfb"
     },
     {
       "path": "readme.txt",
-      "bytes": 10128,
-      "sha256": "d391d51b709f8247cb9d606987bb66c1f2077a755ec5991c147b58518a05cb22"
+      "bytes": 11021,
+      "sha256": "c22e2676f7b42b3f467e5e5fdd49cba700b1f6d319dc194118e6062a39a9fa8d"
     },
     {
       "path": "uninstall.php",

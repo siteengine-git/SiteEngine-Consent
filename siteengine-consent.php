@@ -3,7 +3,7 @@
  * Plugin Name: SiteEngine Consent
  * Plugin URI:  https://siteengine.io/
  * Description: First-party consent management for WordPress. GTM Consent Mode v2, Fluent Forms server-side consent stamping, local audit log with retention, admin viewer, exports, rate limiting, privacy-policy fallback, public health endpoint. Integrates with SiteEngine Base when available and remains standalone-safe.
- * Version:     0.6.4
+ * Version:     0.6.5-rc.1
  * Author:      SiteEngine
  * Author URI:  https://siteengine.io/
  * License:     Proprietary
@@ -192,7 +192,7 @@ define('SE_CONSENT_BOOTSTRAPPED', __FILE__);
 
 if (!defined('SE_CONSENT_COMPANY_NAME_EXPLICIT')) { define('SE_CONSENT_COMPANY_NAME_EXPLICIT', defined('SE_CONSENT_COMPANY_NAME')); }
 if (!defined('SE_CONSENT_PRIVACY_URL_EXPLICIT'))  { define('SE_CONSENT_PRIVACY_URL_EXPLICIT', defined('SE_CONSENT_PRIVACY_URL')); }
-if (!defined('SE_CONSENT_VERSION'))               { define('SE_CONSENT_VERSION', '0.6.4'); }
+if (!defined('SE_CONSENT_VERSION'))               { define('SE_CONSENT_VERSION', '0.6.5-rc.1'); }
 if (!defined('SE_CONSENT_COOKIE_NAME'))           { define('SE_CONSENT_COOKIE_NAME', 'se_consent'); }
 if (!defined('SE_CONSENT_COOKIE_DAYS'))           { define('SE_CONSENT_COOKIE_DAYS', 390); }
 if (!defined('SE_CONSENT_POLICY_VERSION'))        { define('SE_CONSENT_POLICY_VERSION', '2026-05-08-v1'); }
@@ -763,6 +763,39 @@ final class SiteEngine_Consent {
             .se-consent-modal-actions .se-consent-button-secondary{border-color:#d1d5db;color:#374151}
             .se-consent-modal-actions .se-consent-button-secondary:hover,.se-consent-modal-actions .se-consent-button-secondary:focus{background:#f3f4f6;color:#111827}
             @media (max-width:720px){.se-consent-banner-inner{align-items:stretch;flex-direction:column}.se-consent-actions,.se-consent-modal-actions{justify-content:stretch}.se-consent-button{width:100%}}
+
+            /* Consent owns these controls in both the standalone dialog and a mounted host.
+               Root specificity protects them from inherited theme/host button styling. */
+            #se-consent-preferences-content{min-width:0;max-width:100%}
+            #se-consent-preferences-content .se-consent-category{padding:14px;margin:0 0 14px;border:1px solid #cbd5e1;border-radius:12px;background:#fff}
+            #se-consent-preferences-content .se-consent-category-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:4px 12px}
+            #se-consent-preferences-content .se-consent-category-row>div{display:contents}
+            #se-consent-preferences-content .se-consent-category h3{grid-column:1;grid-row:1;margin:0;color:#111827;font-size:1rem;line-height:1.4;overflow-wrap:anywhere}
+            #se-consent-preferences-content .se-consent-category-state{grid-column:1;grid-row:2;margin:0;color:#334155;font-size:.8125rem;line-height:1.5}
+            #se-consent-preferences-content .se-consent-category p{grid-column:1/-1;grid-row:3;margin:8px 0 0;color:#475569;font-size:.875rem;line-height:1.6;overflow-wrap:anywhere}
+            #se-consent-preferences-content .se-consent-toggle{grid-column:2;grid-row:1/span 2;align-self:center;display:block;flex:none;box-sizing:border-box;width:60px;min-width:60px;max-width:60px;height:44px;min-height:44px;max-height:44px;margin:0;padding:0;border:2px solid #64748b;border-radius:999px;background:#cbd5e1;appearance:none;color:inherit;box-shadow:none;cursor:pointer;position:relative}
+            #se-consent-preferences-content .se-consent-toggle::after{content:"";box-sizing:border-box;position:absolute;width:28px;height:28px;left:4px;top:6px;border:0;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0004}
+            #se-consent-preferences-content .se-consent-toggle[aria-checked="true"]{background:var(--se-consent-accent,#235DAA);border-color:var(--se-consent-accent,#235DAA)}
+            #se-consent-preferences-content .se-consent-toggle[aria-checked="true"]::after{transform:translateX(22px)}
+            #se-consent-preferences-content .se-consent-toggle[aria-disabled="true"]{cursor:not-allowed;opacity:1}
+            #se-consent-preferences-content .se-consent-modal-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:18px 0 0}
+            #se-consent-preferences-content .se-consent-button{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;width:auto;min-width:0;max-width:100%;min-height:44px;height:auto;margin:0;padding:12px 16px;border:2px solid #64748b;border-radius:8px;background:#f8fafc;color:#1e293b;font:600 .875rem/1.45 system-ui,sans-serif;text-align:center;white-space:normal;overflow-wrap:anywhere;text-transform:none;letter-spacing:normal;text-decoration:none;box-shadow:none;cursor:pointer;appearance:none}
+            #se-consent-preferences-content .se-consent-button-primary{background:var(--se-consent-accent,#235DAA);color:#fff;border-color:var(--se-consent-accent,#235DAA)}
+            #se-consent-preferences-content .se-consent-modal-actions .se-consent-button-primary{grid-column:1/-1}
+            #se-consent-preferences-content .se-consent-button:hover:not(:disabled):not([aria-disabled="true"]){background:#e2e8f0;border-color:#334155;color:#111827}
+            #se-consent-preferences-content .se-consent-button-primary:hover:not(:disabled):not([aria-disabled="true"]){background:#174784;border-color:#174784;color:#fff}
+            #se-consent-preferences-content .se-consent-button:focus-visible,#se-consent-preferences-content .se-consent-toggle:focus-visible{outline:3px solid #0b3d91;outline-offset:3px;box-shadow:0 0 0 6px #fff}
+            #se-consent-preferences-content .se-consent-button:disabled,#se-consent-preferences-content .se-consent-button[aria-disabled="true"]{background:#e2e8f0;border-color:#94a3b8;color:#475569;opacity:1;cursor:not-allowed}
+            #se-consent-preferences-content #se-consent-modal-status{margin:0 0 16px;padding:12px;border:2px solid #9a3412;border-radius:8px;font-size:.875rem;line-height:1.6;overflow-wrap:anywhere}
+            #se-consent-preferences-content #se-consent-modal-status .se-consent-button{display:flex;width:100%;margin-top:12px}
+            @media(max-width:360px){#se-consent-preferences-content .se-consent-modal-actions{grid-template-columns:minmax(0,1fr)}}
+            @media(forced-colors:active){
+                #se-consent-preferences-content .se-consent-button{background:ButtonFace;color:ButtonText;border-color:ButtonText;forced-color-adjust:auto}
+                #se-consent-preferences-content .se-consent-toggle{background:ButtonFace;border-color:ButtonText;forced-color-adjust:none}
+                #se-consent-preferences-content .se-consent-toggle[aria-checked="true"]{background:Highlight;border-color:Highlight}
+                #se-consent-preferences-content .se-consent-toggle::after{background:ButtonText}
+                #se-consent-preferences-content .se-consent-toggle[aria-checked="true"]::after{background:ButtonFace}
+            }
         </style>
         <script id="se-consent-script">
             (function () {

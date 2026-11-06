@@ -1,3 +1,21 @@
+# Controls polish candidate0.6.5-rc.1 — local visual work complete — 2026-11-06
+
+Source D:\SiteEngine\Plugins\.PLUGIN — SiteEngine Consent\source; origin https://github.com/siteengine-git/SiteEngine-Consent.git,main. Accepted baseline stable0.6.4/14e0b1a8cff81acf1611edf2d0202de313f22250 preserved, including later closure71f4a5facde791e0fdba1e8495a16b45ac7dcd3a. New named unaccepted checkpoint candidate-0.6.5-rc.1-controls-polish-local-20261106.
+
+Actual paired-source Chrome reproduction with accepted Shield599becebd9a981a198dc65e22b0499c7f335606a confirmed .se-shield-panel button overrides Consent class-only rules: switch48x44,padding10x14,radius8,gray Save. Root-ID-scoped correction yields60x44,padding0,pill radius999; blue Save, recognizable Reject/Cancel/Retry, settled hover/focus/disabled states, full-width descriptions and shrinkable heading/state/switch cards. Standalone preserved. No new!important/global button rule. Production JS byte-identical; main outsideCSS/releaseversion identical; authority/continuity/diagnostics/uninstall payloads unchanged.
+
+Local visual80 assertions passed at desktop1280/mobile390/320,200% text,real tab/focus/hover,reachable actions,feedback and fallback; no browser errors/nested Consent scrolling/storage changes/capture or retry requests. Actual Chrome page-scale2 screenshot retained; desktop Ctrl-plus/menu zoom not performed for this candidate. PHP main lint,test syntax,CSS-only identity,6 member/archive/source checks passed. Accepted functional/authority evidence carried,no repeated processing campaign. Test-tool paint/transition/nonmodal-focus corrections are documented,not runtime changes.
+
+Candidate deliverables/candidates/siteengine-consent-0.6.5-rc.1.zip,51,136 bytes,SHA2560dd340d791cb8518b93523f4d56f793032ebfe4bd2a4cdc93a37ab77700fe365. Accepted installation ZIP0.6.4 remains sole authoritative delivery unchangede09709997aa6f612f01148e083b0d523d63180aa4f48a975e91d6374e141c02a. Six-member manifest in source; screenshots/computed results/private artifacts in parent controls-polish-20261106. See CONTROLS-POLISH-CANDIDATE.md for actual diagnosis,checks,before/after files and limitations.
+
+Prepared mounted-sizing relay through Aubrey before packaging:root normal-flow border-box,min-width0,max-width100%,auto width,16px internal padding;Shield slotpadding0,no second inset. Shield owns outergeometry/header/tabs and sole active scroll region. Private exact relay CONTROLS-PADDING-HANDOFF-20261106.md. No claim of Shield acknowledgment/current corrected-host acceptance; exact corrected Shield candidate pins remain with its owner.
+
+Implemented/packaged/local focused visual verification:yes. Installed/joint corrected-pair verified/Helper accepted/released:no. No Alma command,lock,fixture,live choice,retry,submission,external message or Shield edit. All local testChrome workers closed. Synthetic profile remnants retained privately outside source:ordinary deletion hit read-only files;automatic review rejected forcedrecursive cleanup as blocked by policy,no alternate deletion/ACL change attempted. Consent Codex owns retained local artifacts; no server cleanup allocation.
+
+**One next task:** Aubrey relays exact Consent source/ZIP and padding assumptions to Shield; Shield's sole executor coordinates its corrected candidate pin and performs one bounded paired visual pass under existing locks,with no consent writes,returning preservation/screenshots/resource disposition and positive release. Helpers separately accept successors before delivery replacement. No public Stable release,client operation,statement-date edit or Milestone4.
+
+## Historical accepted stable evidence
+
 # Stable 0.6.4 released — accepted tabbed panel milestone closed — 2026-11-06
 
 **Implemented, packaged, installed, verified, Helper-accepted and released.** Exact stable runtime/source14e0b1a8cff81acf1611edf2d0202de313f22250 / v0.6.4. Canonical D:\SiteEngine\Plugins\.PLUGIN — SiteEngine Consent\source; origin https://github.com/siteengine-git/SiteEngine-Consent.git, main. This completion documentation follows the immutable release source pin without changing its runtime/package.

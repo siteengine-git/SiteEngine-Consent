@@ -3,7 +3,7 @@ Contributors: siteengine
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 0.6.4
+Stable tag: 0.6.5-rc.1
 License: Proprietary
 
 First-party consent management for WordPress. Google Consent Mode v2, Fluent Forms integration, local audit log, exports.
@@ -59,7 +59,15 @@ Consent suppresses its own floating control only after exact-registration confir
 
 Stable 0.6.4 finalizes the Helper-accepted Contract 2 runtime verified on Alma with Shield 2.0.0-rc.5. Completed functional evidence is retained; screen-reader speech and cache-HIT interoperability remain untested. No accessibility certification or client-site deployment is implied. Policy/banner identity, consent authority and historical evidence remain unchanged. See RELEASE-0.6.4.md in the source repository for exact release, compatibility and recovery notes.
 
+== Controls polish candidate ==
+
+0.6.5-rc.1 refines Consent-owned category spacing, full-width descriptions, fixed switch tracks and recognizable action/feedback buttons. Scoped root selectors protect controls from theme/shared-host button cascades in both mounted and standalone views. Contract2 processing, category states, acknowledgment/retry, signed evidence and policy/banner identity are unchanged. This candidate is locally verified against the accepted Shield RC5 fixture; the corrected Shield container and one focused installed visual pass remain separately coordinated. Keep the accepted0.6.4 installation ZIP until Helper acceptance. No public Stable release, client deployment or Milestone4.
+
 == Changelog ==
+
+= 0.6.5-rc.1 =
+* Scoped switch dimensions/padding and action hover/focus/disabled styles.
+* Full-width readable category descriptions and responsive actions; no processing change.
 
 = 0.6.4 =
 * Shared Panel Contract2 mounting lifecycle, direct Consent tab entry and identity-bound fallback.
