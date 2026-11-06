@@ -1,6 +1,6 @@
 # Shared panel contract 2 — approved interface
 
-November 5, 2026. **Both Helpers approved the exact interface at eb2da2a0493d92d475c65c18695f6febd292e71d through Aubrey.** This existing filename is retained for stable references. Consent0.6.4-rc.2 implements its provider; Shield owns its separately implemented host. Installed successor acceptance remains pending. This is a narrow replacement for the Contract 1 modal handoff, not an extension that silently changes its meaning. Accepted Shield RC4 / Consent 0.6.4-rc.1 and their rollback ZIPs remain unchanged.
+November 5, 2026. **Both Helpers approved the exact interface at eb2da2a0493d92d475c65c18695f6febd292e71d through Aubrey.** This existing filename is retained for stable references. Consent0.6.4 finalizes its accepted rc.2 provider; the joint installed pass with Shield2.0.0-rc.5 is complete, and stable Consent is installed/verified/released. Shield owns its host and independent release decision. See RELEASE-0.6.4.md for retained evidence and limits. This is a narrow replacement for the Contract 1 modal handoff, not an extension that silently changes its meaning. Accepted Shield RC4 / Consent 0.6.4-rc.1 and their rollback ZIPs remain unchanged.
 
 ## Feasibility from accepted source
 

@@ -1,3 +1,19 @@
+# Stable 0.6.4 released — accepted tabbed panel milestone closed — 2026-11-06
+
+**Implemented, packaged, installed, verified, Helper-accepted and released.** Exact stable runtime/source14e0b1a8cff81acf1611edf2d0202de313f22250 / v0.6.4. Canonical D:\SiteEngine\Plugins\.PLUGIN — SiteEngine Consent\source; origin https://github.com/siteengine-git/SiteEngine-Consent.git, main. This completion documentation follows the immutable release source pin without changing its runtime/package.
+
+Public release https://github.com/siteengine-git/SiteEngine-Consent/releases/tag/v0.6.4 is published, not draft/prerelease. ZIP,manifest,checksum and concise release notes were downloaded publicly and byte-verified. Final ZIP siteengine-consent-0.6.4.zip,49,991 bytes,SHA256e09709997aa6f612f01148e083b0d523d63180aa4f48a975e91d6374e141c02a. All6 committed/archive/source members verified. Direct normalized comparison between accepted rc.2 and final archives permits only explicit version/readme status substitutions; no functional difference.
+
+Filesystem-resolved authoritative delivery: D:\SiteEngine\Plugins\..Deliverables\PLUGIN — SiteEngine Consent\siteengine-consent-0.6.4.zip. Exact readback:one ZIP,one total directory entry,matching SHA256. Superseded rc.1 archived intact in project deliverables/checkpoints/delivery-rc1-before-stable-0.6.4-20261106; earlier ancillary archives,rc.2 and historical packages/Git preserved. Lookalike Plugins..Deliverables path not created. AGENTS.md and BUILD-AND-DELIVERY.md establish this exact destination/one-file rule for future accepted releases.
+
+Stable installed on Alma by explicit Consent-only delegation using existing locks. Changed only main/readme; Shield's installed files/settings untouched. Installed6 hashes,CLI runtime/option and HTTPS200/DYNAMIC version0.6.4 verified. Full11 receipts/10 links/6 heads/barriers and all3 schemas unchanged from stable before-state; includes retained joint synthetic evidence. Effective non-version config,policy/banner,Consent autoload and protected activation/Ads/Base/Shield options preserved; only Consent option delta is versionrc.2→stable. Privacy digests unchanged. Cron digest changed during ordinary bootstrap; no explicit cron operation/exclusive attribution claimed. No new capture,receipt,form,export,fixture or advertising dispatch. Both locks released and positively read back FREE; holder absent before publication.
+
+Accepted joint installed functional evidence at Shield e6edc6e54dc0fd695ce0b5ff3eb33249bff168f8 carried forward; no repeated integration campaign. Compatible with Shield2.0.0-rc.5; its release ownership remains independent. Screen-reader speech/cache-HIT,other browsers/optimizers/hardware/minimum-platform coverage remain limited as documented; no certification/client acceptance claim. RELEASE-0.6.4.md contains targeted recovery/limitations; owner-private stable backups remain at /home/alma.siteengine.space/.se-consent-delivery/release-0.6.4-20261106 under Consent Codex retention. No remaining server allocation or scheduled cleanup.
+
+**One next task:** maintain accepted0.6.4 and await the next explicit Helper assignment. No client operations or Milestone4.
+
+## Historical finalization and candidate evidence
+
 # Stable 0.6.4 — installed verification complete — 2026-11-06
 
 Canonical source D:\SiteEngine\Plugins\.PLUGIN — SiteEngine Consent\source; origin https://github.com/siteengine-git/SiteEngine-Consent.git, main. Consent Helper accepts runtime e5431cad99b7b4ec634e7b031fbed57d8c7b001d / rc.2 ZIP74691f60a2114c0e5f582c7612ec1c8d7173e5ce7ecd8cffbbdd7e9e911135c6, based on Shield e6edc6e54dc0fd695ce0b5ff3eb33249bff168f8 installed handoff. Stable0.6.4 changes only version/readme release metadata; approved Contract2, policy/banner, controls and authority remain unchanged. Source/release target v0.6.4.

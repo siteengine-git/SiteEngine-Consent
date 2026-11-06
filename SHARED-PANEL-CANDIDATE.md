@@ -1,3 +1,5 @@
+> Historical rc.2 build record. Consent Helper accepted this exact runtime after the joint installed pass; metadata-only stable [v0.6.4](https://github.com/siteengine-git/SiteEngine-Consent/releases/tag/v0.6.4) is installed, verified and released. See STATUS.md / RELEASE-0.6.4.md. Earlier pending labels below describe the original candidate checkpoint.
+
 # Consent shared panel candidate 0.6.4-rc.2
 
 November 5, 2026. **Implemented, locally verified and packaged; not installed, jointly verified, Helper-accepted or released.** Approved interface is the exact Contract2 at `eb2da2a0493d92d475c65c18695f6febd292e71d`, confirmed by both Helpers through Aubrey. Existing proposal filename is retained; no alternative API was introduced. Candidate checkpoint: `candidate-0.6.4-rc.2-shared-panel-local-20261105`.
