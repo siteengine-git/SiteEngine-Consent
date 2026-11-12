@@ -26,3 +26,5 @@ For the current Helper-accepted0.6.5-rc.1 the destination must contain **one tot
 `siteengine-consent-0.6.5-rc.1.zip`
 
 No checksum, manifest, notes, second ZIP or temporary file may remain there. Copy the verified archive bytes without rebuilding during promotion, verify the destination SHA-256 and enumerate all directory entries, including hidden entries. Retain publication and archive/delivery readbacks in the owning project's evidence. Future accepted versions follow the same exact destination/one-file rule, with only the approved filename/version changing. Never promote another project's package or infer client deployment.
+
+Current accepted release: stable 0.6.5. This supersedes the historical rc.1 filename above. Authoritative delivery contains exactly siteengine-consent-0.6.5.zip. Native legacy/hybrid-schema upgrade and acknowledgment preservation are release gates; see RELEASE-0.6.5.md.

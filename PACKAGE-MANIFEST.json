@@ -1,42 +1,40 @@
 {
-  "version": "0.6.5-rc.2",
-  "archive": "siteengine-consent-0.6.5-rc.2.zip",
-  "bytes": 52036,
-  "sha256": "83d8e3d80db332ba5482605666be7a18cd1750c24991dd9bbb5d97d0dd0f856e",
-  "acceptance": "Acknowledgment namespace-collision hotfix candidate; local and native isolated reproduction passed; not deployed to production",
-  "baseline_commit": "1b2bfd3bae8e4565a0b7dda5ec0c727d211ca6cc",
-  "baseline_sha256": "0dd340d791cb8518b93523f4d56f793032ebfe4bd2a4cdc93a37ab77700fe365",
-  "migration": "Additive InnoDB se_consent_event_links; preserve/read legacy signed links, never modify legacy event log",
-  "files": [
-    {
-      "path": "siteengine-consent.php",
-      "bytes": 133132,
-      "sha256": "5f0c70e7c5fad3e41b07212418eb6ccbedc64bcc6a58d67177892a8f1959ad93"
-    },
-    {
-      "path": "readme.txt",
-      "bytes": 12058,
-      "sha256": "912df273229e772adbe032a52665407d22c69d8db192c8bfa928c1def883979e"
-    },
-    {
-      "path": "uninstall.php",
-      "bytes": 3016,
-      "sha256": "85c0ed8f13696d02b8511216eec8e6fbb3c8d50e3bd86fe2c2f462a2a5a28c40"
-    },
-    {
-      "path": "includes/class-siteengine-consent-authority.php",
-      "bytes": 12175,
-      "sha256": "6d49bfe9006fc108d198dea7309b6dae88e123466d2e0767a2aa74391e4488c9"
-    },
-    {
-      "path": "includes/class-siteengine-consent-continuity.php",
-      "bytes": 16107,
-      "sha256": "5ed45d3012899e5e2986391db28842665e5b61e4a5c7216a3b630f72ff51c80d"
-    },
-    {
-      "path": "includes/class-siteengine-consent-diagnostics.php",
-      "bytes": 18426,
-      "sha256": "cd8357da810bab0fe8ab5e44c5fa40ac91b3569e12ae6051da8632a5188ed4a0"
-    }
-  ]
+    "version":  "0.6.5",
+    "bytes":  51852,
+    "acceptance":  "Stable 0.6.5 installed on Alma and siteengine.io with six-file parity and preserved historical rows; production necessary-only Save acknowledged and persisted after reload",
+    "archive":  "siteengine-consent-0.6.5.zip",
+    "sha256":  "38f4b623a4d6a6d60b5eea2cb50f9f5080e9df663b611557db22c63c41e7a992",
+    "files":  [
+                  {
+                      "path":  "siteengine-consent.php",
+                      "sha256":  "dbc9be4288f800fab7ba59416724fa5097e949eeeba77394120712cc60c3c2ac",
+                      "bytes":  133122
+                  },
+                  {
+                      "path":  "readme.txt",
+                      "sha256":  "322f19b68e1f411b3344f971c75284e98c951717d62c09b42ff6def733bfd345",
+                      "bytes":  11817
+                  },
+                  {
+                      "path":  "uninstall.php",
+                      "sha256":  "85c0ed8f13696d02b8511216eec8e6fbb3c8d50e3bd86fe2c2f462a2a5a28c40",
+                      "bytes":  3016
+                  },
+                  {
+                      "path":  "includes/class-siteengine-consent-authority.php",
+                      "sha256":  "6d49bfe9006fc108d198dea7309b6dae88e123466d2e0767a2aa74391e4488c9",
+                      "bytes":  12175
+                  },
+                  {
+                      "path":  "includes/class-siteengine-consent-continuity.php",
+                      "sha256":  "5ed45d3012899e5e2986391db28842665e5b61e4a5c7216a3b630f72ff51c80d",
+                      "bytes":  16107
+                  },
+                  {
+                      "path":  "includes/class-siteengine-consent-diagnostics.php",
+                      "sha256":  "cd8357da810bab0fe8ab5e44c5fa40ac91b3569e12ae6051da8632a5188ed4a0",
+                      "bytes":  18426
+                  }
+              ],
+    "baseline_commit":  "0ff0d65b9d798f808b042115664d48d4d3c150a8"
 }

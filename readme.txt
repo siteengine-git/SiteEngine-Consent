@@ -3,7 +3,7 @@ Contributors: siteengine
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 0.6.5-rc.2
+Stable tag: 0.6.5
 License: Proprietary
 
 First-party consent management for WordPress. Google Consent Mode v2, Fluent Forms integration, local audit log, exports.
@@ -59,15 +59,17 @@ Consent suppresses its own floating control only after exact-registration confir
 
 Stable 0.6.4 finalizes the Helper-accepted Contract 2 runtime verified on Alma with Shield 2.0.0-rc.5. Completed functional evidence is retained; screen-reader speech and cache-HIT interoperability remain untested. No accessibility certification or client-site deployment is implied. Policy/banner identity, consent authority and historical evidence remain unchanged. See RELEASE-0.6.4.md in the source repository for exact release, compatibility and recovery notes.
 
-== Controls polish candidate ==
+== Stable 0.6.5 ==
 
-0.6.5-rc.1 refines Consent-owned category spacing, full-width descriptions, fixed switch tracks and recognizable action/feedback buttons. Scoped root selectors protect controls from theme/shared-host button cascades in both mounted and standalone views. Contract2 processing, category states, acknowledgment/retry, signed evidence and policy/banner identity are unchanged. This candidate is locally verified against the accepted Shield RC5 fixture; the corrected Shield container and one focused installed visual pass remain separately coordinated. Keep the accepted0.6.4 installation ZIP until Helper acceptance. No public Stable release, client deployment or Milestone4.
+Includes accepted category/switch/action styling and the database upgrade correction for legacy event-log installations. Immutable links now use se_consent_event_links; legacy history remains intact and genuine signed links retain their original verification. Existing receipts, chain heads, withdrawal barriers, policy/banner identity, frontend behavior and consumer API2 are preserved.
 
-== Acknowledgment hotfix candidate ==
-
-0.6.5-rc.2 fixes a continuity-link table-name collision on older installations. New links use the dedicated se_consent_event_links table. The old se_consent_events table is neither upgraded nor written or dropped; valid signed older links remain readable without copying or rewriting history. Updating adds one InnoDB table and retains current receipts, heads/barriers, policy/banner identity and consumer API2. Ambiguous/invalid history still fails closed. No automatic engine conversion or historical repair occurs. Back up and inspect storage before production rollout; see ACKNOWLEDGMENT-HOTFIX.md in the source repository. This candidate has isolated/native verification, not a production deployment claim.
+The correction was reproduced and verified in native MariaDB against the observed legacy/hybrid schema. On siteengine.io the identical correction acknowledged a necessary-only browser choice, survived reload, and added exactly one receipt, link and chain while preserving every preexisting row. Version 0.6.5 changes only release metadata from that verified runtime. Updating creates the additive InnoDB link table if absent. Database CREATE/index permissions are required; incompatible storage or invalid evidence fails closed. Previously failed choices require explicit retry or a fresh choice and are never retroactively granted.
 
 == Changelog ==
+
+= 0.6.5 =
+* Stable release of the verified database upgrade correction and accepted control styling.
+* Preserve legacy history, signed evidence and permanent withdrawal barriers.
 
 = 0.6.5-rc.2 =
 * Separate immutable continuity links from older event-log schemas.
