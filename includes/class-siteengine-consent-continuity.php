@@ -24,7 +24,7 @@ final class SiteEngine_Consent_Continuity {
             personalization_barrier bigint(20) unsigned NOT NULL,
             integrity char(64) NOT NULL,
             PRIMARY KEY  (chain_id)
-        ) ENGINE=InnoDB {$charset};", "CREATE TABLE {$prefix}se_consent_events (
+        ) ENGINE=InnoDB {$charset};", "CREATE TABLE {$prefix}se_consent_event_links (
             receipt_row_id bigint(20) unsigned NOT NULL,
             receipt_id varchar(64) NOT NULL,
             chain_id char(64) NOT NULL,
@@ -62,7 +62,7 @@ final class SiteEngine_Consent_Continuity {
             $base = (int) $parts[1];
         }
         $receipts = $wpdb->prefix . 'se_consent_receipts';
-        $chains = $wpdb->prefix . 'se_consent_chains'; $events = $wpdb->prefix . 'se_consent_events';
+        $chains = $wpdb->prefix . 'se_consent_chains'; $events = $wpdb->prefix . 'se_consent_event_links';
         // Never rely on rollback across a nontransactional legacy receipts table. No engine conversion here.
         foreach ([$receipts, $chains, $events] as $table) {
             $engine = $wpdb->get_var($wpdb->prepare('SELECT ENGINE FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s', $table));
@@ -76,9 +76,9 @@ final class SiteEngine_Consent_Continuity {
             $head = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$chains} WHERE chain_id = %s FOR UPDATE", $chain), ARRAY_A);
             if ($wpdb->last_error || ($head && !self::valid($head))) return self::error('continuity_unavailable');
             if (!$head) {
-                $prior = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$events} WHERE chain_id = %s LIMIT 1", $chain), ARRAY_A);
+                $prior = self::prior_event($chain);
                 // Missing head is corruption, not permission to reset a retained chain's barriers.
-                if ($wpdb->last_error || $prior) return self::error('continuity_unavailable');
+                if ($prior !== false) return self::error('continuity_unavailable');
             }
             // Bind identity to this browser/site, not a visitor-supplied receipt ID.
             $data['receipt_id'] = 'sc1_' . substr(hash_hmac('sha256', $chain . ':' . $payload['event_id'], wp_salt('auth')), 0, 60);
@@ -127,11 +127,43 @@ final class SiteEngine_Consent_Continuity {
             $wpdb->get_var($wpdb->prepare('SELECT RELEASE_LOCK(%s)', $lock));
         }
     }
-    public static function link(int $row_id) {
+    /** Old event logs may occupy se_consent_events. Never alter or write that table. */
+    private static function legacy_link_table() {
         global $wpdb;
         $table = $wpdb->prefix . 'se_consent_events';
-        $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table} WHERE receipt_row_id = %d", $row_id), ARRAY_A);
-        return !$wpdb->last_error && self::valid($row) ? $row : null;
+        $columns = $wpdb->get_col($wpdb->prepare('SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s', $table));
+        if (!is_array($columns) || $wpdb->last_error) return false;
+        return array_diff(['receipt_row_id','receipt_id','chain_id','revision','intent_hash','receipt_digest','integrity'], $columns) ? null : $table;
+    }
+    /** A retained link in either namespace forbids recreating a missing chain head. */
+    private static function prior_event(string $chain): ?bool {
+        global $wpdb;
+        $legacy = self::legacy_link_table();
+        if ($legacy === false) return null;
+        $tables = [$wpdb->prefix . 'se_consent_event_links'];
+        if ($legacy) $tables[] = $legacy;
+        foreach ($tables as $table) {
+            $prior = $wpdb->get_var($wpdb->prepare("SELECT chain_id FROM {$table} WHERE chain_id = %s LIMIT 1", $chain));
+            if ($wpdb->last_error) return null;
+            if ($prior !== null) return true;
+        }
+        return false;
+    }
+    public static function link(int $row_id) {
+        global $wpdb;
+        $legacy = self::legacy_link_table();
+        if ($legacy === false) return null;
+        $tables = [$wpdb->prefix . 'se_consent_event_links'];
+        if ($legacy) $tables[] = $legacy;
+        $found = [];
+        foreach ($tables as $table) {
+            // Authenticate only the exact immutable link contract, never unrelated legacy columns.
+            $rows = $wpdb->get_results($wpdb->prepare("SELECT receipt_row_id,receipt_id,chain_id,revision,intent_hash,receipt_digest,integrity FROM {$table} WHERE receipt_row_id = %d LIMIT 2", $row_id), ARRAY_A);
+            if (!is_array($rows) || $wpdb->last_error) return null;
+            foreach ($rows as $row) $found[] = $row;
+            if (count($found) > 1) return null; // Cross-table or within-table ambiguity never selects a newest row.
+        }
+        return count($found) === 1 && self::valid($found[0]) ? $found[0] : null;
     }
     public static function extension(array $link): array {
         return ['continuity_version' => 1, 'chain_id' => $link['chain_id'], 'event_revision' => (int) $link['revision'], 'continuity_digest' => $link['integrity']];

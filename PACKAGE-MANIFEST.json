@@ -1,28 +1,27 @@
 {
-  "version": "0.6.5-rc.1",
-  "archive": "siteengine-consent-0.6.5-rc.1.zip",
-  "bytes": 51136,
-  "sha256": "0dd340d791cb8518b93523f4d56f793032ebfe4bd2a4cdc93a37ab77700fe365",
-  "acceptance": "Consent Helper accepted exact rc.1 after completed Shield RC6 paired Alma evidence; original ZIP promoted unchanged for installation; no public Stable0.6.5 release",
-  "accepted_source_commit": "1b2bfd3bae8e4565a0b7dda5ec0c727d211ca6cc",
-  "paired_installed_evidence_commit": "6512b4fd4092e0723fd0a4a786db6e699ac0c44e",
-  "baseline_commit": "14e0b1a8cff81acf1611edf2d0202de313f22250",
-  "baseline_sha256": "e09709997aa6f612f01148e083b0d523d63180aa4f48a975e91d6374e141c02a",
+  "version": "0.6.5-rc.2",
+  "archive": "siteengine-consent-0.6.5-rc.2.zip",
+  "bytes": 52036,
+  "sha256": "83d8e3d80db332ba5482605666be7a18cd1750c24991dd9bbb5d97d0dd0f856e",
+  "acceptance": "Acknowledgment namespace-collision hotfix candidate; local and native isolated reproduction passed; not deployed to production",
+  "baseline_commit": "1b2bfd3bae8e4565a0b7dda5ec0c727d211ca6cc",
+  "baseline_sha256": "0dd340d791cb8518b93523f4d56f793032ebfe4bd2a4cdc93a37ab77700fe365",
+  "migration": "Additive InnoDB se_consent_event_links; preserve/read legacy signed links, never modify legacy event log",
   "files": [
     {
       "path": "siteengine-consent.php",
       "bytes": 133132,
-      "sha256": "d2fa624a7afd42e7b8b1106461871f29b9c46803902e3dddd84711e9ad9d4cfb"
+      "sha256": "5f0c70e7c5fad3e41b07212418eb6ccbedc64bcc6a58d67177892a8f1959ad93"
     },
     {
       "path": "readme.txt",
-      "bytes": 11021,
-      "sha256": "c22e2676f7b42b3f467e5e5fdd49cba700b1f6d319dc194118e6062a39a9fa8d"
+      "bytes": 12058,
+      "sha256": "912df273229e772adbe032a52665407d22c69d8db192c8bfa928c1def883979e"
     },
     {
       "path": "uninstall.php",
-      "bytes": 2904,
-      "sha256": "65e849d8f22f98a00c50163bb4e2a645065b47371b0c40bed47ae0296648150b"
+      "bytes": 3016,
+      "sha256": "85c0ed8f13696d02b8511216eec8e6fbb3c8d50e3bd86fe2c2f462a2a5a28c40"
     },
     {
       "path": "includes/class-siteengine-consent-authority.php",
@@ -31,13 +30,13 @@
     },
     {
       "path": "includes/class-siteengine-consent-continuity.php",
-      "bytes": 14268,
-      "sha256": "660c83315e50ae6f159ddcb3f97f28b1f960c726bb5c9be62a0cdccd2507fe3d"
+      "bytes": 16107,
+      "sha256": "5ed45d3012899e5e2986391db28842665e5b61e4a5c7216a3b630f72ff51c80d"
     },
     {
       "path": "includes/class-siteengine-consent-diagnostics.php",
-      "bytes": 18387,
-      "sha256": "78f34728082f58ef7c57c8e398fa48d0d0ff2264129a3961f6309def5ced4cf4"
+      "bytes": 18426,
+      "sha256": "cd8357da810bab0fe8ab5e44c5fa40ac91b3569e12ae6051da8632a5188ed4a0"
     }
   ]
 }

@@ -28,7 +28,8 @@ global $wpdb;
 // 1. Drop audit table.
 $table = $wpdb->prefix . 'se_consent_receipts';
 $wpdb->query("DROP TABLE IF EXISTS {$table}");
-foreach (['se_consent_events', 'se_consent_chains'] as $suffix) {
+// se_consent_events may be a preexisting event log or retained historical links. Never drop it here.
+foreach (['se_consent_event_links', 'se_consent_chains'] as $suffix) {
     $continuity_table = $wpdb->prefix . $suffix;
     $wpdb->query("DROP TABLE IF EXISTS {$continuity_table}");
 }
@@ -71,7 +72,7 @@ if (is_multisite()) {
         switch_to_blog($site_id);
         $per_site_table = $wpdb->prefix . 'se_consent_receipts';
         $wpdb->query("DROP TABLE IF EXISTS {$per_site_table}");
-        foreach (['se_consent_events', 'se_consent_chains'] as $suffix) {
+        foreach (['se_consent_event_links', 'se_consent_chains'] as $suffix) {
             $continuity_table = $wpdb->prefix . $suffix;
             $wpdb->query("DROP TABLE IF EXISTS {$continuity_table}");
         }

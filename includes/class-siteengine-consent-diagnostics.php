@@ -34,7 +34,7 @@ final class SiteEngine_Consent_Diagnostics {
         global $wpdb;
         // WP prefixes are trusted configuration, but never interpolate arbitrary identifiers.
         if (!preg_match('/^[A-Za-z0-9_]+$/D', $wpdb->prefix)) return ['status'=>'failed','detail'=>'Unsupported table prefix.'];
-        $table = $wpdb->prefix . 'se_consent_' . $kind;
+        $table = $wpdb->prefix . 'se_consent_' . ($kind === 'events' ? 'event_links' : $kind);
         $engine = $wpdb->get_var($wpdb->prepare('SELECT ENGINE FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s', $table));
         if ($wpdb->last_error) return ['status'=>'untested','detail'=>'Table metadata unavailable. Check database metadata-read permissions.'];
         if ($engine === null) return ['status'=>'failed','detail'=>'Required table not visible (missing or inaccessible). Check permissions and the supported upgrade procedure; diagnostics do not repair storage.'];

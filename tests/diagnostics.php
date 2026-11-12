@@ -68,17 +68,17 @@ ok($r['checks']['end_to_end']['status']==='untested' && strpos($r['summary'],'un
 $encoded=json_encode($r); ok(strpos($encoded,'SENTINEL')===false && strpos($encoded,'user:')===false && strpos($encoded,'SECRET')===false,'fixed allowlist excludes secret config, records, cookies and request data');
 ok(!isset($r['configuration']['policy_version']) && $r['configuration']['policy_version_sha256']===hash('sha256',$facts['policy_version']),'only nonsecret identity fingerprint emitted');
 foreach (['receipts','events','chains'] as $kind) {
-    $table='synthetic_se_consent_'.$kind;
+    $table='synthetic_se_consent_'.($kind==='events'?'event_links':$kind);
     unset($wpdb->tables[$table]); ok(diagnostic_report()['checks']['storage_'.$kind]['status']==='failed','missing '.$kind.' table fails'); $wpdb->tables=$original_tables;
     $wpdb->tables[$table]['engine']='MyISAM'; ok(diagnostic_report()['checks']['storage_'.$kind]['status']==='failed','incompatible '.$kind.' engine fails'); $wpdb->tables=$original_tables;
     array_pop($wpdb->tables[$table]['columns']); ok(diagnostic_report()['checks']['storage_'.$kind]['status']==='failed','missing '.$kind.' column fails'); $wpdb->tables=$original_tables;
     array_pop($wpdb->tables[$table]['indexes']); ok(diagnostic_report()['checks']['storage_'.$kind]['status']==='failed','missing '.$kind.' index fails'); $wpdb->tables=$original_tables;
 }
 $wpdb->tables['synthetic_se_consent_receipts']['columns'][0]['Extra']=''; ok(diagnostic_report()['checks']['storage_receipts']['status']==='failed','receipt auto-increment required'); $wpdb->tables=$original_tables;
-$wpdb->tables['synthetic_se_consent_events']['columns'][0]['Null']='YES'; ok(diagnostic_report()['checks']['storage_events']['status']==='failed','nullable identity fails'); $wpdb->tables=$original_tables;
+$wpdb->tables['synthetic_se_consent_event_links']['columns'][0]['Null']='YES'; ok(diagnostic_report()['checks']['storage_events']['status']==='failed','nullable identity fails'); $wpdb->tables=$original_tables;
 $wpdb->tables['synthetic_se_consent_chains']['columns'][1]['Type']='varchar(64)'; ok(diagnostic_report()['checks']['storage_chains']['status']==='failed','wrong revision type fails'); $wpdb->tables=$original_tables;
 $wpdb->tables['synthetic_se_consent_receipts']['indexes'][1]['Non_unique']=0; ok(diagnostic_report()['checks']['storage_receipts']['status']==='failed','unique legacy receipt_id fails'); $wpdb->tables=$original_tables;
-$wpdb->tables['synthetic_se_consent_events']['indexes'][2]['Column_name']='revision'; ok(diagnostic_report()['checks']['storage_events']['status']==='failed','incorrect immutable compound index order fails'); $wpdb->tables=$original_tables;
+$wpdb->tables['synthetic_se_consent_event_links']['indexes'][2]['Column_name']='revision'; ok(diagnostic_report()['checks']['storage_events']['status']==='failed','incorrect immutable compound index order fails'); $wpdb->tables=$original_tables;
 $wpdb->unavailable='information_schema'; $r=diagnostic_report(); ok($r['checks']['storage_receipts']['status']==='untested' && strpos($r['summary'],'incomplete')!==false,'metadata permission failure is incomplete, not pass/missing');
 ok(strpos(json_encode($r),'SENTINEL')===false,'database error redacted'); $wpdb->unavailable='';
 $wpdb->throw=true; $r=diagnostic_report(); ok($r['checks']['metadata_read']['status']==='untested' && !$wpdb->suppressed,'exception restores database error mode and is untested'); $wpdb->throw=false;

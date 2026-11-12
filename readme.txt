@@ -3,7 +3,7 @@ Contributors: siteengine
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 0.6.5-rc.1
+Stable tag: 0.6.5-rc.2
 License: Proprietary
 
 First-party consent management for WordPress. Google Consent Mode v2, Fluent Forms integration, local audit log, exports.
@@ -63,7 +63,16 @@ Stable 0.6.4 finalizes the Helper-accepted Contract 2 runtime verified on Alma w
 
 0.6.5-rc.1 refines Consent-owned category spacing, full-width descriptions, fixed switch tracks and recognizable action/feedback buttons. Scoped root selectors protect controls from theme/shared-host button cascades in both mounted and standalone views. Contract2 processing, category states, acknowledgment/retry, signed evidence and policy/banner identity are unchanged. This candidate is locally verified against the accepted Shield RC5 fixture; the corrected Shield container and one focused installed visual pass remain separately coordinated. Keep the accepted0.6.4 installation ZIP until Helper acceptance. No public Stable release, client deployment or Milestone4.
 
+== Acknowledgment hotfix candidate ==
+
+0.6.5-rc.2 fixes a continuity-link table-name collision on older installations. New links use the dedicated se_consent_event_links table. The old se_consent_events table is neither upgraded nor written or dropped; valid signed older links remain readable without copying or rewriting history. Updating adds one InnoDB table and retains current receipts, heads/barriers, policy/banner identity and consumer API2. Ambiguous/invalid history still fails closed. No automatic engine conversion or historical repair occurs. Back up and inspect storage before production rollout; see ACKNOWLEDGMENT-HOTFIX.md in the source repository. This candidate has isolated/native verification, not a production deployment claim.
+
 == Changelog ==
+
+= 0.6.5-rc.2 =
+* Separate immutable continuity links from older event-log schemas.
+* Authenticate exact signed link fields; preserve valid legacy evidence and permanent withdrawal protection.
+* Diagnose the new capture table; uninstall no longer drops the legacy event-log namespace.
 
 = 0.6.5-rc.1 =
 * Scoped switch dimensions/padding and action hover/focus/disabled styles.
