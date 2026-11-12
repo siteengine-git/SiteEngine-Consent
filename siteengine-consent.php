@@ -3,7 +3,7 @@
  * Plugin Name: SiteEngine Consent
  * Plugin URI:  https://siteengine.io/
  * Description: First-party consent management for WordPress. GTM Consent Mode v2, Fluent Forms server-side consent stamping, local audit log with retention, admin viewer, exports, rate limiting, privacy-policy fallback, public health endpoint. Integrates with SiteEngine Base when available and remains standalone-safe.
- * Version:     0.6.5
+ * Version:     0.6.6
  * Author:      SiteEngine
  * Author URI:  https://siteengine.io/
  * License:     Proprietary
@@ -192,7 +192,7 @@ define('SE_CONSENT_BOOTSTRAPPED', __FILE__);
 
 if (!defined('SE_CONSENT_COMPANY_NAME_EXPLICIT')) { define('SE_CONSENT_COMPANY_NAME_EXPLICIT', defined('SE_CONSENT_COMPANY_NAME')); }
 if (!defined('SE_CONSENT_PRIVACY_URL_EXPLICIT'))  { define('SE_CONSENT_PRIVACY_URL_EXPLICIT', defined('SE_CONSENT_PRIVACY_URL')); }
-if (!defined('SE_CONSENT_VERSION'))               { define('SE_CONSENT_VERSION', '0.6.5'); }
+if (!defined('SE_CONSENT_VERSION'))               { define('SE_CONSENT_VERSION', '0.6.6'); }
 if (!defined('SE_CONSENT_COOKIE_NAME'))           { define('SE_CONSENT_COOKIE_NAME', 'se_consent'); }
 if (!defined('SE_CONSENT_COOKIE_DAYS'))           { define('SE_CONSENT_COOKIE_DAYS', 390); }
 if (!defined('SE_CONSENT_POLICY_VERSION'))        { define('SE_CONSENT_POLICY_VERSION', '2026-05-08-v1'); }
@@ -720,11 +720,9 @@ final class SiteEngine_Consent {
             #se-consent-launcher{position:fixed;z-index:999998;right:max(16px,env(safe-area-inset-right));bottom:calc(var(--se-consent-control-bottom,88px) + env(safe-area-inset-bottom,0px));max-width:calc(100vw - 32px);width:auto;background:#1f2937;color:#fff;border:1px solid #fff;box-shadow:0 2px 8px #0005;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
             #se-consent-launcher.se-consent-left{right:auto;left:max(16px,env(safe-area-inset-left))}
             #se-consent-launcher[hidden]{display:none}
-            #se-consent-confirmation{position:fixed;z-index:1000002;left:max(16px,env(safe-area-inset-left));bottom:calc(var(--se-consent-control-bottom,88px) + 64px + env(safe-area-inset-bottom,0px));max-width:min(480px,calc(100vw - 32px));max-height:30vh;overflow:auto;background:#fff;color:#111827;border:2px solid #235DAA;border-radius:8px;padding:12px;font:14px/1.5 system-ui,sans-serif;box-shadow:0 2px 12px #0004}
-            #se-consent-confirmation:empty,#se-consent-modal-status:empty{display:none}
-            #se-consent-confirmation[inert]{visibility:hidden}
+            #se-consent-modal-status:empty{display:none}
+            #se-consent-preferences-content #se-consent-modal-status[data-confirmation-state="pending"]{border-color:#cbd5e1;background:#f8fafc;color:#334155}
             #se-consent-modal-status{padding:12px;border:1px solid #9a3412;background:#fff7ed;color:#7c2d12;font:14px/1.5 system-ui,sans-serif;margin-bottom:16px}
-            #se-consent-confirmation button{display:block;margin-top:8px}
             #se-consent-modal{max-height:calc(100dvh - max(32px,env(safe-area-inset-top)) - env(safe-area-inset-bottom,0px));overscroll-behavior:contain}
             .se-consent-category-state{display:block;font-size:12px;font-weight:600;margin-top:4px}
             @media(max-width:360px){.se-consent-modal-inner{padding:16px}.se-consent-category{padding:10px}.se-consent-category-row{gap:8px}}
@@ -852,6 +850,7 @@ final class SiteEngine_Consent {
                 var memoryState = null;
                 var memoryOnly = false;
                 var activeEventId = null;
+                var closeAfterAudit = null;
                 function readStoredConsent() {
                     if (memoryOnly && memoryState) return memoryState;
                     var v = null; try { v = window.localStorage.getItem(storageKey); } catch (e) {}
@@ -960,27 +959,20 @@ final class SiteEngine_Consent {
                 function cssEscape(value) { if (window.CSS && typeof window.CSS.escape === 'function') return window.CSS.escape(value); return String(value).replace(/[^a-zA-Z0-9_-]/g, '\\$&'); }
                 function auditStatus(status) {
                     modalConfirmation(status);
-                    var element = document.getElementById('se-consent-confirmation');
-                    if (!element && document.body) {
-                        element = document.createElement('div'); element.id = 'se-consent-confirmation';
-                        element.setAttribute('role', 'status'); element.setAttribute('aria-live', 'polite');
-                        document.body.appendChild(element);
-                    }
-                    if (element) {
-                        element.setAttribute('aria-atomic', 'true');
-                        element.setAttribute('aria-busy', 'false');
-                        element.setAttribute('data-confirmation-state', status);
-                        element.textContent = status === 'saved' ? '' : (status === 'pending' ? 'Preferences applied on this page. Waiting for server confirmation…' : 'Your preferences apply on this page, but server confirmation failed. Retry, or reopen preferences and choose again.');
-                    }
-                    if (element && status === 'failed') {
-                        var retry = document.createElement('button'); retry.type = 'button'; retry.className = 'se-consent-button se-consent-button-primary'; retry.textContent = 'Retry confirmation';
-                        retry.onclick = function () { window.SiteEngineConsent.retryAudit(); }; element.appendChild(retry);
+                    if (status === 'saved') {
+                        if (consentUiRendered) hideBanner();
+                        if (closeAfterAudit === activeEventId && !preferenceDraftDirty && (!sharedMount || sharedMount.view === 'active')) closeModal('saved');
+                        closeAfterAudit = null;
+                    } else if (status === 'failed' && consentUiRendered && getStoredConsent() && getStoredConsent().audit_status === 'failed') {
+                        if (!modalIsOpen() && !(sharedMount && sharedMount.view === 'active')) openModal();
                     }
                 }
                 function modalConfirmation(status) {
                     var inline = document.getElementById('se-consent-modal-status');
                     if (!inline) return;
-                    inline.textContent = status === 'failed' ? 'Your choices apply on this page, but server confirmation failed. Retry confirmation or save a new choice.' : (status === 'pending' ? 'Your choices apply on this page. Waiting for server confirmation.' : '');
+                    inline.setAttribute('data-confirmation-state', status);
+                    inline.setAttribute('aria-busy', status === 'pending' ? 'true' : 'false');
+                    inline.textContent = status === 'failed' ? 'Your choices apply on this page, but saving failed. Retry or choose again.' : (status === 'pending' ? 'Saving…' : '');
                     if (status === 'failed') {
                         var retry = document.createElement('button'); retry.type = 'button'; retry.className = 'se-consent-button se-consent-button-primary'; retry.textContent = 'Retry confirmation';
                         retry.onclick = function () { window.SiteEngineConsent.retryAudit(); }; inline.appendChild(retry);
@@ -1049,7 +1041,7 @@ final class SiteEngine_Consent {
                     saveAuditReceipt(payload);
                     log('saved', payload);
                 }
-                function saveConsent(input, method) { var payload = buildPayload(input, method); activeEventId = payload.event_id; storeConsent(payload); dispatchConsent(payload); hideBanner(); closeModal('saved'); return payload; }
+                function saveConsent(input, method) { var payload = buildPayload(input, method); activeEventId = payload.event_id; closeAfterAudit = payload.event_id; preferenceDraftDirty = false; storeConsent(payload); dispatchConsent(payload); hideBanner(); return payload; }
                 function acceptAll() { return saveConsent({ analytics: true, advertising: true, personalization: true }, 'accept_all'); }
                 function rejectNonEssential() { return saveConsent({ analytics: false, advertising: false, personalization: false }, 'reject_non_essential'); }
                 function savePreferences() { return saveConsent({ analytics: getToggleValue('analytics'), advertising: getToggleValue('advertising'), personalization: getToggleValue('personalization') }, 'save_preferences'); }
@@ -1206,6 +1198,7 @@ final class SiteEngine_Consent {
                         ['closed', 'inactive', 'active'].indexOf(view) === -1) return false;
                     // Closed must remain callable during removal so teardown can finish.
                     if (view !== 'closed' && (!sharedUiReady() || ownContentNode.parentNode !== mounted.slot)) return false;
+                    if (view === 'closed') closeAfterAudit = null;
                     if (view === 'closed') mounted.closedDirty = preferenceDraftDirty || mounted.closedDirty;
                     else if (mounted.view === 'closed') mounted.closedDirty = false;
                     if (view === 'closed' || mounted.view === 'closed') resetPreferenceDraft();
@@ -1374,6 +1367,7 @@ final class SiteEngine_Consent {
                     ['analytics', 'advertising', 'personalization'].forEach(function (category) { setToggleValue(category, !!(s && s.consent && s.consent[category])); });
                 }
                 function closeModal(reason) {
+                    if (reason !== 'saved') closeAfterAudit = null;
                     if (sharedMount && closeSharedPreferences(reason)) return;
                     var m = document.getElementById('se-consent-modal'), bd = document.getElementById('se-consent-backdrop');
                     var wasOpen = modalIsolationActive || !!(m && m.classList.contains('se-consent-visible'));
@@ -1424,7 +1418,7 @@ final class SiteEngine_Consent {
                     ownModalNode = modal; ownBackdropNode = backdrop; ownContentNode = document.getElementById('se-consent-preferences-content'); consentUiRendered = true;
                     watchConsentUi();
                     var stored = getStoredConsent();
-                    if (!stored) { showBanner(); } else { activeEventId = stored.event_id; stored.google_consent = googleConsentFromCategories(stored.consent); window.SiteEngineConsent.state = stored; applyGoogleConsent(stored, 'update'); if (stored.audit_status !== 'saved') { showBanner(); auditStatus(stored.audit_status); } else syncLauncher(); }
+                    if (!stored) { showBanner(); } else { activeEventId = stored.event_id; stored.google_consent = googleConsentFromCategories(stored.consent); window.SiteEngineConsent.state = stored; applyGoogleConsent(stored, 'update'); modalConfirmation(stored.audit_status); syncLauncher(); }
                     sharedAttach(true); announceSharedProvider();
                 }
                 function categoryHtml(title, description, key, checked, locked) {

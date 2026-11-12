@@ -1,19 +1,19 @@
 {
-    "version":  "0.6.5",
-    "bytes":  51852,
-    "acceptance":  "Stable 0.6.5 installed on Alma and siteengine.io with six-file parity and preserved historical rows; production necessary-only Save acknowledged and persisted after reload",
-    "archive":  "siteengine-consent-0.6.5.zip",
-    "sha256":  "38f4b623a4d6a6d60b5eea2cb50f9f5080e9df663b611557db22c63c41e7a992",
+    "version":  "0.6.6",
+    "bytes":  51850,
+    "acceptance":  "33 transport, 40 preference, 74 shared-panel checks; installed 6/6 on Alma/SiteEngine/Climatrol with preserved data; Climatrol inline Saving, saved close and remembered return verified in browser",
+    "archive":  "siteengine-consent-0.6.6.zip",
+    "sha256":  "b145df72ccfd7ec17dee8d4533cc8c2fb4a6decf4ae8f05a127be3ea3ed69189",
     "files":  [
                   {
                       "path":  "siteengine-consent.php",
-                      "sha256":  "dbc9be4288f800fab7ba59416724fa5097e949eeeba77394120712cc60c3c2ac",
-                      "bytes":  133122
+                      "sha256":  "35709e1226f890f8da2f95a70783a7fe00d37ff3978d023d8195a1000a9913da",
+                      "bytes":  132133
                   },
                   {
                       "path":  "readme.txt",
-                      "sha256":  "322f19b68e1f411b3344f971c75284e98c951717d62c09b42ff6def733bfd345",
-                      "bytes":  11817
+                      "sha256":  "cf2401a816c35ea6d4c49e2507f31e3c7eec7c3e689e185596b98e16a03d0a4f",
+                      "bytes":  12202
                   },
                   {
                       "path":  "uninstall.php",
@@ -36,5 +36,5 @@
                       "bytes":  18426
                   }
               ],
-    "baseline_commit":  "0ff0d65b9d798f808b042115664d48d4d3c150a8"
+    "baseline_commit":  "e347ad0d0c08596eab436dcd469282addae588e5"
 }

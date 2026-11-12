@@ -86,7 +86,16 @@ for(const invalid of [{registrationId:'foreign'},{generation:0},{expiresAt:Infin
 }
 {
  const h=fixture();h.view('active');h.click(h.toggle('analytics'));h.click(h.root().querySelector('[data-se-consent-action="save"]'));
- const state=JSON.parse(h.shared.get('se_consent_state'));check(state.consent.analytics===true&&state.consent.advertising===false&&state.audit_status==='pending','existing explicit Save preserves independent categories and pending authority');check(h.hostView()==='closed'&&h.closeCalls()===1,'explicit save closes through host once');
- h.view('active');check(h.toggle('analytics').getAttribute('aria-checked')==='true','saved pending choice survives next session');h.window.__fixture.status('failed');const inline=h.document.getElementById('se-consent-modal-status');let calls=0;h.api.retryAudit=()=>{calls++};inline.children[0].onclick();check(calls===1&&inline.textContent.includes('failed'),'mounted failed feedback invokes existing retry API');h.window.__fixture.status('pending');check(inline.children.length===0&&inline.textContent.includes('Waiting'),'pending update removes stale retry control');
+ const state=JSON.parse(h.shared.get('se_consent_state'));check(state.consent.analytics===true&&state.consent.advertising===false&&state.audit_status==='pending','existing explicit Save preserves independent categories and pending authority');check(h.hostView()==='active'&&h.closeCalls()===0,'explicit save keeps host open until acknowledgment');h.window.__fixture.status('saved');check(h.hostView()==='closed'&&h.closeCalls()===1,'acknowledgment closes host once');
+ h.view('active');check(h.toggle('analytics').getAttribute('aria-checked')==='true','saved pending choice survives next session');h.window.__fixture.status('failed');const inline=h.document.getElementById('se-consent-modal-status');let calls=0;h.api.retryAudit=()=>{calls++};inline.children[0].onclick();check(calls===1&&inline.textContent.includes('failed'),'mounted failed feedback invokes existing retry API');h.window.__fixture.status('pending');check(inline.children.length===0&&inline.textContent.includes('Saving'),'pending update removes stale retry control');
+}
+{
+ const h=fixture();h.view('active');h.click(h.root().querySelector('[data-se-consent-action="save"]'));h.click(h.toggle('analytics'));h.window.__fixture.status('saved');
+ check(h.hostView()==='active'&&h.toggle('analytics').getAttribute('aria-checked')==='true','late acknowledgment never discards newer unsaved edits');
+}
+{
+ const h=fixture();h.view('active');h.click(h.root().querySelector('[data-se-consent-action="reject"]'));h.view('closed');const stored=JSON.parse(h.shared.get('se_consent_state'));stored.audit_status='failed';h.shared.set('se_consent_state',JSON.stringify(stored));h.window.__fixture.status('failed');
+ check(h.hostView()==='active'&&h.document.getElementById('se-consent-modal-status').textContent.includes('saving failed'),'actual failed choice reveals inline error in existing preferences');
+ check(h.document.getElementById('se-consent-modal-status').children.some(n=>n.tagName==='BUTTON'&&typeof n.onclick==='function'),'actual failure retains reachable Retry');
 }
 console.log(`${count} focused v2 checks passed; synthetic host/DOM/storage, no installed layout, screen-reader or real capture acceptance.`);

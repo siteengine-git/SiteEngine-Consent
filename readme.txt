@@ -3,7 +3,7 @@ Contributors: siteengine
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 0.6.5
+Stable tag: 0.6.6
 License: Proprietary
 
 First-party consent management for WordPress. Google Consent Mode v2, Fluent Forms integration, local audit log, exports.
@@ -66,6 +66,12 @@ Includes accepted category/switch/action styling and the database upgrade correc
 The correction was reproduced and verified in native MariaDB against the observed legacy/hybrid schema. On siteengine.io the identical correction acknowledged a necessary-only browser choice, survived reload, and added exactly one receipt, link and chain while preserving every preexisting row. Version 0.6.5 changes only release metadata from that verified runtime. Updating creates the additive InnoDB link table if absent. Database CREATE/index permissions are required; incompatible storage or invalid evidence fails closed. Previously failed choices require explicit retry or a fresh choice and are never retroactively granted.
 
 == Changelog ==
+
+= 0.6.6 =
+* Remove floating confirmation notifications. Show neutral Saving feedback inside preferences and close after acknowledgment.
+* Remember valid local choices across visits, including pending or failed acknowledgment, without repeated banners.
+* Keep genuine saving failures and same-event Retry inside preferences. Unverified choices remain unavailable as server authority.
+
 
 = 0.6.5 =
 * Stable release of the verified database upgrade correction and accepted control styling.

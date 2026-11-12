@@ -20,6 +20,7 @@ function harness(shared = new Map(), storageThrows = false, cookieThrows = false
     get() { if (cookieThrows) throw Error('denied'); return [...cookies].map(([k, v]) => `${k}=${v}`).join('; '); },
     set(value) { if (cookieThrows) throw Error('denied'); const [key, ...v] = value.split(';')[0].split('='); cookies.set(key, v.join('=')); }
   });
+  nodes.set('se-consent-modal-status', document.createElement());
   const config = { cookieName: 'se_consent', cookieDays: 390, version: '0.6.1-rc.1', policyVersion: 'fixture-policy', bannerVersion: 'fixture-banner', ajaxUrl: '/synthetic-ajax', nonce: 'synthetic-nonce', formFields: {} };
   const window = {
     SEShieldSharedLauncher: options.broker, performance: options.performance, MutationObserver: options.MutationObserver,
@@ -42,6 +43,11 @@ function ack(payload) {
 async function tick() { for (let i = 0; i < 12; i++) await Promise.resolve(); }
 async function settle(request, value) { request.resolve({ json: async () => value }); for (let i = 0; i < 8; i++) await Promise.resolve(); }
 (async () => {
+  const quiet = harness(); const delayed = quiet.api.rejectNonEssential(); await tick();
+  check(!quiet.document.getElementById('se-consent-confirmation') && quiet.document.getElementById('se-consent-modal-status').textContent === 'Saving…', 'delayed acknowledgment has only quiet inline Saving feedback, no floating notification');
+  check(quiet.api.state.audit_status === 'pending' && !quiet.api.state.audit_token, 'quiet presentation does not fabricate acknowledgment');
+  await settle(quiet.requests[0], ack(delayed)); await tick();
+  check(quiet.api.state.audit_status === 'saved' && quiet.document.getElementById('se-consent-modal-status').textContent === '', 'successful acknowledgment clears inline Saving feedback');
   const h = harness();
   const accept = h.api.acceptAll(), reject = h.api.rejectNonEssential(); reject.fixture_revision = 2;
   check(accept.event_id !== reject.event_id && reject.receipt_id === '' && reject.audit_token === '', 'each choice gets a new event; pending rejection carries no old authority');
@@ -52,7 +58,7 @@ async function settle(request, value) { request.resolve({ json: async () => valu
   check(h.api.state.event_id === accept2.event_id && h.api.state.audit_status === 'saved', 'later explicit accept can be acknowledged independently');
   const failure = h.api.rejectNonEssential(); failure.fixture_revision = 4; await tick(); h.requests[3].reject(Error('network down')); for (let i = 0; i < 8; i++) await Promise.resolve();
   check(h.api.state.audit_status === 'failed' && h.api.state.receipt_id === '' && h.api.state.audit_token === '', 'network failure preserves rejection and no authoritative identity');
-  const retryButton = h.document.getElementById('se-consent-confirmation').children.at(-1);
+  const retryButton = h.document.getElementById('se-consent-modal-status').children.at(-1);
   check(retryButton.textContent === 'Retry confirmation' && typeof retryButton.onclick === 'function', 'failed confirmation exposes a usable retry control');
   const retryPromise = h.api.retryAudit();
   await tick(); check(JSON.parse(new URLSearchParams(h.requests[4].options.body).get('payload')).event_id === failure.event_id, 'retry retains the exact interaction identity');
